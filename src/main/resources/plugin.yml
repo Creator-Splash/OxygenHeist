@@ -1,0 +1,65 @@
+name: Oxygenheist
+main: attila.OxygenMain
+version: 0.1
+api-version: 1.21
+author: Arthur, Desau
+description: oxygenheist minigame
+softdepend:
+  - PlaceholderAPI
+
+commands:
+  border:
+    description: Commands
+    usage: /<command> [args]
+    permission: oxygenheist.border.use
+  team:
+    description: Team management commands
+    usage: /<command> [args]
+    permission: oxygenheist.team.use
+  game:
+    description: Game management commands
+    usage: /<command> [args]
+    permission: oxygenheist.game.use
+  oxygenheist:
+    description: Plugin management commands
+    usage: /<command> reload
+    permission: oxygenheist.reload
+
+permissions:
+  oxygenheist.border.*:
+    description: All of the border permissions
+    children:
+      oxygenheist.border.wand: true
+      oxygenheist.border.set: true
+      oxygenheist.border.setup: true
+      oxygenheist.border.start: true
+      oxygenheist.border.stop: true
+      oxygenheist.border.pause: true
+      oxygenheist.border.resume: true
+      oxygenheist.border.reset: true
+      oxygenheist.border.info: true
+      oxygenheist.border.clear: true
+      oxygenheist.block.toggle: true
+  oxygenheist.team.*:
+    description: All team permissions
+    children:
+      oxygenheist.team.create: true
+      oxygenheist.team.delete: true
+      oxygenheist.team.add: true
+      oxygenheist.team.remove: true
+      oxygenheist.team.color: true
+      oxygenheist.team.captain: true
+      oxygenheist.team.list: true
+      oxygenheist.team.info: true
+      oxygenheist.team.friendlyfire: true
+  oxygenheist.game.*:
+    description: All game permissions
+    children:
+      oxygenheist.game.start: true
+      oxygenheist.game.stop: true
+      oxygenheist.game.setbase: true
+      oxygenheist.game.setzone: true
+      oxygenheist.game.delzone: true
+  oxygenheist.reload:
+    description: Allows reloading the plugin configuration
+    default: op
