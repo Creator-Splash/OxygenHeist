@@ -1,0 +1,30 @@
+# idea project files
+.idea/*
+*.iml
+*.ipr
+*.iws
+
+!.idea/icon.png
+!.idea/codeStyles
+!.idea/inspectionProfiles
+
+# gradle
+.gradle/
+build/
+out/
+
+# user
+run
+bin
+
+!src/*/run
+!src/*/bin
+
+docker/
+run/
+
+.env
+local.properties
+
+.kotlin/
+/target
