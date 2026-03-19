@@ -2,7 +2,7 @@
 paper = "1.21.11-R0.1-SNAPSHOT"
 
 # MainEventCore
-event-core = "1.1.2"
+#creatorsplashcore = "1.0.0"
 
 # Cloud
 cloud = "2.0.0"
@@ -26,8 +26,8 @@ indra = "3.1.3"
 # Paper
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
-# Collectables Codex
-event-core-api = { module = "com.glance.codex:codex-api", version.ref = "event-core" }
+# MainEventCore
+#creatorsplashcore-api = { module = "com.creatorsplash:creatorsplashcore-api", version.ref = "creatorsplashcore" }
 
 # Cloud
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }

@@ -1,4 +1,4 @@
-package creatorsplash.oxygenheist.platform.paper;
+package com.creatorsplash.oxygenheist.platform.paper;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

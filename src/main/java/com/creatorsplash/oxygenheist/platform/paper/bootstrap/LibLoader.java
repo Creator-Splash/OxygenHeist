@@ -1,4 +1,4 @@
-package creatorsplash.oxygenheist.platform.paper.bootstrap;
+package com.creatorsplash.oxygenheist.platform.paper.bootstrap;
 
 import com.google.gson.Gson;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;

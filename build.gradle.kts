@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.plugin.yml)
 }
 
-group = "creatorsplash.oxygenheist"
+group = "com.creatorsplash.oxygenheist"
 version = "1.0.0"
 
 repositories {
@@ -21,10 +21,24 @@ repositories {
     maven("https://repo.triumphteam.dev/snapshots")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/releases/")
+
+//    maven("https://maven.pkg.github.com/Creator-Splash/MainEventCore") {
+//        name = "GitHubPackages"
+//        credentials {
+//            username = findProperty("gpr.user") as String?
+//                ?: System.getenv("GITHUB_ACTOR")
+//            password = findProperty("gpr.key") as String?
+//                ?: System.getenv("GITHUB_TOKEN")
+//        }
+//    }
 }
 
 dependencies {
+    // Paper
     compileOnly(libs.paper.api)
+
+    // Event Core
+    //compileOnly(libs.creatorsplashcore.api)
 
     // GUI
     paperLibrary(libs.triumph.gui)
@@ -81,14 +95,19 @@ paper {
     //version = "Git-${indraGit.commit()?.name?.take(7) ?: "unknown"}"
     version = "1.0.0"
 
-    main = "creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin"
+    main = "com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin"
 
-    loader = "creatorsplash.oxygenheist.platform.paper.bootstrap.LibLoader"
+    loader = "com.creatorsplash.oxygenheist.platform.paper.bootstrap.LibLoader"
     generateLibrariesJson = true
 
     serverDependencies {
         register("PlaceholderAPI") {
             required = false
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+
+        register("CreatorSplashCore") {
+            required = true
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
         }
     }
