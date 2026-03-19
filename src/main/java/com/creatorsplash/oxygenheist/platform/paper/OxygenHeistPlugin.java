@@ -1,10 +1,15 @@
 package com.creatorsplash.oxygenheist.platform.paper;
 
+import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
 import com.creatorsplash.oxygenheist.application.combat.CombatService;
+import com.creatorsplash.oxygenheist.application.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
+import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.listener.CombatListener;
+import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
 import lombok.Getter;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,11 +22,18 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         /* Services */
-        this.matchService = new MatchService(new StandaloneGameBridge());
 
-        CombatService combatService = new CombatService(this.matchService);
+        Scheduler scheduler = new PaperSchedulerAdapter(this);
 
+        GameBridge bridge = new StandaloneGameBridge();
+        this.matchService = new MatchService(scheduler, bridge);
+
+        DownedService downedService = new DownedService(this.matchService);
+        CombatService combatService = new CombatService(this.matchService, downedService);
+
+        //  TODO game ticker?
 
         /* Listeners */
 
@@ -32,7 +44,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // TODO
+        this.matchService.getScheduler().onDisable();
+
+        HandlerList.unregisterAll(this);
     }
 
     /* Helpers */

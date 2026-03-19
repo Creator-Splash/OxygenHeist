@@ -20,6 +20,8 @@ public class PlayerMatchState {
 
     private boolean alive = true;
     private boolean downed = false;
+    private int bleedoutTicks = 0;
+    private int reviveProgress = 0;
 
     private int score = 0;
 
@@ -31,8 +33,32 @@ public class PlayerMatchState {
     /**
      * Marks the player as downed
      */
-    public void down() {
+    public void down(int bleedoutTicks) {
         this.downed = true;
+        this.bleedoutTicks = bleedoutTicks;
+        this.reviveProgress = 0;
+    }
+
+    /**
+     * Decrements the bleedout timer for a downed player
+     */
+    public void tickBleedout() {
+        if (!this.downed) return;
+        this.bleedoutTicks--;
+    }
+
+    /**
+     * @return true if the player is currently downed and still bleeding out
+     */
+    public boolean isBleedingOut() {
+        return this.downed && this.bleedoutTicks > 0;
+    }
+
+    /**
+     * @return true if the players bleedout timer has completed
+     */
+    public boolean isBleedoutComplete() {
+        return this.downed && this.bleedoutTicks <= 0;
     }
 
     /**
@@ -40,6 +66,17 @@ public class PlayerMatchState {
      */
     public void revive() {
         this.downed = false;
+        this.bleedoutTicks = 0;
+        this.reviveProgress = 0;
+    }
+
+    /**
+     * Adds revive progress for this player
+     *
+     * @param amount the amount of revive progress to add
+     */
+    public void addReviveProgress(int amount) {
+        this.reviveProgress += amount;
     }
 
     /**

@@ -20,6 +20,7 @@ import java.util.UUID;
 public class CombatService {
 
     private final MatchService matchService;
+    private final DownedService downedService;
 
     /**
      * Handles a damage event between two players
@@ -60,13 +61,7 @@ public class CombatService {
 
             if (!victim.isAlive()) return;
 
-            UUID killer = victim.getLastAttacker();
-
-            matchService.eliminatePlayer(victimId, "Killed");
-
-            if (killer != null) {
-                matchService.awardPoints(killer, 100, "Kill"); // TODO?
-            }
+            downedService.downPlayer(session, victimId);
         });
     }
 

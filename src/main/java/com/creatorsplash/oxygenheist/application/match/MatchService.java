@@ -1,10 +1,13 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.combat.DownedService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +23,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public final class MatchService {
 
+    @Getter
+    private final Scheduler scheduler;
     private final GameBridge gameBridge;
 
+    private final DownedService downedService;
+
     private MatchSession session;
+
+    private Scheduler.Task downedTask;
 
     /**
      * Initializes a new match session
@@ -42,6 +51,7 @@ public final class MatchService {
         }
 
         session.setState(MatchState.PLAYING);
+        startTasks();
 
         gameBridge.onGameStart();
     }
@@ -55,6 +65,7 @@ public final class MatchService {
         if (session == null) return;
 
         session.setState(MatchState.ENDING);
+        stopTasks();
 
         Map<UUID, Integer> scores = new HashMap<>();
         for (PlayerMatchState player : session.getPlayers()) {
@@ -118,6 +129,35 @@ public final class MatchService {
      */
     public Optional<MatchSession> getSession() {
         return Optional.ofNullable(session);
+    }
+
+    /* Internals */
+
+    private void startTasks() {
+        stopTasks();
+
+        this.downedTask = scheduler.runRepeating(
+            () -> {
+                if (session == null) return;
+
+                this.downedService.tick(session, playerId ->
+                    eliminatePlayer(playerId, "Bled out"));
+            }, 1L, 1L
+        );
+
+        // TODO
+    }
+
+    private void stopTasks() {
+       if (stopTask(this.downedTask)) this.downedTask = null;
+    }
+
+    private boolean stopTask(@Nullable Scheduler.Task task) {
+        if (task != null) {
+            task.cancel();
+            return true;
+        }
+        return false;
     }
 
 }
