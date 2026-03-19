@@ -113,6 +113,9 @@ public final class MatchService {
         gameBridge.awardPoints(playerId, amount, reason);
     }
 
+    /**
+     * @return the current match session, if present
+     */
     public Optional<MatchSession> getSession() {
         return Optional.ofNullable(session);
     }

@@ -19,6 +19,11 @@ public final class MatchSession {
 
     private final Map<UUID, PlayerMatchState> players = new HashMap<>();
 
+    /** Shorthand to check if the session state is {@link MatchState#PLAYING} */
+    public boolean isPlaying() {
+        return getState() == MatchState.PLAYING;
+    }
+
     /**
      * @return all player states in this match
      */
