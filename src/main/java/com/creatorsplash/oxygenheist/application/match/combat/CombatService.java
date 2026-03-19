@@ -1,4 +1,4 @@
-package com.creatorsplash.oxygenheist.application.combat;
+package com.creatorsplash.oxygenheist.application.match.combat;
 
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -45,21 +45,15 @@ public class CombatService {
         });
     }
 
-    /**
-     * Handles a player death event
-     *
-     * <p>This method converts a Bukkit death into a game-specific elimination,
-     * awarding points to the last known attacker if applicable</p>
-     *
-     * @param victimId the UUID of the player who died
-     */
-    public void handleDeath(UUID victimId) {
+    public void handleLethalDamage(UUID victimId, UUID attackerId) {
         matchService.getSession().ifPresent(session -> {
             if (!session.isPlaying()) return;
 
-            PlayerMatchState victim = session.getOrCreatePlayer(victimId);
+            PlayerMatchState state = session.getOrCreatePlayer(victimId);
 
-            if (!victim.isAlive()) return;
+            if (!state.isAlive() || state.isDowned()) return;
+
+            state.setLastAttacker(attackerId);
 
             downedService.downPlayer(session, victimId);
         });

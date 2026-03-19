@@ -21,6 +21,8 @@ public class PlayerMatchState {
     private boolean alive = true;
     private boolean downed = false;
     private int bleedoutTicks = 0;
+
+    private UUID beingRevivedBy;
     private int reviveProgress = 0;
 
     private int score = 0;
@@ -59,6 +61,20 @@ public class PlayerMatchState {
      */
     public boolean isBleedoutComplete() {
         return this.downed && this.bleedoutTicks <= 0;
+    }
+
+    public boolean isBeingRevived() {
+        return beingRevivedBy != null;
+    }
+
+    public void startRevive(UUID reviver) {
+        this.beingRevivedBy = reviver;
+        this.reviveProgress = 0;
+    }
+
+    public void stopRevive() {
+        this.beingRevivedBy = null;
+        this.reviveProgress = 0;
     }
 
     /**

@@ -69,6 +69,11 @@ tasks {
         finalizedBy("exportJars")
     }
 
+    shadowJar {
+        archiveClassifier.set("")
+        minimize()
+    }
+
     withType<JavaCompile> {
         options.release.set(21)
         options.encoding = Charsets.UTF_8.name()
@@ -105,10 +110,10 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
         }
-
-        register("CreatorSplashCore") {
-            required = true
-            load = PaperPluginDescription.RelativeLoadOrder.AFTER
-        }
+//
+//        register("CreatorSplashCore") {
+//            required = true
+//            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+//        }
     }
 }

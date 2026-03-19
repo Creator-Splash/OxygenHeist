@@ -1,10 +1,7 @@
-package com.creatorsplash.oxygenheist.application.combat;
+package com.creatorsplash.oxygenheist.application.match.combat;
 
-import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 import java.util.function.Consumer;

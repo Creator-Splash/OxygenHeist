@@ -1,7 +1,8 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
-import com.creatorsplash.oxygenheist.application.combat.DownedService;
+import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
+import com.creatorsplash.oxygenheist.application.match.revive.ReviveService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -28,6 +29,7 @@ public final class MatchService {
     private final GameBridge gameBridge;
 
     private final DownedService downedService;
+    private final ReviveService reviveService;
 
     private MatchSession session;
 
@@ -142,6 +144,10 @@ public final class MatchService {
 
                 this.downedService.tick(session, playerId ->
                     eliminatePlayer(playerId, "Bled out"));
+
+                this.reviveService.tick(session, playerId -> {
+                    // TODO anything here
+                });
             }, 1L, 1L
         );
 
