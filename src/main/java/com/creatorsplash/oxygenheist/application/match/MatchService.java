@@ -1,19 +1,20 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
+import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
-import com.creatorsplash.oxygenheist.application.match.revive.ReviveService;
+import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Primary orchestration service for match lifecycle and high-level gameplay actions
@@ -25,21 +26,35 @@ import java.util.UUID;
 public final class MatchService {
 
     @Getter
+    private LogCenter log;
+
+    @Getter
     private final Scheduler scheduler;
     private final GameBridge gameBridge;
+    private final DebugFlags debugFlags;
 
     private final DownedService downedService;
     private final ReviveService reviveService;
+    private final PlayerPositionProvider playerPositionProvider;
 
     private MatchSession session;
 
     private Scheduler.Task downedTask;
+
+    /* == Match == */
 
     /**
      * Initializes a new match session
      */
     public void createMatch() {
         this.session = new MatchSession();
+
+        this.log = new MatchLogCenter(
+            UUID.randomUUID().toString().substring(0, 6),
+            debugFlags
+        );
+
+        log.info("Match created");
     }
 
     /**
@@ -56,6 +71,8 @@ public final class MatchService {
         startTasks();
 
         gameBridge.onGameStart();
+
+        log.info("Match started");
     }
 
     /**
@@ -77,6 +94,16 @@ public final class MatchService {
         gameBridge.onGameEnd(scores, winner);
 
         session = null;
+
+        log.info("Match ended with winner " + winner);
+    }
+
+    /* == Player == */
+
+    public boolean isPlayerInActiveMatch(UUID playerId) {
+        return session != null
+            && session.isPlaying()
+            && session.getPlayer(playerId).isPresent();
     }
 
     /**
@@ -85,6 +112,10 @@ public final class MatchService {
      * @param playerId the players UUID
      */
     public void addPlayer(UUID playerId) {
+        if (session == null) {
+            throw new IllegalStateException("Match not created");
+        }
+
         session.getOrCreatePlayer(playerId);
     }
 
@@ -94,7 +125,13 @@ public final class MatchService {
      * @param playerId the players UUID
      */
     public void removePlayer(UUID playerId) {
+        if (session == null) {
+            throw new IllegalStateException("Match not created");
+        }
+
         session.removePlayer(playerId);
+
+        log.debug("player", "Player " + playerId + " removed from match");
     }
 
     /**
@@ -104,11 +141,19 @@ public final class MatchService {
      * @param reason reason for elimination
      */
     public void eliminatePlayer(UUID playerId, String reason) {
+        if (session == null) {
+            throw new IllegalStateException("Match not created");
+        }
+
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
 
         player.eliminate();
 
+        reviveService.cancelRevivesInvolving(playerId);
+
         gameBridge.onPlayerEliminated(playerId, reason);
+
+        log.info("Player eliminated '" + playerId + "' reason: " + reason);
     }
 
     /**
@@ -119,11 +164,18 @@ public final class MatchService {
      * @param reason reason for the points
      */
     public void awardPoints(UUID playerId, int amount, String reason) {
+        if (session == null) {
+            throw new IllegalStateException("Match not created");
+        }
+
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
 
         player.addScore(amount);
 
         gameBridge.awardPoints(playerId, amount, reason);
+
+        log.debug("player", "Points awarded to "
+            + playerId + " Points: " + amount + " Reason: " + reason);
     }
 
     /**
@@ -145,10 +197,16 @@ public final class MatchService {
                 this.downedService.tick(session, playerId ->
                     eliminatePlayer(playerId, "Bled out"));
 
-                this.reviveService.tick(session, playerId -> {
-                    // TODO anything here
-                });
-            }, 1L, 1L
+                this.reviveService.tick(
+                    session,
+                    playerPositionProvider,
+                    playerId -> {
+                        // TODO callbacks for display service or related
+                    }
+                );
+            },
+            1L,
+            1L
         );
 
         // TODO

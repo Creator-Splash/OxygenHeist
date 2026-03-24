@@ -22,9 +22,6 @@ public class PlayerMatchState {
     private boolean downed = false;
     private int bleedoutTicks = 0;
 
-    private UUID beingRevivedBy;
-    private int reviveProgress = 0;
-
     private int score = 0;
 
     @Setter
@@ -38,7 +35,6 @@ public class PlayerMatchState {
     public void down(int bleedoutTicks) {
         this.downed = true;
         this.bleedoutTicks = bleedoutTicks;
-        this.reviveProgress = 0;
     }
 
     /**
@@ -63,36 +59,12 @@ public class PlayerMatchState {
         return this.downed && this.bleedoutTicks <= 0;
     }
 
-    public boolean isBeingRevived() {
-        return beingRevivedBy != null;
-    }
-
-    public void startRevive(UUID reviver) {
-        this.beingRevivedBy = reviver;
-        this.reviveProgress = 0;
-    }
-
-    public void stopRevive() {
-        this.beingRevivedBy = null;
-        this.reviveProgress = 0;
-    }
-
     /**
      * Revives the player from a downed state
      */
     public void revive() {
         this.downed = false;
         this.bleedoutTicks = 0;
-        this.reviveProgress = 0;
-    }
-
-    /**
-     * Adds revive progress for this player
-     *
-     * @param amount the amount of revive progress to add
-     */
-    public void addReviveProgress(int amount) {
-        this.reviveProgress += amount;
     }
 
     /**

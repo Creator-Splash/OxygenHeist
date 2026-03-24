@@ -24,9 +24,16 @@ public final class LibLoader implements PluginLoader {
         libs.dependencies().forEach(d ->
                 resolver.addDependency(new Dependency(new DefaultArtifact(d), null)));
 
-        libs.repositories().forEach((id, url) ->
-                resolver.addRepository(
-                        new RemoteRepository.Builder(id, "default", url).build()));
+        libs.repositories().forEach((id, url) -> {
+            String finalUrl = url;
+
+            if (url.contains("repo.maven.apache.org") || url.contains("maven2")) {
+                finalUrl = MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR;
+            }
+
+            resolver.addRepository(
+                new RemoteRepository.Builder(id, "default", finalUrl).build());
+        });
 
         classpathBuilder.addLibrary(resolver);
     }
@@ -46,8 +53,8 @@ public final class LibLoader implements PluginLoader {
     }
 
     private record PluginLibraries(
-            Map<String, String> repositories,
-            List<String> dependencies
+        Map<String, String> repositories,
+        List<String> dependencies
     ) {}
 
 }

@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match.combat;
 
 import com.creatorsplash.oxygenheist.application.match.MatchService;
+import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,12 @@ public class CombatService {
 
     private final MatchService matchService;
     private final DownedService downedService;
+    private final ReviveService reviveService;
+
+    public boolean isCombatRelevant(UUID victimId, UUID attackerId) {
+        return matchService.isPlayerInActiveMatch(victimId)
+            && matchService.isPlayerInActiveMatch(attackerId);
+    }
 
     /**
      * Handles a damage event between two players
@@ -39,7 +46,12 @@ public class CombatService {
 
             if (!victim.isAlive()) return;
 
+            matchService.getLog().debug("combat.damage", "Handling damage for "
+                    + victimId + " killed by " + attackerId);
+
             // todo future checks
+
+            // todo if config has revive cancelling damage - put here for both
 
             victim.setLastAttacker(attackerId);
         });
@@ -53,7 +65,12 @@ public class CombatService {
 
             if (!state.isAlive() || state.isDowned()) return;
 
+            matchService.getLog().debug("combat.kill", "Handling lethal damage for "
+                + victimId + " killed by " + attackerId);
+
             state.setLastAttacker(attackerId);
+
+            reviveService.cancelRevive(victimId);
 
             downedService.downPlayer(session, victimId);
         });
