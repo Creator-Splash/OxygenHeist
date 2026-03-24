@@ -24,18 +24,52 @@ public class PlayerMatchState {
 
     private int score = 0;
 
+    private int oxygen;
+    private int maxOxygen;
+
     @Setter
     private UUID lastAttacker;
 
-    /* Domain */
+    /* == Domain == */
+
+    /* Oxygen */
 
     /**
-     * Marks the player as downed
+     * Initializes the players oxygen data
      */
-    public void down(int bleedoutTicks) {
-        this.downed = true;
-        this.bleedoutTicks = bleedoutTicks;
+    public void initOxygen(int maxOxygen) {
+        this.oxygen = maxOxygen;
+        this.maxOxygen = maxOxygen;
     }
+
+    /**
+     * Drains oxygen from the player
+     * <p>Oxygen will not drop below 0</p>
+     *
+     * @param amount the amount to drain
+     */
+    public void drainOxygen(int amount) {
+        this.oxygen = Math.max(0, this.oxygen - amount);
+    }
+
+    /**
+     * Restores oxygen to the player
+     * <p>Oxygen will not increase above {@code maxOxygen}</p>
+     *
+     * @param amount the amount of oxygen to restore
+     */
+    public void restoreOxygen(int amount) {
+        this.oxygen = Math.min(this.maxOxygen, this.oxygen + amount);
+    }
+
+    /**
+     * @return true if the players oxygen has been depleted
+     */
+    public boolean isOxygenDepleted() {
+        return this.oxygen <= 0;
+    }
+
+    /* Bleedout */
 
     /**
      * Decrements the bleedout timer for a downed player
@@ -59,12 +93,18 @@ public class PlayerMatchState {
         return this.downed && this.bleedoutTicks <= 0;
     }
 
+    /* Lifecycle */
+
+    public boolean isActive() {
+        return isAlive() && !isDowned();
+    }
+
     /**
-     * Revives the player from a downed state
+     * Marks the player as downed
      */
-    public void revive() {
-        this.downed = false;
-        this.bleedoutTicks = 0;
+    public void down(int bleedoutTicks) {
+        this.downed = true;
+        this.bleedoutTicks = bleedoutTicks;
     }
 
     /**
@@ -75,6 +115,16 @@ public class PlayerMatchState {
         this.alive = false;
         this.downed = false;
     }
+
+    /**
+     * Revives the player from a downed state
+     */
+    public void revive() {
+        this.downed = false;
+        this.bleedoutTicks = 0;
+    }
+
+    /* Progression */
 
     /**
      * Adds score to the player
