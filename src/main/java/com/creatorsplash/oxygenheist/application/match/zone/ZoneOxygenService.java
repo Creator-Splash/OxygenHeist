@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.application.match.zone;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneTeamOxygenState;
+import com.creatorsplash.oxygenheist.domain.zone.config.ZoneConfig;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -23,13 +24,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ZoneOxygenService {
 
-    // TODO replace with options data class for cfg
-    private static final double DEFAULT_DRAIN_TIME_SECONDS = 120.0; // cfg
-    private static final double DRAIN_PER_TICK = 100.0 / (DEFAULT_DRAIN_TIME_SECONDS * 20.0); // cfg?
-    private static final int MAX_DRAIN_MULTIPLIER = 5;
-
-    private static final double REFILL_PER_TICK = DRAIN_PER_TICK * 0.5; // cfg
-
     private final ZonePresenceService presenceService;
 
     /**
@@ -38,11 +32,13 @@ public class ZoneOxygenService {
      * @param session the active match session
      */
     public void tick(MatchSession session, ZonePresence presence) {
+        ZoneConfig zoneConfig = session.config().zones();
+
         for (CaptureZoneState zone : session.getZones()) {
             Map<String, Integer> teamCounts = presence.getTeamCounts(zone);
 
-            processPresentTeams(zone, teamCounts);
-            processAbsentRefillingTeams(zone, teamCounts);
+            processPresentTeams(zoneConfig, zone, teamCounts);
+            processAbsentRefillingTeams(zoneConfig, zone, teamCounts);
         }
     }
 
@@ -59,7 +55,15 @@ public class ZoneOxygenService {
 
     /* Internals */
 
-    private void processPresentTeams(CaptureZoneState zone, Map<String, Integer> teamCounts) {
+    private void processPresentTeams(
+        ZoneConfig config,
+        CaptureZoneState zone,
+        Map<String, Integer> teamCounts
+    ) {
+        double drainPerTick = config.drainPercentPerSecond() / 20.0;
+        double refillPerTick = config.refillPercentPerSecond() / 20.0;
+        int maxMultiplier = config.maxDrainMultiplier();
+
         for (Map.Entry<String, Integer> entry : teamCounts.entrySet()) {
             String teamId = entry.getKey();
             int playerCount = entry.getValue();
@@ -67,22 +71,28 @@ public class ZoneOxygenService {
             ZoneTeamOxygenState oxygenState = zone.getOrCreateZoneOxygen(teamId);
 
             if (oxygenState.isRefilling()) {
-                oxygenState.refill(REFILL_PER_TICK);
+                oxygenState.refill(refillPerTick);
                 continue;
             }
 
-            int drainMultiplier = Math.clamp(playerCount, 1, MAX_DRAIN_MULTIPLIER);
-            oxygenState.drain(DRAIN_PER_TICK * drainMultiplier);
+            int drainMultiplier = Math.clamp(playerCount, 1, maxMultiplier);
+            oxygenState.drain(drainPerTick * drainMultiplier);
         }
     }
 
-    private void processAbsentRefillingTeams(CaptureZoneState zone, Map<String, Integer> teamCounts) {
+    private void processAbsentRefillingTeams(
+        ZoneConfig config,
+        CaptureZoneState zone,
+        Map<String, Integer> teamCounts
+    ) {
+        double drainPerTick = config.drainPercentPerSecond() / 20.0;
+
         for (Map.Entry<String, ZoneTeamOxygenState> entry : zone.getZoneOxygen().entrySet()) {
             String teamId = entry.getKey();
             ZoneTeamOxygenState oxygenState = entry.getValue();
 
             if (!teamCounts.containsKey(teamId) && oxygenState.isRefilling()) {
-                oxygenState.refill(REFILL_PER_TICK);
+                oxygenState.refill(drainPerTick);
             }
         }
     }

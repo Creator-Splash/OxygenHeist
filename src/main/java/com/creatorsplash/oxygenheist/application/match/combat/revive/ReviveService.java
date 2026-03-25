@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.application.match.combat.revive;
 
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.config.DownedConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,6 +106,8 @@ public class ReviveService {
         PlayerPositionProvider locationProvider,
         Consumer<UUID> onReviveComplete
     ) {
+        DownedConfig config = session.config().downed();
+
         currentTick++;
 
         Iterator<Map.Entry<UUID, ReviveSession>> it = activeRevives.entrySet().iterator();
@@ -115,19 +118,19 @@ public class ReviveService {
             PlayerMatchState target = session.getPlayer(revive.getTargetId()).orElse(null);
             PlayerMatchState reviver = session.getPlayer(revive.getReviverId()).orElse(null);
 
-            if (!isValid(target, reviver, locationProvider)) {
+            if (!isValid(target, reviver, locationProvider, config.reviveMaxDistance())) {
                 it.remove();
                 continue;
             }
 
-            if (isIntentExpired(revive)) {
+            if (isIntentExpired(config, revive)) {
                 it.remove();
                 continue;
             }
 
             revive.increment();
 
-            if (revive.getProgress() >= REQUIRED_PROGRESS) {
+            if (revive.getProgress() >= config.reviveTicks()) {
                 target.revive();
                 onReviveComplete.accept(target.getPlayerId());
                 it.remove();
@@ -140,7 +143,8 @@ public class ReviveService {
     private boolean isValid(
         PlayerMatchState target,
         PlayerMatchState reviver,
-        PlayerPositionProvider locationProvider
+        PlayerPositionProvider locationProvider,
+        double maxDistance
     ) {
         if (target == null || reviver == null) return false;
 
@@ -152,11 +156,11 @@ public class ReviveService {
 
         if (a == null || b == null) return false;
 
-        return a.toPos3().distanceSquared(b.toPos3()) <= (MAX_DISTANCE * MAX_DISTANCE);
+        return a.toPos3().distanceSquared(b.toPos3()) <= (maxDistance * maxDistance);
     }
 
-    private boolean isIntentExpired(ReviveSession revive) {
-        return (currentTick - revive.getLastIntentTick()) > INTENT_TTL;
+    private boolean isIntentExpired(DownedConfig config, ReviveSession revive) {
+        return (currentTick - revive.getLastIntentTick()) > config.reviveIntentTtlTicks();
     }
 
 }

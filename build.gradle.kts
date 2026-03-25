@@ -40,6 +40,9 @@ dependencies {
     // Event Core
     //compileOnly(libs.creatorsplashcore.api)
 
+    // PAPI
+    paperLibrary(libs.papi)
+
     // GUI
     paperLibrary(libs.triumph.gui)
 

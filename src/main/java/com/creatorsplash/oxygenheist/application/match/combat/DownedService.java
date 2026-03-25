@@ -18,8 +18,6 @@ import java.util.function.Consumer;
  */
 public class DownedService {
 
-    private static final int DEFAULT_BLEEDOUT_TICKS = 20 * 15; // 15 sec todo cfg
-
     /**
      * Places a player into the downed state if they are eligible
      *
@@ -36,7 +34,7 @@ public class DownedService {
 
         if (!player.isAlive() || player.isDowned()) return;
 
-        player.down(DEFAULT_BLEEDOUT_TICKS);
+        player.down(session.config().downed().bleedoutSeconds());
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.creatorsplash.oxygenheist.application.match.oxygen;
 
-import com.creatorsplash.oxygenheist.application.match.zone.ZonePresence;
 import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -23,7 +22,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlayerOxygenService {
 
-    private final double drainAmountPerTick; // todo cfg?
     private final ZoneService zoneService;
 
     /**
@@ -32,6 +30,8 @@ public class PlayerOxygenService {
      * @param session the active match session
      */
     public void tickDrain(MatchSession session) {
+        double drainAmountPerTick = session.config().oxygen().drainPerTick();
+
         for (PlayerMatchState player: session.getPlayers()) {
             if (!player.isActive()) continue;
 

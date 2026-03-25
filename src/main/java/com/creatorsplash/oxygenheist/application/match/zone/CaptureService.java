@@ -1,6 +1,5 @@
 package com.creatorsplash.oxygenheist.application.match.zone;
 
-import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
@@ -23,9 +22,6 @@ public class CaptureService {
 
     private final PlayerOxygenService oxygenService;
 
-    private final double capturePerTick; // todo cfg
-    private final int captureOxygenRestore;
-
     /**
      * Processes all capture zones for the current tick
      *
@@ -45,6 +41,11 @@ public class CaptureService {
         ZonePresence presence,
         MatchSession session
     ) {
+        var config = session.config().zones();
+
+        double capturePerTick = config.captureRatePerTick();
+        int captureOxygenRestore = config.captureOxygenRestore();
+
         if (presence.isEmpty(zone)) return;
 
         if (presence.isContested(zone)) return;

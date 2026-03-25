@@ -2,10 +2,14 @@ package com.creatorsplash.oxygenheist.platform.paper;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.display.DefaultMatchDisplayService;
+import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayGateway;
+import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
+import com.creatorsplash.oxygenheist.application.match.MatchSnapshotProvider;
 import com.creatorsplash.oxygenheist.application.match.combat.CombatService;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
@@ -22,6 +26,11 @@ import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogC
 import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
 import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
+import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
+import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayGateway;
+import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
+import com.creatorsplash.oxygenheist.platform.paper.listener.AirChangeListener;
 import com.creatorsplash.oxygenheist.platform.paper.listener.CombatListener;
 import com.creatorsplash.oxygenheist.platform.paper.listener.PlayerRestrictionListener;
 import com.creatorsplash.oxygenheist.platform.paper.listener.ReviveListener;
@@ -47,20 +56,26 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        /* Configs TODO */
+        /* == Configs == */
+
+        saveDefaultConfig();
 
         DebugFlags debugFlags = new DebugFlags(
             Set.of("all") // todo
         );
 
-        /* Services */
+        MatchConfigService matchConfigService = new MatchConfigService();
+        matchConfigService.load(getConfig());
+
+        /* == Services == */
+
         this.logCenter = new GlobalLogCenter(debugFlags);
 
         Scheduler scheduler = new PaperSchedulerAdapter(this);
-        DownedService downedService = new DownedService();
-        ReviveService reviveService = new ReviveService();
 
         GameBridge bridge = new StandaloneGameBridge();
+
+        MatchSnapshotProvider snapshotProvider = new MatchSnapshotProvider();
 
         PlayerPositionProvider playerPositionProvider = playerId -> {
             var player = getServer().getPlayer(playerId);
@@ -72,17 +87,34 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             );
         };
 
+        /* Gameplay Services */
+
+        DownedService downedService = new DownedService();
+        ReviveService reviveService = new ReviveService();
+
         ZoneService zoneService = new ZoneService(playerPositionProvider);
         PlayerOxygenService playerOxygenService =
-            new PlayerOxygenService(0.1, zoneService);
+            new PlayerOxygenService(zoneService);
         CaptureService captureService =
-            new CaptureService(playerOxygenService, 1, 1);
+            new CaptureService(playerOxygenService);
         ZonePresenceService zonePresenceService =
             new ZonePresenceService(playerPositionProvider);
         ZoneOxygenService zoneOxygenService =
             new ZoneOxygenService(zonePresenceService);
 
+        /* Display Services */
+
+        PaperAirBarController airBarController = new PaperAirBarController();
+
+        MatchDisplayGateway displayGateway = new PaperMatchDisplayGateway(
+            this,
+            airBarController
+        );
+        MatchDisplayService displayService = new DefaultMatchDisplayService(displayGateway);
+
         this.matchService = new MatchService(
+            matchConfigService,
+            snapshotProvider,
             scheduler,
             bridge,
             debugFlags,
@@ -92,28 +124,36 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             captureService,
             zoneOxygenService,
             playerOxygenService,
-            zonePresenceService
+            zonePresenceService,
+            displayService
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);
         CombatService combatService = new CombatService(
             this.matchService, downedService, reviveService);
 
-        /* Listeners */
+        /* == Listeners == */
 
         registerListeners(
             new CombatListener(combatService, actionService),
             new ReviveListener(this.matchService, reviveService, actionService),
-            new PlayerRestrictionListener(actionService)
+            new PlayerRestrictionListener(actionService),
+            new AirChangeListener(airBarController)
         );
 
-        /* Commands */
+        /* == Commands == */
 
         this.commandRegistrar = new CommandRegistrar(this);
         registerCommands(
             new GameCommands(this.matchService),
             new DebugCommands(this.matchService)
         );
+
+        /* == PAPI == */
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new OxygenHeistPlaceholderExpansion(snapshotProvider).register();
+        }
 
         logCenter.info("<green>Ready!");
     }

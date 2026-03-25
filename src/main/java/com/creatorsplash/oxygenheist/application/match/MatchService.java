@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
@@ -16,12 +17,12 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
+import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Primary orchestration service for match lifecycle and high-level gameplay actions
@@ -34,6 +35,9 @@ public final class MatchService {
 
     @Getter
     private LogCenter log;
+
+    private final MatchConfigService matchConfigService;
+    private final MatchSnapshotProvider snapshotProvider;
 
     @Getter
     private final Scheduler scheduler;
@@ -49,12 +53,12 @@ public final class MatchService {
     private final PlayerOxygenService playerOxygenService;
     private final ZonePresenceService zonePresenceService;
 
+    private final MatchDisplayService displayService;
+
     private MatchSession session;
 
     private Scheduler.Task syncGameTask;
     private Scheduler.Task asyncGameTask;
-
-    private final AtomicReference<MatchSnapshot> latestSnapshot = new AtomicReference<>();
 
     private long tickCounter = 0;
 
@@ -64,7 +68,7 @@ public final class MatchService {
      * Initializes a new match session
      */
     public void createMatch() {
-        this.session = new MatchSession();
+        this.session = new MatchSession(matchConfigService.get());
 
         this.log = new MatchLogCenter(
             UUID.randomUUID().toString().substring(0, 6),
@@ -264,7 +268,11 @@ public final class MatchService {
         /* Snapshot */
 
         MatchSnapshot snapshot = session.createSnapshot(tickCounter);
-        latestSnapshot.set(snapshot);
+        snapshotProvider.update(snapshot);
+
+        /* UI */
+
+        displayService.render(snapshot);
 
         /* Debug */
 
@@ -282,7 +290,7 @@ public final class MatchService {
     }
 
     private void tickGameAsync() {
-        MatchSnapshot snapshot = latestSnapshot.getAndSet(null);
+        MatchSnapshot snapshot = snapshotProvider.get();
         if (snapshot != null) handleSnapshot(snapshot);
     }
 

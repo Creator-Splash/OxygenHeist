@@ -1,11 +1,15 @@
 package com.creatorsplash.oxygenheist.domain.match;
 
+import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -15,10 +19,18 @@ import java.util.*;
  * <p>This class holds all runtime state for a match, including players and
  * the current match lifecycle state</p>
  */
+@Accessors(fluent = true)
 public final class MatchSession {
 
+    @Getter
+    private final MatchConfig config;
+
     @Getter @Setter
-    private MatchState state = MatchState.WAITING;
+    private MatchState state;
+
+    private int remainingTicks;
+    private boolean instantDeath;
+    private boolean borderShrinkStarted;
 
     private final Map<String, CaptureZoneState> zones = new HashMap<>();
 
@@ -26,9 +38,44 @@ public final class MatchSession {
 
     private final Map<UUID, String> playerTeams = new HashMap<>();
 
+    public MatchSession(@NotNull final MatchConfig config) {
+        this.config = config;
+        this.state = MatchState.WAITING;
+        this.remainingTicks = config.durationSeconds() * 20;
+        this.instantDeath = false;
+        this.borderShrinkStarted = false;
+    }
+
+    /* Gameplay */
+
+    public boolean isInstantDeath() {
+        return isInstantDeath();
+    }
+
+    public boolean shouldEnterInstantDeath() {
+        return !isInstantDeath();// && getRemainingSeconds() todo
+    }
+
+    public void enterInstantDeath() {
+        this.instantDeath = true;
+    }
+
+    public boolean borderShrinkStarted() {
+        return borderShrinkStarted;
+    }
+
+    public boolean shouldStartBorderShrink() {
+        return !borderShrinkStarted;
+            //&& getRemainingSeconds() <= (config.durationSeconds()) todo
+    }
+
+    public void markBorderShrinkStarted() {
+        this.borderShrinkStarted = true;
+    }
+
     /** Shorthand to check if the session state is {@link MatchState#PLAYING} */
     public boolean isPlaying() {
-        return getState() == MatchState.PLAYING;
+        return state() == MatchState.PLAYING;
     }
 
     /* Zones */
@@ -106,21 +153,49 @@ public final class MatchSession {
         return counts;
     }
 
+    /* Timing */
+
+    public int getRemainingTicks() {
+        return this.remainingTicks;
+    }
+
+    public int getRemainingSeconds() {
+        return Math.max(0, remainingTicks / 20);
+    }
+
+    public boolean isTimeExpired() {
+        return remainingTicks <= 0;
+    }
+
+    public void resetTimer() {
+        this.remainingTicks = config.durationSeconds() * 20;
+    }
+
+    public void tickTimer() {
+        if (state != MatchState.PLAYING) return;
+        if (remainingTicks > 0) {
+            remainingTicks--;
+        }
+    }
+
     /* Snapshot */
 
     public MatchSnapshot createSnapshot(long tick) {
-        List<PlayerSnapshot> playerSnapshots = new ArrayList<>();
+        Map<UUID, PlayerSnapshot> playerSnapshots = new HashMap<>();
         for (PlayerMatchState player : getPlayers()) {
-            playerSnapshots.add(player.toSnapshot());
+            playerSnapshots.put(player.getPlayerId(), player.toSnapshot());
         }
 
-        List<ZoneSnapshot> zonesSnapshots = new ArrayList<>();
+        Map<String, ZoneSnapshot> zonesSnapshots = new HashMap<>();
         for (CaptureZoneState zone : getZones()) {
-            zonesSnapshots.add(zone.toSnapshot());
+            zonesSnapshots.put(zone.getId(), zone.toSnapshot());
         }
 
         return new MatchSnapshot(
             tick,
+            state(),
+            config(),
+            getRemainingTicks(),
             playerSnapshots,
             zonesSnapshots
         );
