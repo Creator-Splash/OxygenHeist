@@ -80,7 +80,7 @@ public class PlayerOxygenService {
     public void handleOxygenDepleted(MatchSession session, UUID playerId) {
         session.getPlayer(playerId).ifPresent(player -> {
             if (!player.isDowned()) {
-                player.down(200); // todo cfg
+                player.down(session.config().oxygen().depletionDownTicks());
             }
         });
     }
