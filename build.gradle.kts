@@ -6,7 +6,7 @@ plugins {
     id("java-library")
 
     alias(libs.plugins.shadow)
-    alias(libs.plugins.indra)
+    //alias(libs.plugins.indra)
     alias(libs.plugins.plugin.yml)
 }
 

@@ -75,6 +75,8 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
                 return Integer.toString(snapshot.remainingSeconds() * 20);
             case "game_time":
                 return formatTime(snapshot.remainingSeconds());
+            case "game_instant_death":
+                return Boolean.toString(snapshot.instantDeath());
 
             case "zone_count":
                 return Integer.toString(snapshot.zones().size());

@@ -3,7 +3,7 @@ package com.creatorsplash.oxygenheist.application.match.zone;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneTeamOxygenState;
-import com.creatorsplash.oxygenheist.domain.zone.config.ZoneConfig;
+import com.creatorsplash.oxygenheist.domain.match.config.MatchZoneConfig;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -32,13 +32,13 @@ public class ZoneOxygenService {
      * @param session the active match session
      */
     public void tick(MatchSession session, ZonePresence presence) {
-        ZoneConfig zoneConfig = session.config().zones();
+        MatchZoneConfig matchZoneConfig = session.config().zones();
 
         for (CaptureZoneState zone : session.getZones()) {
             Map<String, Integer> teamCounts = presence.getTeamCounts(zone);
 
-            processPresentTeams(zoneConfig, zone, teamCounts);
-            processAbsentRefillingTeams(zoneConfig, zone, teamCounts);
+            processPresentTeams(matchZoneConfig, zone, teamCounts);
+            processAbsentRefillingTeams(matchZoneConfig, zone, teamCounts);
         }
     }
 
@@ -56,7 +56,7 @@ public class ZoneOxygenService {
     /* Internals */
 
     private void processPresentTeams(
-        ZoneConfig config,
+        MatchZoneConfig config,
         CaptureZoneState zone,
         Map<String, Integer> teamCounts
     ) {
@@ -81,7 +81,7 @@ public class ZoneOxygenService {
     }
 
     private void processAbsentRefillingTeams(
-        ZoneConfig config,
+        MatchZoneConfig config,
         CaptureZoneState zone,
         Map<String, Integer> teamCounts
     ) {

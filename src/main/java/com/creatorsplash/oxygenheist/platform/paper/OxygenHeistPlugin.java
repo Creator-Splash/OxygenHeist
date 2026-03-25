@@ -1,7 +1,9 @@
 package com.creatorsplash.oxygenheist.platform.paper;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.display.DefaultMatchDisplayService;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayGateway;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
@@ -35,6 +37,7 @@ import com.creatorsplash.oxygenheist.platform.paper.listener.CombatListener;
 import com.creatorsplash.oxygenheist.platform.paper.listener.PlayerRestrictionListener;
 import com.creatorsplash.oxygenheist.platform.paper.listener.ReviveListener;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
+import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import lombok.Getter;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -74,6 +77,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         Scheduler scheduler = new PaperSchedulerAdapter(this);
 
         GameBridge bridge = new StandaloneGameBridge();
+        GameWorldService worldService = new PaperGameWorldService();
 
         MatchSnapshotProvider snapshotProvider = new MatchSnapshotProvider();
 
@@ -115,6 +119,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         this.matchService = new MatchService(
             matchConfigService,
             snapshotProvider,
+            displayService,
+            worldService,
             scheduler,
             bridge,
             debugFlags,
@@ -124,8 +130,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             captureService,
             zoneOxygenService,
             playerOxygenService,
-            zonePresenceService,
-            displayService
+            zonePresenceService
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);

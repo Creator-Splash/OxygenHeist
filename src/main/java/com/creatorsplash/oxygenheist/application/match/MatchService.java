@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
@@ -38,6 +39,8 @@ public final class MatchService {
 
     private final MatchConfigService matchConfigService;
     private final MatchSnapshotProvider snapshotProvider;
+    private final MatchDisplayService displayService;
+    private final GameWorldService worldService;
 
     @Getter
     private final Scheduler scheduler;
@@ -52,8 +55,6 @@ public final class MatchService {
     private final ZoneOxygenService zoneOxygenService;
     private final PlayerOxygenService playerOxygenService;
     private final ZonePresenceService zonePresenceService;
-
-    private final MatchDisplayService displayService;
 
     private MatchSession session;
 
@@ -88,10 +89,14 @@ public final class MatchService {
             throw new IllegalStateException("Match not created");
         }
 
-        session.setState(MatchState.PLAYING);
+        this.tickCounter = 0L;
+
+        session.startCooldown();
+
         startTasks();
 
         gameBridge.onGameStart();
+        worldService.onMatchStarted(session.config());
 
         log.info("Match started");
     }
@@ -104,7 +109,7 @@ public final class MatchService {
     public void endMatch(String winner) {
         if (session == null) return;
 
-        session.setState(MatchState.ENDING);
+        session.state(MatchState.ENDING);
         stopTasks();
 
         Map<UUID, Integer> scores = new HashMap<>();
@@ -113,6 +118,7 @@ public final class MatchService {
         }
 
         gameBridge.onGameEnd(scores, winner);
+        worldService.onMatchEnded();
 
         session = null;
 
@@ -138,7 +144,7 @@ public final class MatchService {
         }
 
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
-        player.initOxygen(100.0); // todo cfg
+        player.initOxygen(session.config().oxygen().max());
     }
 
     /**
@@ -244,26 +250,36 @@ public final class MatchService {
         /* Core Sim */
 
         tickCounter++;
+        session.tickTimer();
 
-        ZonePresence presence =
-            zonePresenceService.compute(session);
-
-        zoneOxygenService.tick(session, presence);
-        captureService.tick(session, presence);
-        playerOxygenService.tickDrain(session);
-
-        /* Player State */
-
-        downedService.tick(session, playerId ->
-            eliminatePlayer(playerId, "Bled out"));
-
-        reviveService.tick(
-            session,
-            playerPositionProvider,
-            playerId -> {
-                // TODO callbacks for display service or related
+        switch (session.state()) {
+            case STARTING -> {
+                if (session.isTimeExpired()) {
+                    session.startMatch();
+                    worldService.onMatchStarted(session.config());
+                }
             }
-        );
+
+            case PLAYING -> {
+                handleGameTick();
+
+                if (session.shouldEnterInstantDeath()) {
+                    session.enterInstantDeath();
+                    // todo emit display
+                }
+
+                if (session.shouldStartBorderShrink()) {
+                    session.markBorderShrinkStarted();
+                    worldService.onBorderShrinkStart(session.config());
+                }
+
+                if (session.isTimeExpired()) {
+                    endMatch(""); // todo
+                }
+            }
+
+            case WAITING, ENDING -> { /* no-op */ }
+        }
 
         /* Snapshot */
 
@@ -292,6 +308,28 @@ public final class MatchService {
     private void tickGameAsync() {
         MatchSnapshot snapshot = snapshotProvider.get();
         if (snapshot != null) handleSnapshot(snapshot);
+    }
+
+    private void handleGameTick() {
+        ZonePresence presence =
+            zonePresenceService.compute(session);
+
+        zoneOxygenService.tick(session, presence);
+        captureService.tick(session, presence);
+        playerOxygenService.tickDrain(session);
+
+        /* Player State */
+
+        downedService.tick(session, playerId ->
+            eliminatePlayer(playerId, "Bled out"));
+
+        reviveService.tick(
+            session,
+            playerPositionProvider,
+            playerId -> {
+                // TODO callbacks for display service or related
+            }
+        );
     }
 
     private void handleSnapshot(MatchSnapshot snapshot) {

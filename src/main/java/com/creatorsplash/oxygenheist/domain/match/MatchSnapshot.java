@@ -18,6 +18,8 @@ public record MatchSnapshot(
     MatchConfig config,
 
     int remainingTicks,
+    boolean instantDeath,
+    boolean borderShinkStarted,
 
     Map<UUID, PlayerSnapshot> players,
     Map<String, ZoneSnapshot> zones
@@ -28,6 +30,8 @@ public record MatchSnapshot(
         MatchState.WAITING,
         null,
         0,
+        false,
+        false,
         Map.of(),
         Map.of()
     );

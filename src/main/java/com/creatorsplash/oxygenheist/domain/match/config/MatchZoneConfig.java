@@ -1,0 +1,23 @@
+package com.creatorsplash.oxygenheist.domain.match.config;
+
+/**
+ * Match level config for zones
+ */
+public record MatchZoneConfig(
+    double captureRatePerTick,
+
+    double drainPercentPerSecond,
+    int maxDrainMultiplier,
+
+    double refillPercentPerSecond,
+
+    int captureOxygenRestore
+) {
+    public static final MatchZoneConfig EMPTY = new MatchZoneConfig(
+        0.05,
+        100.0 / 120.0,
+        5,
+        (100.0 / 120.0) * 0.5,
+        50
+    );
+}
