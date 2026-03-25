@@ -135,4 +135,20 @@ public class PlayerMatchState {
         this.score += amount;
     }
 
+    /* Snapshot */
+
+    /**
+     * @return an immutable read-only snapshot of the state
+     */
+    public PlayerSnapshot toSnapshot() {
+        return new PlayerSnapshot(
+            getPlayerId(),
+            isAlive(),
+            isDowned(),
+            getOxygen(),
+            getMaxOxygen(),
+            getScore()
+        );
+    }
+
 }

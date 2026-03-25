@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.application.match.oxygen;
 
+import com.creatorsplash.oxygenheist.application.match.zone.ZonePresence;
 import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -30,10 +31,10 @@ public class PlayerOxygenService {
      *
      * @param session the active match session
      */
-    public void tickDrain(MatchSession session) {
+    public void tickDrain(MatchSession session, ZonePresence presence) {
         for (PlayerMatchState player: session.getPlayers()) {
             if (!player.isActive() ||
-                zoneService.isPlayerInOwnedZone(player.getPlayerId())) continue;
+                zoneService.isPlayerInOwnedZone(session, player.getPlayerId(), presence)) continue;
 
             player.drainOxygen(drainAmountPerTick);
 

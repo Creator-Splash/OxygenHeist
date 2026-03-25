@@ -1,7 +1,9 @@
 package com.creatorsplash.oxygenheist.domain.match;
 
-import com.creatorsplash.oxygenheist.application.match.zone.CaptureZoneState;
+import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
+import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -102,6 +104,26 @@ public final class MatchSession {
         }
 
         return counts;
+    }
+
+    /* Snapshot */
+
+    public MatchSnapshot createSnapshot(long tick) {
+        List<PlayerSnapshot> playerSnapshots = new ArrayList<>();
+        for (PlayerMatchState player : getPlayers()) {
+            playerSnapshots.add(player.toSnapshot());
+        }
+
+        List<ZoneSnapshot> zonesSnapshots = new ArrayList<>();
+        for (CaptureZoneState zone : getZones()) {
+            zonesSnapshots.add(zone.toSnapshot());
+        }
+
+        return new MatchSnapshot(
+            tick,
+            playerSnapshots,
+            zonesSnapshots
+        );
     }
 
 }

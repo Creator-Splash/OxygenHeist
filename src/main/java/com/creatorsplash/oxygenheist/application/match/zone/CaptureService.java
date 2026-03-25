@@ -1,18 +1,22 @@
 package com.creatorsplash.oxygenheist.application.match.zone;
 
-import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
-import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 /**
+ * Handles capture zone progression during an active match
  *
+ * <p>Responsible for:
+ * <ul>
+ *     <li>Determining which teams are present in each zone</li>
+ *     <li>Applying capture progression or regression</li>
+ *     <li>Handling contested zones</li>
+ *     <li>Completing captures and triggering rewards</li>
+ * </ul>
+ * </p>
  */
 @RequiredArgsConstructor
 public class CaptureService {
@@ -28,47 +32,36 @@ public class CaptureService {
      *
      * @param session the match session
      */
-    public void tick(MatchSession session) {
+    public void tick(MatchSession session, ZonePresence presence) {
         for (CaptureZoneState zone : session.getZones()) {
-            Map<String, Integer> teamCounts = new HashMap<>();
+            applyCapture(zone, presence, session);
+        }
+    }
 
-            for (PlayerMatchState player : session.getPlayers()) {
-                if (!player.isActive()) continue;
+    /**
+     * Applies capture logic to a single zone
+     */
+    private void applyCapture(
+        CaptureZoneState zone,
+        ZonePresence presence,
+        MatchSession session
+    ) {
+        if (presence.isEmpty(zone)) return;
 
-                UUID playerId = player.getPlayerId();
-                FullPosition pos = positionProvider.getPosition(playerId);
-                if (pos == null) continue;
+        if (presence.isContested(zone)) return;
 
-                if (!zone.isInside(pos.x(), pos.y(), pos.z())) continue;
+        String teamId = presence.getSingleTeam(zone).orElseThrow();
 
-                String teamId = ""; // TODO
-                if (teamId == null) continue;
+        if (zone.hasOwner() && !teamId.equals(zone.getOwnerTeamId())) {
+            zone.regressCapture(teamId, capturePerTick);
+            return;
+        }
 
-                teamCounts.merge(teamId, 1, Integer::sum);
-            }
+        zone.progressCapture(teamId, capturePerTick);
 
-            // No players
-            if (teamCounts.isEmpty()) continue;
-
-            // Multiple teams contesting
-            if (teamCounts.size() > 1) continue;
-
-            // Only one team present
-            String teamId = teamCounts.keySet().iterator().next();
-
-            if (zone.hasOwner() && !teamId.equals(zone.getOwnerTeamId())) {
-                // Enemy is trying to take zone -> regress
-                zone.regressCapture(teamId, capturePerTick);
-            } else {
-                // Capture or reinforce
-                zone.progressCapture(teamId, capturePerTick);
-
-                if (zone.isFullyCaptured()) {
-                    zone.completeCapture();
-
-                    oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
-                }
-            }
+        if (zone.isFullyCaptured()) {
+            zone.completeCapture();
+            oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
         }
     }
 

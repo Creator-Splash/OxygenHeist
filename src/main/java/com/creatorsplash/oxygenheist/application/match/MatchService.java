@@ -6,15 +6,24 @@ import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
+import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
+import com.creatorsplash.oxygenheist.application.match.zone.CaptureService;
+import com.creatorsplash.oxygenheist.application.match.zone.ZoneOxygenService;
+import com.creatorsplash.oxygenheist.application.match.zone.ZonePresence;
+import com.creatorsplash.oxygenheist.application.match.zone.ZonePresenceService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Primary orchestration service for match lifecycle and high-level gameplay actions
@@ -35,11 +44,21 @@ public final class MatchService {
 
     private final DownedService downedService;
     private final ReviveService reviveService;
+
     private final PlayerPositionProvider playerPositionProvider;
+    private final CaptureService captureService;
+    private final ZoneOxygenService zoneOxygenService;
+    private final PlayerOxygenService playerOxygenService;
+    private final ZonePresenceService zonePresenceService;
 
     private MatchSession session;
 
-    private Scheduler.Task downedTask;
+    private Scheduler.Task syncGameTask;
+    private Scheduler.Task asyncGameTask;
+
+    private final AtomicReference<MatchSnapshot> latestSnapshot = new AtomicReference<>();
+
+    private long tickCounter = 0;
 
     /* == Match == */
 
@@ -190,30 +209,22 @@ public final class MatchService {
     private void startTasks() {
         stopTasks();
 
-        this.downedTask = scheduler.runRepeating(
-            () -> {
-                if (session == null) return;
-
-                this.downedService.tick(session, playerId ->
-                    eliminatePlayer(playerId, "Bled out"));
-
-                this.reviveService.tick(
-                    session,
-                    playerPositionProvider,
-                    playerId -> {
-                        // TODO callbacks for display service or related
-                    }
-                );
-            },
+        this.syncGameTask = scheduler.runRepeating(
+            this::tickGame,
             1L,
             1L
         );
 
-        // TODO
+        this.asyncGameTask = scheduler.runRepeatingAsync(
+            this::tickGameAsync,
+            1L,
+            1L
+        );
     }
 
     private void stopTasks() {
-       if (stopTask(this.downedTask)) this.downedTask = null;
+       if (stopTask(this.syncGameTask)) this.syncGameTask = null;
+       if (stopTask(this.asyncGameTask)) this.asyncGameTask = null;
     }
 
     private boolean stopTask(@Nullable Scheduler.Task task) {
@@ -222,6 +233,48 @@ public final class MatchService {
             return true;
         }
         return false;
+    }
+
+    private void tickGame() {
+        if (session == null) return;
+
+        /* Core Sim */
+
+        tickCounter++;
+
+        ZonePresence presence =
+            zonePresenceService.compute(session);
+        captureService.tick(session, presence);
+        zoneOxygenService.tick(session, presence);
+
+        playerOxygenService.tickDrain(session, presence);
+
+        /* Player State */
+
+        downedService.tick(session, playerId ->
+            eliminatePlayer(playerId, "Bled out"));
+
+        reviveService.tick(
+            session,
+            playerPositionProvider,
+            playerId -> {
+                // TODO callbacks for display service or related
+            }
+        );
+
+        /* Snapshot */
+
+        MatchSnapshot snapshot = session.createSnapshot(tickCounter);
+        latestSnapshot.set(snapshot);
+    }
+
+    private void tickGameAsync() {
+        MatchSnapshot snapshot = latestSnapshot.getAndSet(null);
+        if (snapshot != null) handleSnapshot(snapshot);
+    }
+
+    private void handleSnapshot(MatchSnapshot snapshot) {
+        // TODO
     }
 
 }
