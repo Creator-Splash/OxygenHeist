@@ -24,8 +24,8 @@ public class PlayerMatchState {
 
     private int score = 0;
 
-    private int oxygen;
-    private int maxOxygen;
+    private double oxygen;
+    private double maxOxygen;
 
     @Setter
     private UUID lastAttacker;
@@ -37,7 +37,7 @@ public class PlayerMatchState {
     /**
      * Initializes the players oxygen data
      */
-    public void initOxygen(int maxOxygen) {
+    public void initOxygen(double maxOxygen) {
         this.oxygen = maxOxygen;
         this.maxOxygen = maxOxygen;
     }
@@ -48,7 +48,7 @@ public class PlayerMatchState {
      *
      * @param amount the amount to drain
      */
-    public void drainOxygen(int amount) {
+    public void drainOxygen(double amount) {
         this.oxygen = Math.max(0, this.oxygen - amount);
     }
 

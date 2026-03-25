@@ -12,6 +12,11 @@ import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
+import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
+import com.creatorsplash.oxygenheist.application.match.zone.CaptureService;
+import com.creatorsplash.oxygenheist.application.match.zone.ZoneOxygenService;
+import com.creatorsplash.oxygenheist.application.match.zone.ZonePresenceService;
+import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
@@ -67,13 +72,27 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             );
         };
 
+        ZoneService zoneService = new ZoneService(playerPositionProvider);
+        PlayerOxygenService playerOxygenService =
+            new PlayerOxygenService(0.1, zoneService);
+        CaptureService captureService =
+            new CaptureService(playerOxygenService, 1, 1);
+        ZonePresenceService zonePresenceService =
+            new ZonePresenceService(playerPositionProvider);
+        ZoneOxygenService zoneOxygenService =
+            new ZoneOxygenService(zonePresenceService);
+
         this.matchService = new MatchService(
             scheduler,
             bridge,
             debugFlags,
             downedService,
             reviveService,
-            playerPositionProvider
+            playerPositionProvider,
+            captureService,
+            zoneOxygenService,
+            playerOxygenService,
+            zonePresenceService
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);

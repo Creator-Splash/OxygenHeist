@@ -9,7 +9,7 @@ public record PlayerSnapshot(
     UUID playerId,
     boolean alive,
     boolean downed,
-    int oxygen,
-    int maxOxygen,
+    double oxygen,
+    double maxOxygen,
     int score
 ) {}

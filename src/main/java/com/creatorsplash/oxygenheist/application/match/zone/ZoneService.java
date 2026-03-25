@@ -24,11 +24,13 @@ public class ZoneService {
      */
     public boolean isPlayerInOwnedZone(
         MatchSession session,
-        UUID playerId,
-        ZonePresence presence
+        UUID playerId
     ) {
         String teamId = session.getPlayerTeam(playerId);
-        return teamId != null && presence.isTeamInOwnedZone(teamId);
+        if (teamId == null) return false;
+
+        return getZonesAt(session, playerId).stream()
+            .anyMatch(zone -> teamId.equals(zone.getOwnerTeamId()));
     }
 
     /**

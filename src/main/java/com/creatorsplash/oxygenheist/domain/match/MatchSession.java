@@ -83,13 +83,13 @@ public final class MatchSession {
         players.remove(playerId);
     }
 
-    /* Teams */
+    /* Teams temp */
 
     public String getPlayerTeam(UUID playerId) {
         return playerTeams.get(playerId);
     }
 
-    public void setPlayerTeam(UUID playerId, String teamId) {
+    public void assignPlayerTeam(UUID playerId, String teamId) {
         playerTeams.put(playerId, teamId);
     }
 

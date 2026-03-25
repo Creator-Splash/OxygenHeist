@@ -15,14 +15,12 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
-import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -135,7 +133,8 @@ public final class MatchService {
             throw new IllegalStateException("Match not created");
         }
 
-        session.getOrCreatePlayer(playerId);
+        PlayerMatchState player = session.getOrCreatePlayer(playerId);
+        player.initOxygen(100.0); // todo cfg
     }
 
     /**
@@ -244,10 +243,10 @@ public final class MatchService {
 
         ZonePresence presence =
             zonePresenceService.compute(session);
-        captureService.tick(session, presence);
-        zoneOxygenService.tick(session, presence);
 
-        playerOxygenService.tickDrain(session, presence);
+        zoneOxygenService.tick(session, presence);
+        captureService.tick(session, presence);
+        playerOxygenService.tickDrain(session);
 
         /* Player State */
 
@@ -266,6 +265,20 @@ public final class MatchService {
 
         MatchSnapshot snapshot = session.createSnapshot(tickCounter);
         latestSnapshot.set(snapshot);
+
+        /* Debug */
+
+        if (tickCounter % 100 != 0) return;
+
+        session.getPlayers().forEach(player -> {
+            String team = session.getPlayerTeam(player.getPlayerId());
+            log.info(
+                "Player=" + player.getPlayerId() +
+                " Team=" + team +
+                " 02=" + player.getOxygen() +
+                " Downed=" + player.isDowned()
+            );
+        });
     }
 
     private void tickGameAsync() {

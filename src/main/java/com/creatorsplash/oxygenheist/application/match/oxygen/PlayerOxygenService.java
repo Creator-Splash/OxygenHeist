@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlayerOxygenService {
 
-    private final int drainAmountPerTick; // todo cfg?
+    private final double drainAmountPerTick; // todo cfg?
     private final ZoneService zoneService;
 
     /**
@@ -31,15 +31,18 @@ public class PlayerOxygenService {
      *
      * @param session the active match session
      */
-    public void tickDrain(MatchSession session, ZonePresence presence) {
+    public void tickDrain(MatchSession session) {
         for (PlayerMatchState player: session.getPlayers()) {
-            if (!player.isActive() ||
-                zoneService.isPlayerInOwnedZone(session, player.getPlayerId(), presence)) continue;
+            if (!player.isActive()) continue;
+
+            if (zoneService.isPlayerInOwnedZone(session, player.getPlayerId())) continue;
+
+            if (player.getMaxOxygen() <= 0) continue;
 
             player.drainOxygen(drainAmountPerTick);
 
             if (player.isOxygenDepleted()) {
-                handleOxygenDepleted(player.getPlayerId());
+                handleOxygenDepleted(session, player.getPlayerId());
             }
         }
     }
@@ -55,7 +58,8 @@ public class PlayerOxygenService {
         for (PlayerMatchState player : session.getPlayers()) {
             if (!player.isActive()) continue;
 
-            // TODO player team?
+            String playerTeam = session.getPlayerTeam(player.getPlayerId());
+            if (!teamId.equals(playerTeam)) continue;
 
             player.restoreOxygen(amount);
         }
@@ -68,13 +72,17 @@ public class PlayerOxygenService {
      * @param playerId the player UUID
      * @return oxygen value, or 0 if not found
      */
-    public int getOxygen(MatchSession session, UUID playerId) {
+    public double getOxygen(MatchSession session, UUID playerId) {
         PlayerMatchState state = session.getPlayer(playerId).orElse(null);
-        return state != null ? state.getOxygen() : 0;
+        return state != null ? state.getOxygen() : 0.0;
     }
 
-    protected void handleOxygenDepleted(UUID playerId) {
-        // TODO?
+    public void handleOxygenDepleted(MatchSession session, UUID playerId) {
+        session.getPlayer(playerId).ifPresent(player -> {
+            if (!player.isDowned()) {
+                player.down(200); // todo cfg
+            }
+        });
     }
 
 }

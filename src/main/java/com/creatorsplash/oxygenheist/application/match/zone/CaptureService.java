@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CaptureService {
 
-    private final PlayerPositionProvider positionProvider;
     private final PlayerOxygenService oxygenService;
 
     private final double capturePerTick; // todo cfg
