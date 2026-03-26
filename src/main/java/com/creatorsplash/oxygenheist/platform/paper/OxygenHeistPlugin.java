@@ -28,6 +28,7 @@ import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogC
 import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
 import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
+import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayGateway;
@@ -67,17 +68,21 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             Set.of("all") // todo
         );
 
+        this.logCenter = new GlobalLogCenter(debugFlags);
+
         MatchConfigService matchConfigService = new MatchConfigService();
         matchConfigService.load(getConfig());
 
-        /* == Services == */
+        ArenaConfigService arenaConfigService = new ArenaConfigService(this, this.logCenter);
+        arenaConfigService.load();
 
-        this.logCenter = new GlobalLogCenter(debugFlags);
+        /* == Services == */
 
         Scheduler scheduler = new PaperSchedulerAdapter(this);
 
         GameBridge bridge = new StandaloneGameBridge();
-        GameWorldService worldService = new PaperGameWorldService();
+        GameWorldService worldService = new PaperGameWorldService(
+            getServer(), arenaConfigService, this.logCenter);
 
         MatchSnapshotProvider snapshotProvider = new MatchSnapshotProvider();
 

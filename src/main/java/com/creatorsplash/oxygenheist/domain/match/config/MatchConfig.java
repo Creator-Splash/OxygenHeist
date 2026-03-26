@@ -10,7 +10,7 @@ public record MatchConfig(
     int instantDeathSecondsRemaining,
 
     // Sub configs
-    BorderConfig border,
+    MatchBorderConfig border,
     OxygenConfig oxygen,
     DownedConfig downed,
     MatchZoneConfig zones
@@ -19,7 +19,7 @@ public record MatchConfig(
         600,
         10,
         120,
-        BorderConfig.EMPTY,
+        MatchBorderConfig.EMPTY,
         OxygenConfig.EMPTY,
         DownedConfig.EMPTY,
         MatchZoneConfig.EMPTY

@@ -20,12 +20,6 @@ import java.util.function.Consumer;
  */
 public class ReviveService {
 
-    private static final double MAX_DISTANCE = 3.0; // todo cfg
-    private static final int REQUIRED_PROGRESS = 60; // 3 sec todo config
-
-    /** How many ticks a revive may continue without a fresh player interaction */
-    private static final long INTENT_TTL = 5L;
-
     private final Map<UUID, ReviveSession> activeRevives = new HashMap<>();
     private long currentTick = 0L;
 

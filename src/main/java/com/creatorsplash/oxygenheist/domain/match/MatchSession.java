@@ -170,7 +170,7 @@ public final class MatchSession {
     /* Game */
 
     public void startMatch() {
-        this.state = MatchState.STARTING;
+        this.state = MatchState.PLAYING;
         this.remainingTicks = config.durationSeconds() * 20;
     }
 

@@ -29,10 +29,11 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         int instantDeathSecondsRemaining =
             fileConfig.getInt("match.instant-death-seconds-remaining", 120);
 
-        BorderConfig border = new BorderConfig(
+        MatchBorderConfig border = new MatchBorderConfig(
             fileConfig.getInt("border.shrink-delay-seconds", 60),
             fileConfig.getInt("border.shrink-duration-seconds", 300),
-            fileConfig.getDouble("border.shrink-size-percent", 20.0)
+            fileConfig.getDouble("border.shrink-size-percent", 20.0),
+            fileConfig.getDouble("border.shrink-minimum-size", 10.0)
         );
 
         OxygenConfig oxygen = new OxygenConfig(
