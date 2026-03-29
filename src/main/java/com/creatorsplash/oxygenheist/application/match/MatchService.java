@@ -9,14 +9,12 @@ import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvi
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
-import com.creatorsplash.oxygenheist.application.match.zone.CaptureService;
-import com.creatorsplash.oxygenheist.application.match.zone.ZoneOxygenService;
-import com.creatorsplash.oxygenheist.application.match.zone.ZonePresence;
-import com.creatorsplash.oxygenheist.application.match.zone.ZonePresenceService;
+import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import lombok.Getter;
@@ -52,9 +50,10 @@ public final class MatchService {
 
     private final PlayerPositionProvider playerPositionProvider;
     private final CaptureService captureService;
-    private final ZoneOxygenService zoneOxygenService;
     private final PlayerOxygenService playerOxygenService;
+    private final ZoneOxygenService zoneOxygenService;
     private final ZonePresenceService zonePresenceService;
+    private final ZoneProvider zoneProvider;
 
     private MatchSession session;
 
@@ -75,6 +74,14 @@ public final class MatchService {
             UUID.randomUUID().toString().substring(0, 6),
             debugFlags
         );
+
+        // Load zones from config into session
+        List<CaptureZoneState> zones = zoneProvider.loadZones();
+        zones.forEach(session::addZone);
+
+        if (zones.isEmpty()) {
+            log.warn("Match created with no zones configured - use /oh zone set to add zones");
+        }
 
         log.info("Match created");
     }

@@ -19,10 +19,8 @@ import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
-import com.creatorsplash.oxygenheist.application.match.zone.CaptureService;
-import com.creatorsplash.oxygenheist.application.match.zone.ZoneOxygenService;
-import com.creatorsplash.oxygenheist.application.match.zone.ZonePresenceService;
-import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
+import com.creatorsplash.oxygenheist.application.match.zone.*;
+import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
@@ -41,6 +39,7 @@ import com.creatorsplash.oxygenheist.platform.paper.listener.ReviveListener;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
+import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
 import lombok.Getter;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -91,6 +90,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         MatchSnapshotProvider snapshotProvider = new MatchSnapshotProvider();
 
         this.selectionService = new PlayerSelectionService(this);
+        ZoneSelectionService zoneSelectionService = new ZoneSelectionService(selectionService);
 
         PlayerPositionProvider playerPositionProvider = playerId -> {
             var player = getServer().getPlayer(playerId);
@@ -127,6 +127,11 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         );
         MatchDisplayService displayService = new DefaultMatchDisplayService(displayGateway);
 
+        ZoneProvider zoneProvider = () -> arenaConfigService.getZones()
+            .stream()
+            .map(ZoneDefinition::toRuntimeState)
+            .toList();
+
         this.matchService = new MatchService(
             matchConfigService,
             snapshotProvider,
@@ -139,9 +144,10 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             reviveService,
             playerPositionProvider,
             captureService,
-            zoneOxygenService,
             playerOxygenService,
-            zonePresenceService
+            zoneOxygenService,
+            zonePresenceService,
+            zoneProvider
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);
@@ -163,7 +169,12 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         registerCommands(
             new GameCommands(this.matchService),
             new DebugCommands(this.matchService),
-            new SetupCommands(this.logCenter, this.selectionService, arenaConfigService)
+            new SetupCommands(
+                this.logCenter,
+                this.selectionService,
+                zoneSelectionService,
+                arenaConfigService
+            )
         );
 
         /* == PAPI == */

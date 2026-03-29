@@ -1,17 +1,23 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ArenaSetup;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
+import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Command("oxygenheist|oh")
@@ -19,8 +25,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public final class SetupCommands implements CommandHandler {
 
+    private static final int ZONE_MAX = 50;
+
     private final LogCenter log;
     private final PlayerSelectionService selectionService;
+    private final ZoneSelectionService zoneSelectionService;
     private final ArenaConfigService arenaConfigService;
 
     /* Selection Wand */
@@ -79,7 +88,7 @@ public final class SetupCommands implements CommandHandler {
         );
 
         try {
-            arenaConfigService.save(arena);
+            arenaConfigService.saveArena(arena);
             selectionService.clearSelection(playerId);
 
             player.sendRichMessage(
@@ -97,14 +106,14 @@ public final class SetupCommands implements CommandHandler {
     @Command("arena info")
     @CommandDescription("Show the current arena configuration")
     public void arenaInfo(CommandSender sender) {
-        if (!arenaConfigService.isConfigured()) {
+        if (!arenaConfigService.isArenaConfigured()) {
             sender.sendRichMessage(
                 "<yellow>No arena configured yet. Use <white>/oh wand</white> in-game to get started"
             );
             return;
         }
 
-        ArenaSetup arena = arenaConfigService.get().orElseThrow();
+        ArenaSetup arena = arenaConfigService.getArena().orElseThrow();
         sender.sendRichMessage("<gold>Arena Info");
         sender.sendRichMessage("<gray>World: <white>" + arena.worldName());
         sender.sendRichMessage(
@@ -113,6 +122,136 @@ public final class SetupCommands implements CommandHandler {
         sender.sendRichMessage("<gray>Size: <white>" + (int) arena.initialSize() + " blocks");
     }
 
-    // TODO zone here?
+    /* Zones setup */
+
+    @Command("zone set <id> [displayName]")
+    @CommandDescription("Create a cuboid zone from your wand selection")
+    public void zoneSet(
+        Player player,
+        @Argument("id") String id,
+        @Argument("displayName") @Nullable String displayName
+    ) {
+        String safeId = id.toLowerCase();
+        String name = displayName != null ? displayName : safeId;
+
+        Optional<ZoneDefinition.Cuboid> zone =
+            zoneSelectionService.confirmCuboid(player.getUniqueId(), safeId, name);
+
+        if (zone.isEmpty()) {
+            player.sendRichMessage(
+                "<red>No complete selection found. Use <white>/oh wand</white>" +
+                    " and set both points, then run this command");
+            player.sendRichMessage("<red>Or use <gray>/oh zone setcircle</gray> " +
+                "to use a single selection point and radius");
+            return;
+        }
+
+        try {
+            ZoneDefinition.Cuboid c = zone.get();
+
+            arenaConfigService.saveZone(c);
+            zoneSelectionService.clearSelection(player.getUniqueId());
+
+            player.sendRichMessage(
+                "<green>Zone '<white>" + safeId + "</white>' saved! " +
+                "<gray>(" + (int) c.minX() + ", " + (int) c.minY() + ", " + (int) c.minZ() + ")" +
+                " -> (" + (int) c.maxX() + ", " + (int) c.maxY() + ", " + (int) c.maxZ() + ")"
+            );
+        } catch (RuntimeException e) {
+            log.error("Failed to save zone config", e);
+            player.sendRichMessage("<red>Failed to save zone - check console for details");
+        }
+    }
+
+    @Command("zone setcircle <id> <radius> [displayName]")
+    @CommandDescription("Create a circle zone from your first wand point, and a radius")
+    public void zoneSetCircle(
+        Player player,
+        @Argument("id") String id,
+        @Argument("radius") double radius,
+        @Argument("displayName") @Nullable String displayName
+    ) {
+        if (radius <= 0 || radius > ZONE_MAX) {
+            player.sendRichMessage("<red>Radius must be between 1 and " + ZONE_MAX);
+            return;
+        }
+
+        String safeId = id.toLowerCase();
+        String name = displayName != null ? displayName : safeId;
+
+        Optional<ZoneDefinition.Circle> zone =
+            zoneSelectionService.confirmCircle(player.getUniqueId(), safeId, name, radius);
+
+        if (zone.isEmpty()) {
+            player.sendRichMessage(
+                "<red>No first point found. Use <white>/oh wand</white>" +
+                " and left-click a block to set your center point"
+            );
+            return;
+        }
+
+        try {
+            arenaConfigService.saveZone(zone.get());
+            zoneSelectionService.clearSelection(player.getUniqueId());
+
+            ZoneDefinition.Circle c = zone.get();
+            player.sendRichMessage(
+                "<green>Zone '<white>" + safeId + "</white>' saved! " +
+                "<gray>Center: (" + (int) c.centerX() + ", " + (int) c.centerY() +
+                ", " + (int) c.centerZ() + ") Radius: <white>" + (int) radius
+            );
+        } catch (RuntimeException e) {
+            log.error("Failed to save zone config", e);
+            player.sendRichMessage("<red>Failed to save zone - check console for details");
+        }
+    }
+
+    /**
+     * Removes a zone by id
+     */
+    @Command("zone remove <id>")
+    @CommandDescription("Remove a zone by id")
+    public void zoneRemove(CommandSender sender, @Argument("id") String id) {
+        String safeId = id.toLowerCase();
+
+        if (arenaConfigService.removeZone(safeId)) {
+            sender.sendRichMessage("<green>Zone '<white>" + safeId + "</white>' removed");
+        } else {
+            sender.sendRichMessage("<red>No zone found with id '<white>" + safeId + "</white>'");
+        }
+    }
+
+    /**
+     * Lists all configured zones
+     */
+    @Command("zone list")
+    @CommandDescription("List all configured zones")
+    public void zoneList(CommandSender sender) {
+        List<ZoneDefinition> zones = arenaConfigService.getZones();
+
+        if (zones.isEmpty()) {
+            sender.sendRichMessage(
+                "<yellow>No zones configured yet. " +
+                "Use <white>/oh wand</white> and <white>/oh zone set</white> to create one."
+            );
+            return;
+        }
+
+        sender.sendRichMessage("<gold>Configured Zones <gray>(" + zones.size() + ")");
+
+        for (ZoneDefinition zone : zones) {
+            String shape = switch (zone) {
+                case ZoneDefinition.Circle c  -> "circle r=" + (int) c.radius();
+                case ZoneDefinition.Cuboid c  -> "cuboid";
+            };
+
+            sender.sendRichMessage(
+                "<gray> - <white>" + zone.id() +
+                " <dark_gray>(" + shape + ")" +
+                " <gray>'" + zone.displayName() + "'" +
+                " <dark_gray>@ " + zone.worldName()
+            );
+        }
+    }
 
 }

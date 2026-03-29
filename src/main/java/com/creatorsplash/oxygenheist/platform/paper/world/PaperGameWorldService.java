@@ -28,7 +28,7 @@ public final class PaperGameWorldService implements GameWorldService {
         World world = resolveWorld();
         if (world == null) return;
 
-        ArenaSetup arena = arenaConfigService.get().orElseThrow();
+        ArenaSetup arena = arenaConfigService.getArena().orElseThrow();
 
         WorldBorder border = world.getWorldBorder();
         border.setCenter(arena.centerX(), arena.centerZ());
@@ -46,7 +46,7 @@ public final class PaperGameWorldService implements GameWorldService {
         World world = resolveWorld();
         if (world == null) return;
 
-        ArenaSetup arena = arenaConfigService.get().orElseThrow();
+        ArenaSetup arena = arenaConfigService.getArena().orElseThrow();
         MatchBorderConfig borderConfig = config.border();
 
         double targetSize = arena.initialSize() * (borderConfig.shrinkSizePercent() / 100d);
@@ -65,7 +65,7 @@ public final class PaperGameWorldService implements GameWorldService {
         World world = resolveWorld();
         if (world == null) return;
 
-        ArenaSetup arena = arenaConfigService.get().orElseThrow();
+        ArenaSetup arena = arenaConfigService.getArena().orElseThrow();
 
         WorldBorder border = world.getWorldBorder();
         border.setSize(arena.initialSize());
@@ -78,7 +78,7 @@ public final class PaperGameWorldService implements GameWorldService {
     /* Internals */
 
     private @Nullable World resolveWorld() {
-        ArenaSetup arena = arenaConfigService.get().orElse(null);
+        ArenaSetup arena = arenaConfigService.getArena().orElse(null);
 
         if (arena == null) {
             log.warn("Border operation skipped - arena is not configured");

@@ -1,9 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
-import com.creatorsplash.oxygenheist.application.common.math.Position3;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
-import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -42,15 +40,6 @@ public final class GameCommands implements CommandHandler {
             // temp
             player.sendRichMessage("<gray>You are on team <" + teamId + ">" + teamId);
         }
-
-        CaptureZoneState zone = CaptureZoneState.fromCenterRadius(
-            "test_zone",
-                "world",
-                new Position3(0.0, 64.0, 0.0),
-                6.0
-        );
-
-        session.addZone(zone);
 
         matchService.startMatch();
 
