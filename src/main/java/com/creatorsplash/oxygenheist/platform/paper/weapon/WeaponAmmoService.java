@@ -26,15 +26,12 @@ import java.util.UUID;
  */
 public final class WeaponAmmoService {
 
-    private static final String PDC_KEY = "weapon_item_id";
-
-    private final NamespacedKey key;
-    private final Map<String, Integer> ammoByItemId = new HashMap<>();
+    private final NamespacedKey ammoKey;
     private final int maxAmmo;
 
     public WeaponAmmoService(JavaPlugin plugin, int maxAmmo) {
         this.maxAmmo = maxAmmo;
-        this.key = new NamespacedKey(plugin, PDC_KEY);
+        this.ammoKey = new NamespacedKey(plugin, "weapon_ammo");
     }
 
     /**
@@ -43,16 +40,22 @@ public final class WeaponAmmoService {
      * <p>If the item has no tracked ID yet, it is assigned one and returned at max ammo</p>
      */
     public int getAmmo(ItemStack item) {
-        String id = resolveId(item);
-        return ammoByItemId.getOrDefault(id, maxAmmo);
+        if (!item.hasItemMeta()) return maxAmmo;
+        var pdc = item.getItemMeta().getPersistentDataContainer();
+        return pdc.getOrDefault(ammoKey, PersistentDataType.INTEGER, maxAmmo);
     }
 
     /**
      * Sets the ammo count for the given item, clamped to [0, maxAmmo]
      */
     public void setAmmo(ItemStack item, int amount) {
-        String id = resolveId(item);
-        ammoByItemId.put(id, Math.max(0, Math.min(amount, maxAmmo)));
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        meta.getPersistentDataContainer().set(
+            ammoKey, PersistentDataType.INTEGER,
+            Math.max(0, Math.min(amount, maxAmmo))
+        );
+        item.setItemMeta(meta);
     }
 
     /**
@@ -81,33 +84,6 @@ public final class WeaponAmmoService {
      */
     public int maxAmmo() {
         return maxAmmo;
-    }
-
-    /**
-     * Clears all tracked ammo state
-     *
-     * <p>Call from {@link WeaponHandler#onMatchEnd()}</p>
-     */
-    public void clearAll() {
-        ammoByItemId.clear();
-    }
-
-    /* Internals */
-
-    private String resolveId(ItemStack item) {
-        if (!item.hasItemMeta()) return UUID.randomUUID().toString();
-
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta.getPersistentDataContainer().has(key, PersistentDataType.STRING)) {
-            return meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
-        }
-
-        String id = UUID.randomUUID().toString();
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
-        item.setItemMeta(meta);
-
-        return id;
     }
 
 }

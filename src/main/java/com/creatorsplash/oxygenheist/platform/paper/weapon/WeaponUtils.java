@@ -1,11 +1,14 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
+import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 
@@ -14,6 +17,27 @@ import java.util.List;
  */
 @UtilityClass
 public class WeaponUtils {
+
+    public ItemStack createWeaponItem(String id, Material material, WeaponTypeConfig config) {
+        ItemStack item = new ItemStack(material);
+        item.editMeta(meta -> {
+            meta.displayName(MM.item(WeaponUtils.formatDisplayName(id)));
+            meta.setCustomModelData(config.cmds().get("base"));
+            meta.getPersistentDataContainer().set(
+                OxygenHeistPlugin.weaponIdKey(), PersistentDataType.STRING, id
+            );
+        });
+
+        return item;
+    }
+
+    public boolean doWeaponHandle(ItemStack item, String id) {
+        if (item == null || !item.hasItemMeta()) return false;
+        String stored = item.getItemMeta()
+            .getPersistentDataContainer()
+            .get(OxygenHeistPlugin.weaponIdKey(), PersistentDataType.STRING);
+        return id.equals(stored);
+    }
 
     /**
      * Returns the custom model data of the given item, or -1 if absent.

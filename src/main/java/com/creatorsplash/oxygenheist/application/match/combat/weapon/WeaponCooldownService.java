@@ -1,7 +1,5 @@
 package com.creatorsplash.oxygenheist.application.match.combat.weapon;
 
-import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
