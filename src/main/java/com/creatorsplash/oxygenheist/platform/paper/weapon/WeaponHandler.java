@@ -1,9 +1,12 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
+import com.creatorsplash.oxygenheist.platform.paper.listener.WeaponListener;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.UUID;
 
 /**
  * Contract for a single weapons behaviour
@@ -62,9 +65,43 @@ public interface WeaponHandler extends MatchLifecycle {
     default void onMeleeHit(WeaponContext ctx, Entity victim) {}
 
     /**
+     * Return true to allow a weapon-sourced programmatic {@code entity.damage()} call
+     * to pass through {@link WeaponListener}
+     * without being canceled.
+     *
+     * <p>Handlers that deal damage directly (explosion, raycast, projectile hit) must
+     * add the attacker UUID to their bypass set before calling {@code entity.damage()},
+     * return true here while it is present, and remove it immediately after the call.</p>
+     */
+    default boolean skipMeleeCancel(UUID attackerId) { return false; }
+
+    /**
      * Called when a projectile fired by this weapon hits something
      */
     default void onProjectileHit(WeaponProjectileContext ctx) {}
+
+    /**
+     * Called when the player switches hotbar slot while holding this weapon.
+     *
+     * <p>Used to interrupt in-progress reloads. The player reference is the
+     * one who WAS holding this weapon before the switch.</p>
+     */
+    default void onSlotChange(Player player) {}
+
+    /**
+     * @return true to cancel a hand-swap event while this player is mid-reload.
+     */
+    default boolean preventsSwapDuringReload(Player player) { return false; }
+
+    /**
+     * @return  true to cancel a drop event for this weapon item while reloading.
+     */
+    default boolean preventsDropDuringReload(Player player) { return false; }
+
+    /**
+     * @return  true to cancel block-break events while this weapon is held.
+     */
+    default boolean preventsBlockBreak(Player player) { return false; }
 
     /**
      * Called every 2 ticks for each player currently holding this weapon

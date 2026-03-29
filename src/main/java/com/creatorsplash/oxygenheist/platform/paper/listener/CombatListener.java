@@ -34,12 +34,7 @@ public final class CombatListener implements Listener {
 
         if (!combatService.isCombatRelevant(victimId, attackerId)) return;
 
-        if (!actionService.canAttack(attackerId)) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!actionService.canBeDamaged(victimId)) {
+        if (!actionService.canAttackTarget(attackerId, victimId)) {
             event.setCancelled(true);
             return;
         }
@@ -47,16 +42,10 @@ public final class CombatListener implements Listener {
         double finalHealth = victim.getHealth() - event.getFinalDamage();
 
         if (finalHealth > 0) {
-            combatService.handleDamage(
-                victim.getUniqueId(),
-                attacker.getUniqueId()
-            );
+            combatService.handleDamage(victimId, attackerId);
         } else {
-            event.setDamage(0); // todo move out? or keep in
-            combatService.handleLethalDamage(
-                victim.getUniqueId(),
-                attacker.getUniqueId()
-            );
+            event.setDamage(0);
+            combatService.handleLethalDamage(victimId, attackerId);
         }
     }
 

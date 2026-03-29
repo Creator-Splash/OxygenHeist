@@ -62,6 +62,19 @@ public final class MatchService {
 
     private long tickCounter = 0;
 
+    private final List<MatchLifecycle> externalLifecycles = new ArrayList<>();
+
+    /**
+     * Registers an external lifecycle participant
+     *
+     * <p>The registered instance will have {@link MatchLifecycle#onMatchEnd()} and
+     * {@link MatchLifecycle#onPlayerLeave(UUID)} called at the appropriate moments.
+     * Must be called before any match is created.</p>
+     */
+    public void registerLifecycle(MatchLifecycle lifecycle) {
+        externalLifecycles.add(lifecycle);
+    }
+
     /* == Match == */
 
     /**
@@ -114,6 +127,7 @@ public final class MatchService {
      * @param winner the winning team of player identifier
      */
     public void endMatch(String winner) {
+        externalLifecycles.forEach(MatchLifecycle::onMatchEnd);
         if (session == null) return;
 
         session.state(MatchState.ENDING);
@@ -165,6 +179,8 @@ public final class MatchService {
         }
 
         session.removePlayer(playerId);
+
+        externalLifecycles.forEach(l -> l.onPlayerLeave(playerId));
 
         log.debug("player", "Player " + playerId + " removed from match");
     }

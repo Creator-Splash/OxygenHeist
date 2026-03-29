@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +77,23 @@ public final class WeaponRegistry implements MatchLifecycle {
     }
 
     /* Lifecycle */
+
+    /**
+     * Ticks all handlers for players currently holding a registered weapon.
+     *
+     * <p>Called every 2 ticks by a scheduled task in {@code OxygenHeistPlugin}.
+     * Each handler's {@link WeaponHandler#tick} is responsible for HUD updates,
+     * reload animation, and any continuous-fire logic.</p>
+     */
+    public void tickAll(Iterable<? extends Player> players) {
+        for (Player player : players) {
+            ItemStack item = player.getInventory().getItemInMainHand();
+            WeaponHandler handler = find(item);
+            if (handler != null) {
+                handler.tick(player, item);
+            }
+        }
+    }
 
     @Override
     public void onMatchEnd() {

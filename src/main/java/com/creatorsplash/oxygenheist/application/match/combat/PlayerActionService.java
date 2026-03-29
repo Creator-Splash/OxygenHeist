@@ -30,6 +30,33 @@ public class PlayerActionService {
     }
 
     /**
+     * Determines whether an attacker is permitted to damage a specific victim
+     *
+     * <p>Combines all eligibility checks into a single call:</p>
+     * <ul>
+     *   <li>Attacker must be alive and not downed</li>
+     *   <li>Victim must be alive</li>
+     *   <li>If global friendly fire is disabled, players on the same team cannot attack each other</li>
+     * </ul>
+     *
+     * <p>Returns {@code true} outside of an active match session - no restrictions apply</p>
+     *
+     * @param attackerId the player attempting to deal damage
+     * @param victimId the player receiving damage
+     */
+    public boolean canAttackTarget(@NotNull UUID attackerId, @NotNull UUID victimId) {
+        if (!canAttack(attackerId)) return false;
+        if (!canBeDamaged(victimId)) return false;
+
+        return matchService.getSession()
+            .map(session -> {
+                if (session.config().globalFriendlyFire()) return true;
+                return !session.isSameTeam(attackerId, victimId);
+            })
+            .orElse(true);
+    }
+
+    /**
      * Determines whether a player can receive damage
      *
      * @param playerId the player being damaged

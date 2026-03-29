@@ -1,5 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,6 +52,20 @@ public record WeaponTypeConfig(
         public boolean has(String name) {
             return cmds.containsKey(name);
         }
+
+        /**
+         * Returns the reload frame CMD keys in numeric order: reload-0, reload-1, etc.
+         */
+        public List<String> reloadFrameKeys() {
+            return cmds.keySet().stream()
+                .filter(k -> k.startsWith("reload-"))
+                .sorted(Comparator.comparingInt(k -> {
+                    try { return Integer.parseInt(k.substring(7)); }
+                    catch (NumberFormatException e) { return Integer.MAX_VALUE; }
+                }))
+                .toList();
+        }
+
     }
 
     /* Ammo config */

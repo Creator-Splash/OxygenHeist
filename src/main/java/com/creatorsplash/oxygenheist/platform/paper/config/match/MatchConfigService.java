@@ -30,6 +30,8 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         int instantDeathSecondsRemaining =
             fileConfig.getInt("match.instant-death-seconds-remaining", 120);
 
+        boolean globalFF = fileConfig.getBoolean("weapons.friendly-fire", false);
+
         MatchBorderConfig border = new MatchBorderConfig(
             fileConfig.getInt("border.shrink-delay-seconds", 60),
             fileConfig.getInt("border.shrink-duration-seconds", 300),
@@ -62,6 +64,7 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             duration,
             countdown,
             instantDeathSecondsRemaining,
+            globalFF,
             border,
             oxygen,
             downed,

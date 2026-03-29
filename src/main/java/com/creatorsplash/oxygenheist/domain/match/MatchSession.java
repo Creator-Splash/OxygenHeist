@@ -137,6 +137,18 @@ public final class MatchSession {
 
     /* == Teams temp == */
 
+    /**
+     * Returns true if both players are assigned to the same team
+     *
+     * <p>Returns false if either player has no team assignment,
+     * or if they are on different teams</p>
+     */
+    public boolean isSameTeam(UUID a, UUID b) {
+        String teamA = playerTeams.get(a);
+        if (teamA == null) return false;
+        return teamA.equals(playerTeams.get(b));
+    }
+
     public String getPlayerTeam(UUID playerId) {
         return playerTeams.get(playerId);
     }

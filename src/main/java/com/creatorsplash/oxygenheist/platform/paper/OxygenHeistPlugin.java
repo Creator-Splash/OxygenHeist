@@ -29,14 +29,16 @@ import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayGateway;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
-import com.creatorsplash.oxygenheist.platform.paper.listener.AirChangeListener;
-import com.creatorsplash.oxygenheist.platform.paper.listener.CombatListener;
-import com.creatorsplash.oxygenheist.platform.paper.listener.PlayerRestrictionListener;
-import com.creatorsplash.oxygenheist.platform.paper.listener.ReviveListener;
+import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponProjectileTracker;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
@@ -79,6 +81,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         ArenaConfigService arenaConfigService = new ArenaConfigService(this, this.logCenter);
         arenaConfigService.load();
 
+        WeaponConfigService weaponConfigService = new WeaponConfigService(this, this.logCenter);
+        weaponConfigService.load();
+
         /* == Gameplay Services == */
 
         Scheduler scheduler = new PaperSchedulerAdapter(this);
@@ -102,22 +107,16 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             );
         };
 
-        /* Gameplay Services */
-
         DownedService downedService = new DownedService();
         ReviveService reviveService = new ReviveService();
 
         ZoneService zoneService = new ZoneService(playerPositionProvider);
-        PlayerOxygenService playerOxygenService =
-            new PlayerOxygenService(zoneService);
-        CaptureService captureService =
-            new CaptureService(playerOxygenService);
-        ZonePresenceService zonePresenceService =
-            new ZonePresenceService(playerPositionProvider);
-        ZoneOxygenService zoneOxygenService =
-            new ZoneOxygenService(zonePresenceService);
+        PlayerOxygenService playerOxygenService = new PlayerOxygenService(zoneService);
+        CaptureService captureService = new CaptureService(playerOxygenService);
+        ZonePresenceService zonePresenceService = new ZonePresenceService(playerPositionProvider);
+        ZoneOxygenService zoneOxygenService = new ZoneOxygenService(zonePresenceService);
 
-        /* Display Services */
+        /* == Display Services == */
 
         PaperAirBarController airBarController = new PaperAirBarController();
 
@@ -154,13 +153,22 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         CombatService combatService = new CombatService(
             this.matchService, downedService, reviveService);
 
+        /* == Weapons == */
+
+        WeaponProjectileTracker projectileTracker = new WeaponProjectileTracker();
+        WeaponEffectsState effectsState = new WeaponEffectsState();
+        WeaponRegistry weaponRegistry = new WeaponRegistry();
+
+        // todo register weapons here
+
         /* == Listeners == */
 
         registerListeners(
             new CombatListener(combatService, actionService),
             new ReviveListener(this.matchService, reviveService, actionService),
             new PlayerRestrictionListener(actionService),
-            new AirChangeListener(airBarController)
+            new AirChangeListener(airBarController),
+            new WeaponListener(weaponRegistry, projectileTracker, effectsState, matchService, actionService)
         );
 
         /* == Commands == */
