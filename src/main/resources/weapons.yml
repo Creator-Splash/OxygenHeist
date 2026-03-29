@@ -1,0 +1,125 @@
+# weapons.yml - OxygenHeist weapon type configuration
+#
+# Each top-level key is a weapon id matching the handler registered in code.
+# CMDs (custom model data) are named per weapon - keys vary by weapon type:
+#   base, aim, loaded, unloaded, reload-0, reload-1, etc.
+#
+# Weapons marked enabled: false are not registered at startup.
+
+claw_cannon:
+  enabled: true
+  cmds:
+    base: 8001
+  cooldown-ms: 3000
+  damage: 8.0
+  explosion-radius: 4.0
+  launch-speed: 2.5
+  launch-y: 0.8
+  melee-knockback: 2.0
+  melee-knockback-y: 0.5
+
+manta_cannon:
+  enabled: true
+  cmds:
+    base: 5001
+    aim: 5002
+    reload-0: 5003
+    reload-1: 5004
+  ammo: 4
+  reload-ms: 6000
+  shot-cooldown-ms: 3000
+  damage: 12.0
+  cone-angle: 60.0
+  max-range: 8.0
+
+needle_rifle:
+  enabled: true
+  cmds:
+    base: 4001
+    aim: 4002
+    reload-0: 4003
+  ammo: 8
+  reload-ms: 4000
+  shot-cooldown-ms: 2000
+  damage: 7.0
+  max-range: 10.0
+  close-range-distance: 3.0
+  close-range-bonus-damage: 3.0
+  long-range-distance: 6.0
+  long-range-nerf-damage: 3.0
+
+reef_harpoon:
+  enabled: true
+  cmds:
+    base: 1001
+    aim: 1002
+    reload-0: 1003
+  ammo: 1
+  start-ammo: 0
+  reload-ms: 5000
+  damage: 10.0
+  max-range: 12.0
+
+spike_shooter:
+  enabled: true
+  cmds:
+    base: 2001
+    aim: 2002
+    reload-0: 2003
+    reload-1: 2004
+    reload-2: 2005
+    reload-3: 2006
+    reload-4: 2007
+  ammo: 10
+  reload-ms: 3500
+  shot-cooldown-ms: 0
+  damage: 2.0
+  max-range: 12.0
+  burst-count: 3
+  burst-cooldown-ms: 500
+
+silt_blaster:
+  enabled: true
+  cmds:
+    base: 9001
+  cooldown-ms: 2000
+  cloud-radius: 3.0
+  effect-duration-ticks: 40
+
+venom_spitter:
+  enabled: true
+  cmds:
+    base: 3001
+  ammo: 16
+  reload-ms: 3000
+  shot-cooldown-ms: 200
+  damage-per-shot: 0.5
+  max-range: 7.0
+  poison-duration-ticks: 20
+
+dart_slingshot:
+  enabled: true
+  cmds:
+    base: 6001
+    aim: 6002
+    reload-0: 6003
+  ammo: 3
+  reload-ms: 2500
+  shot-cooldown-ms: 500
+  damage: 2.0
+  max-range: 15.0
+  poison-duration-ticks: 80
+
+steal_crossbow:
+  enabled: true
+  cmds:
+    loaded: 7001
+    aim: 7002
+    unloaded: 7003
+    reload-0: 7003
+  ammo: 1
+  start-ammo: 0
+  reload-ms: 3000
+  shot-cooldown-ms: 2000
+  damage: 3.0
+  max-range: 25.0
