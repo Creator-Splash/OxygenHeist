@@ -1,6 +1,5 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
-import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.Position3;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
@@ -16,7 +15,7 @@ import org.incendo.cloud.annotations.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
-@Command("oxygenheight|oh")
+@Command("oxygenheist|oh")
 @Permission("com.creatorsplash.oxygenheist.game")
 @RequiredArgsConstructor
 public final class GameCommands implements CommandHandler {

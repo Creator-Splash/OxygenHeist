@@ -80,8 +80,8 @@ public final class MatchSession {
         return state() == MatchState.PLAYING;
     }
 
-    /** Shorthand to check if the session state is {@link MatchState#STARTING} */
-    public boolean isCountdown() { return state() == MatchState.STARTING; }
+    /** Shorthand to check if the session state is {@link MatchState#SETUP} */
+    public boolean isCountdown() { return state() == MatchState.SETUP; }
 
     /* == Zones == */
 
@@ -163,7 +163,7 @@ public final class MatchSession {
     /* Countdown */
 
     public void startCooldown() {
-        this.state = MatchState.STARTING;
+        this.state = MatchState.SETUP;
         this.remainingTicks = config.countdownSeconds() * 20;
     }
 

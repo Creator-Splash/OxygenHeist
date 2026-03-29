@@ -15,6 +15,12 @@ public final class ArenaConfigService {
 
     private static final String FILE_NAME = "arena.yml";
 
+    private static final String ARENA = "arena";
+    private static final String WORLD = ARENA + ".world";
+    private static final String CENTER_X = ARENA + ".center-x";
+    private static final String CENTER_Z = ARENA + ".center-z";
+    private static final String INITIAL_SIZE = ARENA + ".initial-size";
+
     private final JavaPlugin plugin;
     private final LogCenter log;
 
@@ -33,18 +39,18 @@ public final class ArenaConfigService {
 
         YamlConfiguration config = YamlConfiguration.loadConfiguration(arenaFile);
 
-        if (!config.contains("arena.world")) {
-            log.error("arena.yml is missing required field 'arena.world' - arena is unconfigured");
+        if (!config.contains(WORLD)) {
+            log.error(FILE_NAME + " is missing required field 'arena.world' - arena is unconfigured");
             return;
         }
 
-        String world = config.getString("arena.world");
-        double centerX = config.getDouble("arena.center-x", 0.0);
-        double centerZ = config.getDouble("arena.center-z", 0.0);
-        double initialSize = config.getDouble("arena.initial-size", 500);
+        String world = config.getString(WORLD);
+        double centerX = config.getDouble(CENTER_X, 0.0);
+        double centerZ = config.getDouble(CENTER_Z, 0.0);
+        double initialSize = config.getDouble(INITIAL_SIZE, 500);
 
         if (initialSize <= 0) {
-            log.warn("arena.yml has invalid initial-size (" + initialSize + ") - must be > 0");
+            log.warn(FILE_NAME + " has invalid initial-size (" + initialSize + ") - must be > 0");
             return;
         }
 
@@ -63,10 +69,10 @@ public final class ArenaConfigService {
         File file = arenaFile();
         YamlConfiguration config = new YamlConfiguration();
 
-        config.set("arena.world", setup.worldName());
-        config.set("arena.center-x", setup.centerX());
-        config.set("arena.center-z", setup.centerZ());
-        config.set("arena.initial-size", setup.initialSize());
+        config.set(WORLD, setup.worldName());
+        config.set(CENTER_X, setup.centerX());
+        config.set(CENTER_Z, setup.centerZ());
+        config.set(INITIAL_SIZE, setup.initialSize());
 
         try {
             config.save(file);
@@ -74,7 +80,7 @@ public final class ArenaConfigService {
             log.info("Arena saved: world=<white>" + setup.worldName() +
                 "</white> size=<white>" + (int) setup.initialSize() + "</white>");
         } catch (IOException e) {
-            log.error("Failed to save arena.yml", e);
+            log.error("Failed to save " + FILE_NAME, e);
             throw new RuntimeException("Could not save arena configuration", e);
         }
     }

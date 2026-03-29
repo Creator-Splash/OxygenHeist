@@ -253,7 +253,7 @@ public final class MatchService {
         session.tickTimer();
 
         switch (session.state()) {
-            case STARTING -> {
+            case SETUP -> {
                 if (session.isTimeExpired()) {
                     session.startMatch();
                     worldService.onMatchStarted(session.config());

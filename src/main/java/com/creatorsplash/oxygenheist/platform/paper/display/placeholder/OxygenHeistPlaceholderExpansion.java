@@ -55,6 +55,7 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
                     return Boolean.toString(playerSnapshot.downed());
                 case "player_is_dead":
                     return Boolean.toString(!playerSnapshot.alive());
+                default: break;
             }
         }
 
@@ -65,7 +66,7 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
                 return switch (snapshot.state()) {
                     case PLAYING -> "In Progress";
                     case WAITING -> "Waiting";
-                    case STARTING -> "Starting";
+                    case SETUP -> "Starting";
                     case ENDING -> "Ended";
                 };
 
@@ -80,6 +81,7 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
 
             case "zone_count":
                 return Integer.toString(snapshot.zones().size());
+            default: break;
         }
 
         if (params.startsWith("zone_") && params.endsWith("_progress")) {

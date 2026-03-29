@@ -9,7 +9,7 @@ import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
 
-@Command("oxygenheight|oh")
+@Command("oxygenheist|oh")
 @Permission("com.creatorsplash.oxygenheist.debug")
 @RequiredArgsConstructor
 public final class DebugCommands implements CommandHandler {

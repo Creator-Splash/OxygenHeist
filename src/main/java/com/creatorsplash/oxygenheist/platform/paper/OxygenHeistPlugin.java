@@ -28,6 +28,7 @@ import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogC
 import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
 import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
+import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
@@ -39,6 +40,7 @@ import com.creatorsplash.oxygenheist.platform.paper.listener.PlayerRestrictionLi
 import com.creatorsplash.oxygenheist.platform.paper.listener.ReviveListener;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
+import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
 import lombok.Getter;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -51,6 +53,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Getter
     private MatchService matchService;
+
+    @Getter PlayerSelectionService selectionService;
 
     @Getter
     private LogCenter logCenter;
@@ -76,7 +80,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         ArenaConfigService arenaConfigService = new ArenaConfigService(this, this.logCenter);
         arenaConfigService.load();
 
-        /* == Services == */
+        /* == Gameplay Services == */
 
         Scheduler scheduler = new PaperSchedulerAdapter(this);
 
@@ -85,6 +89,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             getServer(), arenaConfigService, this.logCenter);
 
         MatchSnapshotProvider snapshotProvider = new MatchSnapshotProvider();
+
+        this.selectionService = new PlayerSelectionService(this);
 
         PlayerPositionProvider playerPositionProvider = playerId -> {
             var player = getServer().getPlayer(playerId);
@@ -156,7 +162,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         this.commandRegistrar = new CommandRegistrar(this);
         registerCommands(
             new GameCommands(this.matchService),
-            new DebugCommands(this.matchService)
+            new DebugCommands(this.matchService),
+            new SetupCommands(this.logCenter, this.selectionService, arenaConfigService)
         );
 
         /* == PAPI == */
@@ -170,6 +177,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        this.selectionService.clear();
         this.matchService.getScheduler().onDisable();
 
         HandlerList.unregisterAll(this);

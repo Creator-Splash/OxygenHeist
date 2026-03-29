@@ -25,6 +25,7 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         Objects.requireNonNull(fileConfig, "fileConfig");
 
         int duration = fileConfig.getInt("match.duration-seconds", 600);
+        int countdown = fileConfig.getInt("match.countdown-seconds", 10);
 
         int instantDeathSecondsRemaining =
             fileConfig.getInt("match.instant-death-seconds-remaining", 120);
@@ -59,6 +60,7 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
 
         MatchConfig newConfig =  new MatchConfig(
             duration,
+            countdown,
             instantDeathSecondsRemaining,
             border,
             oxygen,

@@ -13,7 +13,7 @@ public enum MatchState {
     /**
      * Match is preparing to start (e.g, countdown, setup)
      */
-    STARTING,
+    SETUP,
 
     /**
      * Match is actively in progress
