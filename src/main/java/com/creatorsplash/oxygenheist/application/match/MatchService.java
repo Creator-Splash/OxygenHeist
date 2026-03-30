@@ -8,6 +8,7 @@ import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
+import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveSession;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
 import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
@@ -117,6 +118,7 @@ public final class MatchService {
 
         gameBridge.onGameStart();
         worldService.onMatchStarted(session.config());
+        displayService.onMatchStarted();
 
         log.info("Match started");
     }
@@ -124,7 +126,7 @@ public final class MatchService {
     /**
      * Ends the current match and reports results
      *
-     * @param winner the winning team of player identifier
+     * @param winner winner the winning team identifier, or empty string if no winner
      */
     public void endMatch(String winner) {
         externalLifecycles.forEach(MatchLifecycle::onMatchEnd);
@@ -140,6 +142,7 @@ public final class MatchService {
 
         gameBridge.onGameEnd(scores, winner);
         worldService.onMatchEnded();
+        displayService.onMatchEnd(winner);
 
         session = null;
 
@@ -179,10 +182,33 @@ public final class MatchService {
         }
 
         session.removePlayer(playerId);
+        displayService.onPlayerRemoved(playerId);
 
         externalLifecycles.forEach(l -> l.onPlayerLeave(playerId));
 
         log.debug("player", "Player " + playerId + " removed from match");
+    }
+
+    /**
+     * Transitions a player into the downed state and notifies display
+     *
+     * <p>Called by combat systems when a player takes lethal damage</p>
+     *
+     * @param victimId the player to down
+     */
+    public void downPlayer(UUID victimId) {
+        if (session == null) return;
+
+        downedService.downPlayer(session, victimId);
+
+        @Nullable UUID attackerId = session.getPlayer(victimId)
+            .map(PlayerMatchState::getLastAttacker)
+            .orElse(null);
+
+        Set<UUID> teammates = getTeammates(victimId);
+
+        // TODO better for teammates
+        displayService.onPlayerDowned(victimId, attackerId, teammates);
     }
 
     /**
@@ -202,6 +228,9 @@ public final class MatchService {
 
         reviveService.cancelRevivesInvolving(playerId);
 
+        boolean wasInstantDeath = session.isInstantDeath();
+        displayService.onPlayerEliminated(playerId, wasInstantDeath);
+
         gameBridge.onPlayerEliminated(playerId, reason);
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
@@ -220,7 +249,6 @@ public final class MatchService {
         }
 
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
-
         player.addScore(amount);
 
         gameBridge.awardPoints(playerId, amount, reason);
@@ -288,7 +316,7 @@ public final class MatchService {
 
                 if (session.shouldEnterInstantDeath()) {
                     session.enterInstantDeath();
-                    // todo emit display
+                    displayService.onInstantDeathActivated();
                 }
 
                 if (session.shouldStartBorderShrink()) {
@@ -297,7 +325,7 @@ public final class MatchService {
                 }
 
                 if (session.isTimeExpired()) {
-                    endMatch(""); // todo
+                    endMatch("");
                 }
             }
 
@@ -306,7 +334,11 @@ public final class MatchService {
 
         /* Snapshot */
 
-        MatchSnapshot snapshot = session.createSnapshot(tickCounter);
+        MatchSnapshot snapshot = session.createSnapshot(
+            tickCounter,
+            buildReviveProgressMap(),
+            Map.of()
+        );
         snapshotProvider.update(snapshot);
 
         /* UI */
@@ -349,14 +381,47 @@ public final class MatchService {
         reviveService.tick(
             session,
             playerPositionProvider,
-            playerId -> {
-                // TODO callbacks for display service or related
-            }
+            displayService::onPlayerRevived
         );
     }
 
     private void handleSnapshot(MatchSnapshot snapshot) {
         // TODO
+    }
+
+    private Map<UUID, Integer> buildReviveProgressMap() {
+        Map<UUID, Integer> map = new HashMap<>();
+        int maxTicks = session.config().downed().reviveTicks();
+        if (maxTicks <= 0) return map;
+
+        for (PlayerMatchState player : session.getPlayers()) {
+            ReviveSession revive = reviveService.getSession(player.getPlayerId());
+            if (revive != null) {
+                int percent = (int) Math.min(100, (revive.getProgress() * 100.0) / maxTicks);
+                map.put(player.getPlayerId(), percent);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Returns UUIDs of all alive players on the same team as the given player,
+     * excluding the player themselves
+     */
+    private Set<UUID> getTeammates(UUID playerId) {
+        if (session == null) return Set.of();
+
+        String team = session.getPlayerTeam(playerId);
+        if (team == null) return Set.of();
+
+        Set<UUID> teammates = new HashSet<>();
+        for (PlayerMatchState p : session.getPlayers()) {
+            UUID pid = p.getPlayerId();
+            if (!pid.equals(playerId) && p.isAlive() && team.equals(session.getPlayerTeam(pid))) {
+                teammates.add(pid);
+            }
+        }
+        return teammates;
     }
 
 }

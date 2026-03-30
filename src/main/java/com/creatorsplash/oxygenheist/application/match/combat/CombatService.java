@@ -21,7 +21,6 @@ import java.util.UUID;
 public class CombatService {
 
     private final MatchService matchService;
-    private final DownedService downedService;
     private final ReviveService reviveService;
 
     public boolean isCombatRelevant(UUID victimId, UUID attackerId) {
@@ -72,7 +71,7 @@ public class CombatService {
 
             reviveService.cancelRevive(victimId);
 
-            downedService.downPlayer(session, victimId);
+            matchService.downPlayer(victimId);
         });
     }
 

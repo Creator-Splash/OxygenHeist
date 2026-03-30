@@ -210,10 +210,15 @@ public final class MatchSession {
 
     /* == Snapshot == */
 
-    public MatchSnapshot createSnapshot(long tick) {
+    public MatchSnapshot createSnapshot(
+        long tick,
+        Map<UUID, Integer> reviveProgressMap,
+        Map<UUID, String> teams
+    ) {
         Map<UUID, PlayerSnapshot> playerSnapshots = new HashMap<>();
         for (PlayerMatchState player : getPlayers()) {
-            playerSnapshots.put(player.getPlayerId(), player.toSnapshot());
+            int reviveProgress = reviveProgressMap.getOrDefault(player.getPlayerId(), 0);
+            playerSnapshots.put(player.getPlayerId(), player.toSnapshot(reviveProgress));
         }
 
         Map<String, ZoneSnapshot> zonesSnapshots = new HashMap<>();

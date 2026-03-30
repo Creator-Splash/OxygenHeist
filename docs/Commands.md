@@ -17,6 +17,21 @@ Before you can run a match, you need to complete these steps in order:
 
 ---
 
+## Reload
+
+Reloads all configuration files from disk without restarting the server.
+Safe to run at any time, including during a match - changes take effect
+immediately on the next event that reads from config.
+```
+/oh reload
+```
+
+> **Note:** Reloading during an active match will not affect the current
+> match session (e.g. already-configured durations). Display messages and
+> sounds update immediately.
+
+---
+
 ## The Selection Wand
 
 The selection wand is the tool used to define areas in the world - both the arena
@@ -275,6 +290,7 @@ Immediately revives a downed player
 | `com.oxygenheist.team`      | Access to all `/oh team` commands | OP |
 | `com.oxygenheist.game`      | Access to `/oh start` and `/oh end` | OP |
 | `com.oxygenheist.debug`     | Access to debug commands | OP |
+| `com.oxygenheist.admin` | Access to all setup and reload commands | OP |
 
 ---
 

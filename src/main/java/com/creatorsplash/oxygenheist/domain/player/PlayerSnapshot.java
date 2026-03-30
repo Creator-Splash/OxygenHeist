@@ -11,5 +11,7 @@ public record PlayerSnapshot(
     boolean downed,
     double oxygen,
     double maxOxygen,
-    int score
+    int score,
+    int bleedoutTicks,
+    int reviveProgressPercent
 ) {}

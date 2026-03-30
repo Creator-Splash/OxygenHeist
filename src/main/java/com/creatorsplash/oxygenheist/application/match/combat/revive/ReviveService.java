@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -98,7 +99,7 @@ public class ReviveService {
     public void tick(
         MatchSession session,
         PlayerPositionProvider locationProvider,
-        Consumer<UUID> onReviveComplete
+        BiConsumer<UUID, UUID> onReviveComplete
     ) {
         DownedConfig config = session.config().downed();
 
@@ -126,7 +127,7 @@ public class ReviveService {
 
             if (revive.getProgress() >= config.reviveTicks()) {
                 target.revive();
-                onReviveComplete.accept(target.getPlayerId());
+                onReviveComplete.accept(target.getPlayerId(), reviver.getPlayerId());
                 it.remove();
             }
         }

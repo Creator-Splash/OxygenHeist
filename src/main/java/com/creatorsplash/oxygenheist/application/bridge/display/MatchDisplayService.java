@@ -1,14 +1,15 @@
 package com.creatorsplash.oxygenheist.application.bridge.display;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * Application-level display orchestrator
+ * Match Display orchestrator
  *
  * <p>Consumes match snapshots and determines what should be rendered</p>
- * <p>Delegates rendering to a platform-specific gateway</p>
  */
 public interface MatchDisplayService {
 
@@ -18,18 +19,59 @@ public interface MatchDisplayService {
     void render(MatchSnapshot snapshot);
 
     /**
-     * Called when a player leaves or is removed from the match
+     * Called when match starts
      */
-    void removePlayer(UUID playerId);
+    void onMatchStarted();
 
     /**
      * Called when match ends
      */
-    void onMatchEnd();
+    void onMatchEnd(String winner);
 
     /**
-     * Reset all display state
+     * Called when a zone is captured by a team
+     *
+     * @param teamId the id of the team that captured the zone
+     * @param teamName the display name of the capturing team
+     * @param zoneName the display name of the captured zone
+     * @param oxygenRestored the amount of oxygen restored to the team
+     * @param teamMemberIds UUIDs of all capturing team members (to receive the oxygen restore message)
      */
-    void reset();
+    void onZoneCaptured(
+        String teamId, String teamName, String zoneName,
+        int oxygenRestored, Set<UUID> teamMemberIds
+    );
+
+    /** Called once when instant death mode activates */
+    void onInstantDeathActivated();
+
+    /**
+     * Clear all UI
+     */
+    void clearAll();
+
+    /* Player Hooks */
+
+    /**
+     * Called when a player leaves or is removed from the match
+     */
+    void onPlayerRemoved(UUID playerId);
+
+    /** Called when a player is knocked into the downed state */
+    void onPlayerDowned(
+        UUID playerId,
+        @Nullable UUID attackerId,
+        Set<UUID> teammateIds
+    );
+
+    /** Called when a downed player is successfully revived */
+    void onPlayerRevived(UUID downedId, UUID reviverId);
+
+    /**
+     * Called when a player is fully eliminated from the match
+     *
+     * @param wasInstantDeath true if eliminated directly without bleedout
+     */
+    void onPlayerEliminated(UUID playerId, boolean wasInstantDeath);
 
 }

@@ -3,9 +3,6 @@ package com.creatorsplash.oxygenheist.platform.paper;
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
-import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameWorldService;
-import com.creatorsplash.oxygenheist.application.bridge.display.DefaultMatchDisplayService;
-import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayGateway;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
@@ -23,20 +20,17 @@ import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
-import com.creatorsplash.oxygenheist.platform.paper.command.CommandHandler;
-import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
-import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
-import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
+import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
-import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayGateway;
+import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayService;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponProjectileTracker;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
@@ -88,6 +82,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         WeaponConfigService weaponConfigService = new WeaponConfigService(this, this.logCenter);
         weaponConfigService.load();
 
+        MessageConfigService messageConfigService = new MessageConfigService(this);
+        messageConfigService.load();
+
         /* == Gameplay Services == */
 
         Scheduler scheduler = new PaperSchedulerAdapter(this);
@@ -124,11 +121,11 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
         PaperAirBarController airBarController = new PaperAirBarController();
 
-        MatchDisplayGateway displayGateway = new PaperMatchDisplayGateway(
+        MatchDisplayService displayService = new PaperMatchDisplayService(
             this,
-            airBarController
+            airBarController,
+            messageConfigService
         );
-        MatchDisplayService displayService = new DefaultMatchDisplayService(displayGateway);
 
         ZoneProvider zoneProvider = () -> arenaConfigService.getZones()
             .stream()
@@ -154,8 +151,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);
-        CombatService combatService = new CombatService(
-            this.matchService, downedService, reviveService);
+        CombatService combatService = new CombatService(this.matchService, reviveService);
 
         /* == Weapons == */
 
@@ -186,6 +182,12 @@ public final class OxygenHeistPlugin extends JavaPlugin {
                 this.selectionService,
                 zoneSelectionService,
                 arenaConfigService
+            ),
+            new ReloadCommands(
+                this,
+                matchConfigService,
+                messageConfigService,
+                this.logCenter
             )
         );
 
