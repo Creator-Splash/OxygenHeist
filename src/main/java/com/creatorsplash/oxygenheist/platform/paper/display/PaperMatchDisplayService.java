@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Paper implementation for MatchDisplayGateway
+ * Paper implementation for MatchDisplayService
  *
  * <p>Responsible for:
  * <ul>

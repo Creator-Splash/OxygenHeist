@@ -14,7 +14,7 @@ import org.incendo.cloud.annotations.Permission;
 @Command("oxygenheist|oh")
 @Permission("com.creatorsplash.oxygenheist.admin")
 @RequiredArgsConstructor
-public class ReloadCommands implements CommandHandler {
+public final class ReloadCommands implements CommandHandler {
 
     private final JavaPlugin plugin;
     private final MatchConfigService matchConfigService;

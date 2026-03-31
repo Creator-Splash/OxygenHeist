@@ -25,20 +25,8 @@ public final class GameCommands implements CommandHandler {
     public void start(CommandSender sender) {
         matchService.createMatch();
 
-        MatchSession session = matchService.getSession().orElseThrow();
-
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-
-        for (int i = 0; i < players.size(); i++) {
-            Player player = players.get(i);
-
+        for (Player player : Bukkit.getOnlinePlayers()) {
             matchService.addPlayer(player.getUniqueId());
-
-            String teamId = (i % 2 == 0) ? "red" : "blue"; // temp
-            session.assignPlayerTeam(player.getUniqueId(), teamId);
-
-            // temp
-            player.sendRichMessage("<gray>You are on team <" + teamId + ">" + teamId);
         }
 
         matchService.startMatch();

@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.domain.match;
 
 import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
+import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
@@ -36,6 +37,7 @@ public final class MatchSession {
     private final Map<UUID, PlayerMatchState> players = new HashMap<>();
 
     private final Map<UUID, String> playerTeams = new HashMap<>();
+    private final Map<String, Integer> teamScores = new HashMap<>();
 
     public MatchSession(@NotNull final MatchConfig config) {
         this.config = config;
@@ -135,7 +137,7 @@ public final class MatchSession {
         players.remove(playerId);
     }
 
-    /* == Teams temp == */
+    /* == Teams == */
 
     /**
      * Returns true if both players are assigned to the same team
@@ -168,6 +170,18 @@ public final class MatchSession {
         }
 
         return counts;
+    }
+
+    public int getTeamScore(String teamId) {
+        return teamScores.getOrDefault(teamId, 0);
+    }
+
+    public void addTeamScore(String teamId, int amount) {
+        teamScores.merge(teamId, amount, Integer::sum);
+    }
+
+    public Map<String, Integer> getTeamScores() {
+        return Collections.unmodifiableMap(teamScores);
     }
 
     /* == Timing == */
@@ -213,7 +227,7 @@ public final class MatchSession {
     public MatchSnapshot createSnapshot(
         long tick,
         Map<UUID, Integer> reviveProgressMap,
-        Map<UUID, String> teams
+        Map<String, TeamSnapshot> teams
     ) {
         Map<UUID, PlayerSnapshot> playerSnapshots = new HashMap<>();
         for (PlayerMatchState player : getPlayers()) {
@@ -234,7 +248,8 @@ public final class MatchSession {
             isInstantDeath(),
             borderShrinkStarted(),
             playerSnapshots,
-            zonesSnapshots
+            zonesSnapshots,
+            teams
         );
     }
 

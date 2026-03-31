@@ -10,11 +10,14 @@ import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveSession;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
+import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.domain.team.Team;
+import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
@@ -55,6 +58,7 @@ public final class MatchService {
     private final ZoneOxygenService zoneOxygenService;
     private final ZonePresenceService zonePresenceService;
     private final ZoneProvider zoneProvider;
+    private final TeamService teamService;
 
     private MatchSession session;
 
@@ -113,7 +117,7 @@ public final class MatchService {
         this.tickCounter = 0L;
 
         session.startCooldown();
-
+        teamService.populateMatchSession(session);
         startTasks();
 
         gameBridge.onGameStart();
@@ -334,11 +338,18 @@ public final class MatchService {
 
         /* Snapshot */
 
+        // Get teams
+        Map<String, TeamSnapshot> teamSnapshots = new HashMap<>();
+        for (Team team : teamService.getAllTeams()) {
+            teamSnapshots.put(team.getId(), team.toSnapshot(session.getTeamScore(team.getId())));
+        }
+
         MatchSnapshot snapshot = session.createSnapshot(
             tickCounter,
             buildReviveProgressMap(),
-            Map.of()
+            teamSnapshots
         );
+
         snapshotProvider.update(snapshot);
 
         /* UI */
