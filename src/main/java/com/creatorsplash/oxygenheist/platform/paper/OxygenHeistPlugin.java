@@ -16,6 +16,7 @@ import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
+import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
@@ -24,6 +25,7 @@ import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayService;
@@ -52,7 +54,11 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     @Getter
     private MatchService matchService;
 
-    @Getter PlayerSelectionService selectionService;
+    @Getter
+    PlayerSelectionService selectionService;
+
+    @Getter
+    TeamService teamService;
 
     @Getter
     private LogCenter logCenter;
@@ -84,6 +90,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
         MessageConfigService messageConfigService = new MessageConfigService(this);
         messageConfigService.load();
+
+        TeamConfigService teamConfigService = new TeamConfigService();
+        TeamService teamService = teamConfigService.load(this);
 
         /* == Gameplay Services == */
 
@@ -147,7 +156,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             playerOxygenService,
             zoneOxygenService,
             zonePresenceService,
-            zoneProvider
+            zoneProvider,
+            teamService
         );
 
         PlayerActionService actionService = new PlayerActionService(this.matchService);

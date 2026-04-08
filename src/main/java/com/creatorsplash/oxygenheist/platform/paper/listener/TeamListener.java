@@ -15,10 +15,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.UUID;
-
 @RequiredArgsConstructor
-public class TeamListener implements Listener {
+public final class TeamListener implements Listener {
 
     private final JavaPlugin plugin;
     private final TeamService teamService;

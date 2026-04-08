@@ -2,6 +2,8 @@ package com.creatorsplash.oxygenheist.platform.paper.util;
 
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,6 +40,23 @@ public class TeamArmorUtils {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    private Color colorTagToRgb(String colorTag) {
+        // Try named color first ("red", "dark_blue", "gold", etc.)
+        TextColor textColor = NamedTextColor.NAMES.value(colorTag);
+
+        if (textColor == null) {
+            // Try hex - accept both "#RRGGBB" and "RRGGBB"
+            String hex = colorTag.startsWith("#") ? colorTag : "#" + colorTag;
+            textColor = TextColor.fromHexString(hex);
+        }
+
+        if (textColor == null) {
+            textColor = NamedTextColor.WHITE;
+        }
+
+        return Color.fromRGB(textColor.value());
     }
 
 }
