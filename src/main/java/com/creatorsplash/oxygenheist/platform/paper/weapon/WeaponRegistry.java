@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;

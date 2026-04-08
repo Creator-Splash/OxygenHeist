@@ -9,7 +9,7 @@ import java.util.*;
  */
 public final class ReloadTracker implements MatchLifecycle {
 
-    private final Set<UUID> reloading   = new HashSet<>();
+    private final Set<UUID> reloading = new HashSet<>();
     private final Map<UUID, Long> startMs = new HashMap<>();
     private final Map<UUID, Integer> slot = new HashMap<>();
 

@@ -3,11 +3,12 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.impl;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.WeaponCooldownService;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
 /**
  * Claw Cannon | right-click to rocket-launch yourself in the facing direction.
  * <p>

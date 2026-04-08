@@ -6,7 +6,7 @@ import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConf
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponAmmoService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;

@@ -39,7 +39,6 @@ import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
 import lombok.Getter;
-import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,8 +47,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 public final class OxygenHeistPlugin extends JavaPlugin {
-
-    private static NamespacedKey WEAPON_ID_KEY;
 
     @Getter
     private MatchService matchService;
@@ -67,8 +64,6 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        WEAPON_ID_KEY = new NamespacedKey(this, "weapon_id");
-
         /* == Configs == */
 
         saveDefaultConfig();
@@ -221,8 +216,6 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     }
 
     /* Static Helpers */
-
-    public static NamespacedKey weaponIdKey() { return WEAPON_ID_KEY; }
 
     public static OxygenHeistPlugin instance() {
         return getPlugin(OxygenHeistPlugin.class);

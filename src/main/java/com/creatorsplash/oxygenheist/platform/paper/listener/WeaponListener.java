@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.*;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;

@@ -6,7 +6,6 @@ plugins {
     id("java-library")
 
     alias(libs.plugins.shadow)
-    //alias(libs.plugins.indra)
     alias(libs.plugins.plugin.yml)
 }
 
@@ -21,6 +20,7 @@ repositories {
     maven("https://repo.triumphteam.dev/snapshots")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/releases/")
+    maven("https://maven.devs.beer/")
 
 //    maven("https://maven.pkg.github.com/Creator-Splash/MainEventCore") {
 //        name = "GitHubPackages"
@@ -39,6 +39,9 @@ dependencies {
 
     // Event Core
     //compileOnly(libs.creatorsplashcore.api)
+
+    // ItemsAdder
+    compileOnly(libs.itemsadder.api)
 
     // PAPI
     paperLibrary(libs.papi)
@@ -100,7 +103,6 @@ paper {
     name = "OxygenHeist"
 
     apiVersion = "1.21"
-    //version = "Git-${indraGit.commit()?.name?.take(7) ?: "unknown"}"
     version = "1.0.0"
 
     main = "com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin"

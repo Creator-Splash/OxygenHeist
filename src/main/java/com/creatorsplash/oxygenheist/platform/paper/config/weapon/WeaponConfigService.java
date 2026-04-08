@@ -80,29 +80,16 @@ public final class WeaponConfigService {
     private WeaponTypeConfig parseWeapon(String id, ConfigurationSection s) {
         boolean enabled = s.getBoolean("enabled", true);
 
-        WeaponTypeConfig.CmdConfig cmds = parseCmds(id, s);
+        String itemId = s.getString("item-id", id);
+        int reloadFrames = s.getInt("reload-frames", 0);
+
         WeaponTypeConfig.AmmoConfig ammo = parseAmmo(s);
         WeaponTypeConfig.TimingConfig timing = parseTiming(s);
         WeaponTypeConfig.CombatConfig combat = parseCombat(s);
         WeaponTypeConfig.PhysicsConfig physics = parsePhysics(s);
         WeaponTypeConfig.EffectConfig effects = parseEffects(s);
 
-        return new WeaponTypeConfig(id, enabled, cmds, ammo, timing, combat, physics, effects);
-    }
-
-    private WeaponTypeConfig.CmdConfig parseCmds(String id, ConfigurationSection s) {
-        ConfigurationSection cmdSection = s.getConfigurationSection("cmds");
-        if (cmdSection == null) {
-            log.warn("Weapon '" + id + "' has no 'cmds' section in " + FILE_NAME);
-            return new WeaponTypeConfig.CmdConfig(id, Collections.emptyMap());
-        }
-
-        Map<String, Integer> cmds = new HashMap<>();
-        for (String key : cmdSection.getKeys(false)) {
-            cmds.put(key, cmdSection.getInt(key));
-        }
-
-        return new WeaponTypeConfig.CmdConfig(id, Collections.unmodifiableMap(cmds));
+        return new WeaponTypeConfig(id, enabled, itemId, reloadFrames, ammo, timing, combat, physics, effects);
     }
 
     private WeaponTypeConfig.AmmoConfig parseAmmo(ConfigurationSection s) {

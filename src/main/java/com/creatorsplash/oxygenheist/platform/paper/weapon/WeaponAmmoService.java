@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
+import com.creatorsplash.oxygenheist.platform.paper.util.PDCKeys;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,12 +27,10 @@ import java.util.UUID;
  */
 public final class WeaponAmmoService {
 
-    private final NamespacedKey ammoKey;
     private final int maxAmmo;
 
-    public WeaponAmmoService(JavaPlugin plugin, int maxAmmo) {
+    public WeaponAmmoService(int maxAmmo) {
         this.maxAmmo = maxAmmo;
-        this.ammoKey = new NamespacedKey(plugin, "weapon_ammo");
     }
 
     /**
@@ -42,7 +41,7 @@ public final class WeaponAmmoService {
     public int getAmmo(ItemStack item) {
         if (!item.hasItemMeta()) return maxAmmo;
         var pdc = item.getItemMeta().getPersistentDataContainer();
-        return pdc.getOrDefault(ammoKey, PersistentDataType.INTEGER, maxAmmo);
+        return pdc.getOrDefault(PDCKeys.WEAPON_AMMO, PersistentDataType.INTEGER, maxAmmo);
     }
 
     /**
@@ -52,7 +51,7 @@ public final class WeaponAmmoService {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
         meta.getPersistentDataContainer().set(
-            ammoKey, PersistentDataType.INTEGER,
+            PDCKeys.WEAPON_AMMO, PersistentDataType.INTEGER,
             Math.max(0, Math.min(amount, maxAmmo))
         );
         item.setItemMeta(meta);

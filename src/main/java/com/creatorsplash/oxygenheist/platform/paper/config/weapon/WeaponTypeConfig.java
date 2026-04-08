@@ -10,63 +10,14 @@ import java.util.Map;
 public record WeaponTypeConfig(
    String id,
    boolean enabled,
-   CmdConfig cmds,
+   String itemId,
+   int reloadFrames,
    AmmoConfig ammo,
    TimingConfig timing,
    CombatConfig combat,
    PhysicsConfig physics,
    EffectConfig effects
 ) {
-
-    /* CMD config (later replaced with item data) */
-
-    public record CmdConfig(String weaponId, Map<String, Integer> cmds) {
-
-        /**
-         * Returns the CMD value for the given named key
-         *
-         * @throws IllegalStateException if the key is not present in {@code weapons.yml}
-         * for this weapon - misconfiguration should fail loudly at startup
-         */
-        public int get(String name) {
-            Integer value = cmds.get(name);
-            if (value == null) {
-                throw new IllegalStateException(
-                    "Weapon '" + weaponId + "' is missing CMD key '" + name + "' in weapons.yml"
-                );
-            }
-            return value;
-        }
-
-        /**
-         * Returns true if the given CMD value is registered under any key for this weapon
-         *
-         * <p>Used in {@code WeaponHandler#handles(ItemStack)} to identify ownership
-         * without enumerating specific keys</p>
-         */
-        public boolean matches(int cmd) {
-            return cmds.containsValue(cmd);
-        }
-
-        /** Returns true if a CMD key is present - safe check before {@link #get} */
-        public boolean has(String name) {
-            return cmds.containsKey(name);
-        }
-
-        /**
-         * Returns the reload frame CMD keys in numeric order: reload-0, reload-1, etc.
-         */
-        public List<String> reloadFrameKeys() {
-            return cmds.keySet().stream()
-                .filter(k -> k.startsWith("reload-"))
-                .sorted(Comparator.comparingInt(k -> {
-                    try { return Integer.parseInt(k.substring(7)); }
-                    catch (NumberFormatException e) { return Integer.MAX_VALUE; }
-                }))
-                .toList();
-        }
-
-    }
 
     /* Ammo config */
 
