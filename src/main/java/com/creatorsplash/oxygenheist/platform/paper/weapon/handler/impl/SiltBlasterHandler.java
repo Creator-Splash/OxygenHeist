@@ -1,15 +1,19 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl;
 
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.WeaponCooldownService;
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.AbstractWeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -28,11 +32,11 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     private final WeaponEffectsState effectsState;
     private final WeaponCooldownService cooldown = new WeaponCooldownService();
 
-    protected SiltBlasterHandler(
-            OxygenHeistPlugin plugin,
-            WeaponTypeConfig config,
-            WeaponItemProvider provider,
-            WeaponEffectsState effectsState
+    public SiltBlasterHandler(
+        OxygenHeistPlugin plugin,
+        WeaponTypeConfig config,
+        WeaponItemProvider provider,
+        WeaponEffectsState effectsState
     ) {
         super(config, provider);
         this.plugin = plugin;
@@ -63,14 +67,27 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
             return;
         }
 
-        activate(player, ctx.item());
+        activate(player, ctx.item(), ctx.session());
         cooldown.recordUse(id);
     }
 
     /* == Activation == */
 
-    private void activate(Player player, ItemStack item) {
+    private void activate(Player player, ItemStack item, @Nullable MatchSession session) {
         player.sendRichMessage("<green>SILT BLAST POOOPY");
+
+        var loc = player.getLocation();
+        var world = player.getWorld();
+
+        if (config.sounds().fire() != null) config.sounds().fire().playTo(player);
+
+        ParticleUtils.spawn(Particle.CAMPFIRE_COSY_SMOKE, loc,
+            1, 0.1, 0.1, 0.1, 0.01, session);
+        ParticleUtils.spawn(Particle.CLOUD, loc,
+            2, 0.1, 0.1, 0.1, 0.01, session);
+
+        // Hide weapon for cooldown duration then restore
+        var stored = item.clone();
     }
 
     /* == Lifecycle == */
