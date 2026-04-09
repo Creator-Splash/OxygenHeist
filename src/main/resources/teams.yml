@@ -1,0 +1,50 @@
+# =================================
+# OxygenHeist - Teams Configuration
+# =================================
+
+settings:
+  # Whether players on the same team can damage each other
+  friendly-fire: false
+
+  # Maximum number of players allowed per team
+  max-team-size: 6
+
+# ----------------------------------------------------------------
+# Team Definitions
+# ----------------------------------------------------------------
+# Each key under 'teams' becomes the team's internal ID (lowercase)
+#
+# Fields:
+#   name - Display name (supports MiniMessage formatting)
+#   color - MiniMessage color tag used for armor and display
+#   base - Spawn location for this team. Set via /oh setup or fill in manually
+#             Leave 'world' empty to leave unset — match start will be blocked
+#   members - List of player UUIDs. Managed at runtime, do not edit manually
+#   captain - Single player UUID. Managed at runtime, do not edit manually
+
+teams:
+  red:
+    name: "<red>Red"
+    color: "red"
+    base:
+      world: ""
+      x: 0.0
+      y: 64.0
+      z: 0.0
+      yaw: 0.0
+      pitch: 0.0
+    members: []
+    captain: ""
+
+  blue:
+    name: "<blue>Blue"
+    color: "blue"
+    base:
+      world: ""
+      x: 0.0
+      y: 64.0
+      z: 0.0
+      yaw: 0.0
+      pitch: 0.0
+    members: []
+    captain: ""

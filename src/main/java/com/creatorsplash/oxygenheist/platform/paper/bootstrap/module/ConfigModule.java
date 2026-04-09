@@ -18,8 +18,7 @@ import lombok.experimental.Accessors;
 public final class ConfigModule implements Module {
 
     private final OxygenHeistPlugin plugin;
-
-    private final GlobalConfigService globals = plugin.getConfigService();
+    private final GlobalConfigService globals;
 
     private MatchConfigService matchConfig;
     private ArenaConfigService arenaConfig;

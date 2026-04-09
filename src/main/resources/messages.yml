@@ -1,111 +1,114 @@
-  # OxygenHeist - Messages Configuration
-  # All text values support MiniMessage formatting: https://docs.advntr.dev/minimessage
-  # Sounds use Minecraft sound IDs, e.g. entity.player.hurt (no namespace prefix needed)
-  # Placeholders are listed per-message in comments
+# ====================================
+# OxygenHeist - Messages Configuration
+# ====================================
+#
+# All text values support MiniMessage formatting: https://docs.advntr.dev/minimessage
+# Sounds use Minecraft sound IDs, e.g. entity.player.hurt (no namespace prefix needed)
+# Placeholders are listed per-message in comments
 
-  # Match Lifecycle
+# Match Lifecycle
 
-  match:
-    # Broadcast to all players when the match begins
-    start: "<green><bold>LET THE GAMES BEGIN!"
-    start-subtitle: "<gray>May the best team win."
-    start-title-fade-in: 0
-    start-title-stay: 40
-    start-title-fade-out: 20
-    # Broadcast to all players when the match ends
-    end: "<red><bold>GAME OVER!"
+match:
+  # Broadcast to all players when the match begins
+  start: "<green><bold>LET THE GAMES BEGIN!"
+  start-subtitle: "<gray>May the best team win."
+  start-title-fade-in: 0
+  start-title-stay: 40
+  start-title-fade-out: 20
+  # Broadcast to all players when the match ends
+  end: "<red><bold>GAME OVER!"
 
-    # Broadcast to all players when a team wins. Placeholder: <team>
-    team-wins: "<gold><bold><team> <green><bold>WINS!"
-    team-wins-subtitle: "<gray>Congratulations!"
-    team-wins-title-fade-in: 0
-    team-wins-title-stay: 100
-    team-wins-title-fade-out: 40
+  # Broadcast to all players when a team wins. Placeholder: <team>
+  team-wins: "<gold><bold><team> <green><bold>WINS!"
+  team-wins-subtitle: "<gray>Congratulations!"
+  team-wins-title-fade-in: 0
+  team-wins-title-stay: 100
+  team-wins-title-fade-out: 40
 
-    # Title shown to all players + broadcast when instant death activates
-    instant-death: "<red><bold>⚠ INSTANT DEATH MODE!"
-    instant-death-subtitle: "<gray>No more revives!"
-    instant-death-title-fade-in: 10
-    instant-death-title-stay: 60
-    instant-death-title-fade-out: 20
-    instant-death-sound: "entity.ender_dragon.growl"
-    instant-death-sound-volume: 1.0
-    instant-death-sound-pitch: 1.0
-    # Broadcast when 60, 30, or 10 seconds remain. Placeholder: <time>
-    time-warning: "<yellow><bold>Round ending in <time> seconds!"
+  # Title shown to all players + broadcast when instant death activates
+  instant-death: "<red><bold>⚠ INSTANT DEATH MODE!"
+  instant-death-subtitle: "<gray>No more revives!"
+  instant-death-title-fade-in: 10
+  instant-death-title-stay: 60
+  instant-death-title-fade-out: 20
+  instant-death-sound: "entity.ender_dragon.growl"
+  instant-death-sound-volume: 1.0
+  instant-death-sound-pitch: 1.0
+  # Broadcast when 60, 30, or 10 seconds remain. Placeholder: <time>
+  time-warning: "<yellow><bold>Round ending in <time> seconds!"
 
-    # Countdown
+# Countdown
 
-  countdown:
-    # Boss bar shown to all players during the countdown. Placeholder: <time>
-    bossbar: "<yellow><bold>Game starting in <time> seconds"
-    # Large title shown every second during countdown. Placeholder: <time>
-    title: "<gold><bold><time>"
-    subtitle: "<gray>Game starting soon!"
-    title-fade-in: 0
-    title-stay: 25
-    title-fade-out: 5
+countdown:
+  # Boss bar shown to all players during the countdown. Placeholder: <time>
+  bossbar: "<yellow><bold>Game starting in <time> seconds"
+  # Large title shown every second during countdown. Placeholder: <time>
+  title: "<gold><bold><time>"
+  subtitle: "<gray>Game starting soon!"
+  title-fade-in: 0
+  title-stay: 25
+  title-fade-out: 5
 
-    # Player Events
+# Player Events
 
-  player:
-    # Downed
-    downed-title: "<red><bold>YOU'RE DOWN!"
-    downed-subtitle: "<gray>Hold on! A teammate can revive you"
-    downed-title-fade-in: 0
-    downed-title-stay: 60
-    downed-title-fade-out: 20
-    downed-sound: "entity.player.hurt"
-    downed-sound-volume: 1.0
-    downed-sound-pitch: 0.5
-    # Sent to teammates when a player is downed. Placeholder: <player>
-    downed-teammate-alert: "<yellow><bold><player> <gray>is down! Go revive them!"
-    # Sent to the attacker when they down a player. Placeholder: <player>
-    downed-attacker-alert: "<gray>You knocked down <yellow><player><gray>!"
+player:
+  # Downed
+  downed-title: "<red><bold>YOU'RE DOWN!"
+  downed-subtitle: "<gray>Hold on! A teammate can revive you"
+  downed-title-fade-in: 0
+  downed-title-stay: 60
+  downed-title-fade-out: 20
+  downed-sound: "entity.player.hurt"
+  downed-sound-volume: 1.0
+  downed-sound-pitch: 0.5
+  # Sent to teammates when a player is downed. Placeholder: <player>
+  downed-teammate-alert: "<yellow><bold><player> <gray>is down! Go revive them!"
+  # Sent to the attacker when they down a player. Placeholder: <player>
+  downed-attacker-alert: "<gray>You knocked down <yellow><player><gray>!"
 
-    # Revived
-    revived-title: "<green><bold>REVIVED!"
-    revived-subtitle: "<gray>You're back in the fight!"
-    revived-title-fade-in: 0
-    revived-title-stay: 40
-    revived-title-fade-out: 10
-    revived-sound: "entity.player.levelup"
-    revived-sound-volume: 1.0
-    revived-sound-pitch: 1.5
-    # Sent to the reviver when a revive completes. Placeholder: <player>
-    revive-success: "<green><bold>You revived <yellow><player><green>!"
+  # Revived
+  revived-title: "<green><bold>REVIVED!"
+  revived-subtitle: "<gray>You're back in the fight!"
+  revived-title-fade-in: 0
+  revived-title-stay: 40
+  revived-title-fade-out: 10
+  revived-sound: "entity.player.levelup"
+  revived-sound-volume: 1.0
+  revived-sound-pitch: 1.5
+  # Sent to the reviver when a revive completes. Placeholder: <player>
+  revive-success: "<green><bold>You revived <yellow><player><green>!"
 
-    # Eliminated
-    eliminated-title: "<dark_red><bold>ELIMINATED"
-    # Subtitle shown when the player bled out (from downed state)
-    eliminated-subtitle-bleedout: "<gray>You've bled out!"
-    # Subtitle shown when the player was eliminated instantly (instant death mode)
-    eliminated-subtitle-instant: "<gray>You've been eliminated!"
-    eliminated-title-fade-in: 0
-    eliminated-title-stay: 60
-    eliminated-title-fade-out: 20
-    eliminated-sound: "entity.wither.death"
-    eliminated-sound-volume: 0.5
-    eliminated-sound-pitch: 1.0
-    # Broadcast to all players when a player is eliminated. Placeholder: <player>
-    eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
+  # Eliminated
+  eliminated-title: "<dark_red><bold>ELIMINATED"
+  # Subtitle shown when the player bled out (from downed state)
+  eliminated-subtitle-bleedout: "<gray>You've bled out!"
+  # Subtitle shown when the player was eliminated instantly (instant death mode)
+  eliminated-subtitle-instant: "<gray>You've been eliminated!"
+  eliminated-title-fade-in: 0
+  eliminated-title-stay: 60
+  eliminated-title-fade-out: 20
+  eliminated-sound: "entity.wither.death"
+  eliminated-sound-volume: 0.5
+  eliminated-sound-pitch: 1.0
+  # Broadcast to all players when a player is eliminated. Placeholder: <player>
+  eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
 
-    # Zone Events
+# Zone Events
 
-  zone:
-    # Broadcast to all players when a team captures a zone. Placeholders: <team>, <zone>
-    captured: "<green><bold><team> <gray>captured <yellow><zone><gray>!"
-    # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
-    oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
+zone:
+  # Broadcast to all players when a team captures a zone. Placeholders: <team>, <zone>
+  captured: "<green><bold><team> <gray>captured <yellow><zone><gray>!"
+  # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
+  oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
 
-    # UI Elements
+# UI Elements
 
-  ui:
-    # Server-wide boss bar during a match. Placeholder: <time> (formatted as MM:SS)
-    timer-bar-playing: "<yellow><bold><time>"
-    # Boss bar text shown when no match is running (resets after match ends)
-    timer-bar-idle: "<gold><bold>No game in progress"
-    # Per-player boss bar shown while downed. Placeholder: <time> (seconds remaining)
-    downed-bar: "<red><bold>DOWNED <reset><gray>- <yellow><time>s"
-    # Per-player boss bar shown while being revived. Placeholder: <progress> (0–100)
-    reviving-bar: "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"
+ui:
+  # Server-wide boss bar during a match. Placeholder: <time> (formatted as MM:SS)
+  timer-bar-playing: "<yellow><bold><time>"
+  # Boss bar text shown when no match is running (resets after match ends)
+  timer-bar-idle: "<gold><bold>No game in progress"
+  # Per-player boss bar shown while downed. Placeholder: <time> (seconds remaining)
+  downed-bar: "<red><bold>DOWNED <reset><gray>- <yellow><time>s"
+  # Per-player boss bar shown while being revived. Placeholder: <progress> (0–100)
+  reviving-bar: "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"

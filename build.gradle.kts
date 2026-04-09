@@ -115,6 +115,11 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
         }
+
+        register("ItemsAdder") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
 //
 //        register("CreatorSplashCore") {
 //            required = true

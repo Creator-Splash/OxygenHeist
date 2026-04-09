@@ -1,10 +1,12 @@
-# weapons.yml - OxygenHeist weapon type configuration
+# =====================================
+# OxygenHeist weapon type configuration
+# =====================================
 #
 # Each top-level key is a weapon id matching the handler registered in code.
 # CMDs (custom model data) are named per weapon - keys vary by weapon type:
-#   base, aim, loaded, unloaded, reload-0, reload-1, etc.
+#   base, aim, loaded, unloaded, reload-0, reload-1, etc
 #
-# Weapons marked enabled: false are not registered at startup.
+# Weapons marked enabled: false are not registered at startup
 
 claw_cannon:
   enabled: true

@@ -3,14 +3,12 @@ package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import lombok.RequiredArgsConstructor;
-import net.kyori.adventure.sound.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,9 +54,9 @@ public final class WeaponConfigService {
                 log.warn("Failed to parse weapon '"
                     + id + "' from weapons.yml: " + e.getMessage());
             }
-
-            log.info("Loaded " + configs.size() + " weapon configurations");
         }
+
+        log.info("Loaded " + configs.size() + " weapon configurations");
     }
 
     /**

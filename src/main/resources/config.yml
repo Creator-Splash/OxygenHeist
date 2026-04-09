@@ -1,4 +1,6 @@
+# ================================
 # OxygenHeist global configuration
+# ================================
 
 debug:
   # Which debug flag categories to enable

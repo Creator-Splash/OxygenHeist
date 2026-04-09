@@ -1,6 +1,5 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl;
 
-import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
@@ -25,12 +24,9 @@ public final class ItemsAdderWeaponItemProvider implements WeaponItemProvider, L
     private volatile boolean ready = false;
 
     public ItemsAdderWeaponItemProvider(
-        @NotNull OxygenHeistPlugin plugin,
         @NotNull WeaponConfigService weaponConfig
     ) {
         this.weaponConfig = weaponConfig;
-
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler

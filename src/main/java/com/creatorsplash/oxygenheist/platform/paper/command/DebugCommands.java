@@ -77,7 +77,7 @@ public final class DebugCommands implements CommandHandler {
         }
 
         target.getInventory().addItem(item);
-        sender.sendMessage("<green>Given " + weaponId + " to " + target.getName());
+        sender.sendRichMessage("<green>Given " + weaponId + " to " + target.getName());
     }
 
     @Suggestions("weapon-ids")

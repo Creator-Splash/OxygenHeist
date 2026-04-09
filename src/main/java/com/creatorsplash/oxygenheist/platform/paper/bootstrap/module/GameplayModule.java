@@ -35,6 +35,7 @@ public final class GameplayModule implements Module {
     private final ConfigModule configs;
     private final DisplayModule display;
 
+    private Scheduler scheduler;
     private TeamService teamService;
     private MatchService matchService;
     private PlayerSelectionService selectionService;
@@ -60,7 +61,7 @@ public final class GameplayModule implements Module {
         ZonePresenceService zonePresenceService = new ZonePresenceService(positionProvider);
         ZoneOxygenService zoneOxygenService = new ZoneOxygenService(zonePresenceService);
 
-        Scheduler scheduler = new PaperSchedulerAdapter(plugin);
+        this.scheduler = new PaperSchedulerAdapter(plugin);
         GameBridge bridge = new StandaloneGameBridge();
         GameWorldService worldService = new PaperGameWorldService(
             plugin.getServer(), configs.arenaConfig(), plugin.getLogCenter()
@@ -116,6 +117,6 @@ public final class GameplayModule implements Module {
         selectionService.clear();
         matchService.getScheduler().onDisable();
     }
-    
+
 }
 

@@ -8,8 +8,10 @@ import com.creatorsplash.oxygenheist.platform.paper.bootstrap.module.*;
 import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.List;
@@ -29,12 +31,14 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         this.configService = new GlobalConfigService(this);
+        this.configService.load();
+
         this.logCenter = new GlobalLogCenter(configService);
 
-        var configs = new ConfigModule(this).load();
+        var configs = new ConfigModule(this, configService).load();
         var display = new DisplayModule(this, configs).build();
         var gameplay = new GameplayModule(this, configs, display).build();
-        var weapons = new WeaponModule(configs, gameplay).build();
+        var weapons = new WeaponModule(logCenter, configs, gameplay).build();
         var platform = new PlatformModule(this, configs, gameplay, display, weapons).wire();
 
         this.modules = List.of(
@@ -50,7 +54,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.modules.forEach(Module::disable);
+        if (this.modules != null) this.modules.forEach(Module::disable);
 
         HandlerList.unregisterAll(this);
 

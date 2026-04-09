@@ -33,8 +33,6 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
         return true;
     }
 
-
-
     @Override
     public String onPlaceholderRequest(
         Player player,

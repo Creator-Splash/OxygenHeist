@@ -34,6 +34,11 @@ public final class GlobalConfigService implements Supplier<GlobalConfig> {
 
         DebugFlags flags = loadDebugFlags(raw);
         boolean weaponDebugBypass = raw.getBoolean("debug.weapon-bypass", false);
+
+        this.config = new GlobalConfig(
+            flags,
+            weaponDebugBypass
+        );
     }
 
     /* Internals */

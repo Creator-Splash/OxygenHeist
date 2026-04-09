@@ -9,6 +9,7 @@ import com.creatorsplash.oxygenheist.platform.paper.command.ReloadCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 public record PlatformModule(
@@ -40,9 +41,12 @@ public record PlatformModule(
                 gameplay.matchService(),
                 gameplay.actionService()
             ),
-            new TeamListener(gameplay.matchService().getScheduler(), gameplay.teamService())
+            new TeamListener(gameplay.scheduler(), gameplay.teamService())
             // TODO zone listener
         );
+
+        // Register weapon listeners
+        register(weapons.listeners().toArray(new Listener[0]));
     }
 
     private void registerCommands() {
@@ -65,7 +69,7 @@ public record PlatformModule(
     }
 
     private void registerPlaceholders() {
-        if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new OxygenHeistPlaceholderExpansion(gameplay.snapshotProvider()).register();
         }
     }
