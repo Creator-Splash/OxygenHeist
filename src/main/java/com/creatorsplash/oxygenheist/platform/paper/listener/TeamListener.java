@@ -1,10 +1,10 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
+import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamArmorUtils;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,12 +13,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 
 @RequiredArgsConstructor
 public final class TeamListener implements Listener {
 
-    private final JavaPlugin plugin;
+    private final Scheduler scheduler;
     private final TeamService teamService;
 
     // TODO
@@ -77,11 +76,12 @@ public final class TeamListener implements Listener {
         player.setGameMode(GameMode.SPECTATOR);
 
         for (int i = 1; i <= 3; i++) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline() && !teamService.isOnTeam(player.getUniqueId())) {
-                    player.setGameMode(GameMode.SPECTATOR);
-                }
-            }, i * 5L);
+//            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+//                if (player.isOnline() && !teamService.isOnTeam(player.getUniqueId())) {
+//                    player.setGameMode(GameMode.SPECTATOR);
+//                }
+//            }, i * 5L);
+            //TODO SCHEDULER
         }
     }
 
