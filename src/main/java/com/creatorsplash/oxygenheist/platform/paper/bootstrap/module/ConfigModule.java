@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
+import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
@@ -14,7 +15,7 @@ import lombok.experimental.Accessors;
 @Getter
 @RequiredArgsConstructor
 @Accessors(fluent = true)
-public final class ConfigModule {
+public final class ConfigModule implements Module {
 
     private final OxygenHeistPlugin plugin;
 

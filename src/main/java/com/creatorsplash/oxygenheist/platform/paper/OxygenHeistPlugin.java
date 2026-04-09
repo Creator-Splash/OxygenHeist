@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.module.*;
@@ -11,6 +12,7 @@ import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import lombok.Getter;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.util.List;
 
 public final class OxygenHeistPlugin extends JavaPlugin {
 
@@ -19,6 +21,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Getter
     private GlobalConfigService configService;
+
+    private List<Module> modules;
 
     @Override
     public void onEnable() {
@@ -33,12 +37,20 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         var weapons = new WeaponModule(configs, gameplay).build();
         var platform = new PlatformModule(this, configs, gameplay, display, weapons).wire();
 
+        this.modules = List.of(
+           configs,
+           display,
+           gameplay,
+           weapons,
+           platform
+        );
+
         logCenter.info("<green>Ready!");
     }
 
     @Override
     public void onDisable() {
-        // TODO
+        this.modules.forEach(Module::disable);
 
         HandlerList.unregisterAll(this);
 
@@ -58,15 +70,5 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     public static LogCenter log() {
         return instance().getLogCenter();
     }
-
-    /* Internal Helpers */
-
-    private record PluginModules(
-        ConfigModule configs,
-        DisplayModule display,
-        GameplayModule gameplay,
-        WeaponModule weapons,
-        PlatformModule platform
-    ) {}
 
 }

@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
+import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
@@ -16,7 +17,7 @@ public record PlatformModule(
     GameplayModule gameplay,
     DisplayModule display,
     WeaponModule weapons
-) {
+) implements Module {
 
     public PlatformModule wire() {
         registerListeners();

@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
+import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
@@ -10,7 +11,7 @@ import lombok.experimental.Accessors;
 @Getter
 @RequiredArgsConstructor
 @Accessors(fluent = true)
-public final class WeaponModule {
+public final class WeaponModule implements Module {
 
     private final ConfigModule configs;
     private final GameplayModule gameplay;
@@ -30,7 +31,7 @@ public final class WeaponModule {
     }
 
     private void registerHandlers() {
-
+        // TODO
     }
 
 }

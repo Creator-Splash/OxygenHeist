@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
+import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
@@ -28,7 +29,7 @@ import lombok.experimental.Accessors;
 @Getter
 @RequiredArgsConstructor
 @Accessors(fluent = true)
-public final class GameplayModule {
+public final class GameplayModule implements Module {
 
     private final OxygenHeistPlugin plugin;
     private final ConfigModule configs;
@@ -110,5 +111,11 @@ public final class GameplayModule {
         };
     }
 
+    @Override
+    public void disable() {
+        selectionService.clear();
+        matchService.getScheduler().onDisable();
+    }
+    
 }
 
