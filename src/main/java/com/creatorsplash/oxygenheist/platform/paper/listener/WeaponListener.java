@@ -3,8 +3,11 @@ package com.creatorsplash.oxygenheist.platform.paper.listener;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.*;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileContext;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -38,6 +41,7 @@ import org.bukkit.inventory.ItemStack;
 @RequiredArgsConstructor
 public final class WeaponListener implements Listener {
 
+    private final GlobalConfigService globals;
     private final WeaponRegistry registry;
     private final WeaponProjectileTracker projectileTracker;
     private final WeaponEffectsState effectsState;
@@ -224,7 +228,8 @@ public final class WeaponListener implements Listener {
 
     private WeaponContext buildContext(Player player, ItemStack item) {
         MatchSession session = matchService.getSession().orElse(null);
-        boolean effectsActive = matchService.isPlayerInActiveMatch(player.getUniqueId());
+        boolean effectsActive = globals.get().weaponDebugBypass()
+            || matchService.isPlayerInActiveMatch(player.getUniqueId());
         return new WeaponContext(player, item, session, effectsActive);
     }
 

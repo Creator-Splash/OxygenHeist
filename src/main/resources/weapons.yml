@@ -8,8 +8,7 @@
 
 claw_cannon:
   enabled: true
-  cmds:
-    base: 8001
+  item-id: "oxygenheist:claw_cannon"
   cooldown-ms: 3000
   damage: 8.0
   explosion-radius: 4.0
@@ -17,27 +16,31 @@ claw_cannon:
   launch-y: 0.8
   melee-knockback: 2.0
   melee-knockback-y: 0.5
+  sounds:
+    fire: "entity.firework_rocket.launch"
+    fire-volume: 1.5
+    fire-pitch: 0.8
 
 manta_cannon:
   enabled: true
-  cmds:
-    base: 5001
-    aim: 5002
-    reload-0: 5003
-    reload-1: 5004
+  item-id: "oxygenheist:manta_cannon"
+  reload-frames: 2
   ammo: 4
   reload-ms: 6000
   shot-cooldown-ms: 3000
   damage: 12.0
   cone-angle: 60.0
   max-range: 8.0
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-start-pitch: 1.0
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3
 
 needle_rifle:
   enabled: true
-  cmds:
-    base: 4001
-    aim: 4002
-    reload-0: 4003
+  item-id: "oxygenheist:needle_rifle"
+  reload-frames: 1
   ammo: 8
   reload-ms: 4000
   shot-cooldown-ms: 2000
@@ -47,29 +50,29 @@ needle_rifle:
   close-range-bonus-damage: 3.0
   long-range-distance: 6.0
   long-range-nerf-damage: 3.0
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3
 
 reef_harpoon:
   enabled: true
-  cmds:
-    base: 1001
-    aim: 1002
-    reload-0: 1003
+  item-id: "oxygenheist:reef_harpoon"
+  reload-frames: 1
   ammo: 1
   start-ammo: 0
   reload-ms: 5000
   damage: 10.0
   max-range: 12.0
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3
 
 spike_shooter:
   enabled: true
-  cmds:
-    base: 2001
-    aim: 2002
-    reload-0: 2003
-    reload-1: 2004
-    reload-2: 2005
-    reload-3: 2006
-    reload-4: 2007
+  item-id: "oxygenheist:spike_shooter"
+  reload-frames: 5
   ammo: 10
   reload-ms: 3500
   shot-cooldown-ms: 0
@@ -78,51 +81,68 @@ spike_shooter:
   burst-count: 3
   burst-cooldown-ms: 500
   poison-duration-ticks: 100
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3
 
 silt_blaster:
   enabled: true
-  cmds:
-    base: 9001
+  item-id: "oxygenheist:silt_blaster"
   cooldown-ms: 2000
   cloud-radius: 3.0
   effect-duration-ticks: 40
+  sounds:
+    fire: "entity.ender_dragon.shoot"
+    fire-volume: 1.5
+    fire-pitch: 0.6
 
 venom_spitter:
   enabled: true
-  cmds:
-    base: 3001
-    aim: 3002
-    reload-0: 3003
+  item-id: "oxygenheist:venom_spitter"
+  reload-frames: 1
   ammo: 25
   reload-ms: 5000
   shot-cooldown-ms: 200
   damage-per-shot: 0.5
   max-range: 7.0
   poison-duration-ticks: 20
+  sounds:
+    fire: "entity.blaze.shoot"
+    fire-volume: 1.0
+    fire-pitch: 1.0
+    reload-start: "item.armor.equip_iron"
+    reload-start-volume: 1.0
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-volume: 0.6
+    reload-complete-pitch: 1.3
 
 dart_slingshot:
   enabled: true
-  cmds:
-    base: 6001
-    aim: 6002
-    reload-0: 6003
+  item-id: "oxygenheist:dart_slingshot"
+  reload-frames: 1
   ammo: 3
   reload-ms: 2500
   shot-cooldown-ms: 500
   damage: 2.0
   max-range: 15.0
   poison-duration-ticks: 80
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3
 
 steal_crossbow:
   enabled: true
-  cmds:
-    loaded: 7001
-    aim: 7002
-    unloaded: 7003
-    reload-0: 7003
+  item-id: "oxygenheist:steal_crossbow"
+  reload-frames: 1
   ammo: 1
   start-ammo: 0
   reload-ms: 3000
   shot-cooldown-ms: 2000
   damage: 3.0
   max-range: 25.0
+  sounds:
+    reload-start: "item.armor.equip_iron"
+    reload-complete: "item.armor.equip_iron"
+    reload-complete-pitch: 1.3

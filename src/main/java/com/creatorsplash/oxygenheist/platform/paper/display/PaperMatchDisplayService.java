@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.bossbar.BossBar;
@@ -459,13 +460,8 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
         plugin.getServer().broadcast(message);
     }
 
-    private void playSound(Player player, MessageConfig.SoundConfig sound) {
-        player.playSound(Sound.sound(
-            Key.key(sound.key()),
-            Sound.Source.MASTER,
-            sound.volume(),
-            sound.pitch()
-        ));
+    private void playSound(Player player, SoundConfig sound) {
+        sound.playTo(player);
     }
 
     private static String formatTime(int totalSeconds) {

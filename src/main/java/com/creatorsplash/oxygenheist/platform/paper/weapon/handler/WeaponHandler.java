@@ -3,7 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.handler;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.platform.paper.listener.WeaponListener;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponProjectileContext;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;

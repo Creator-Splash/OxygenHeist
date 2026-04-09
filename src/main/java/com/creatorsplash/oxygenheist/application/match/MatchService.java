@@ -20,6 +20,7 @@ import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public final class MatchService {
     @Getter
     private LogCenter log;
 
+    private final GlobalConfigService globals;
     private final MatchConfigService matchConfigService;
     private final MatchSnapshotProvider snapshotProvider;
     private final MatchDisplayService displayService;
@@ -47,7 +49,6 @@ public final class MatchService {
     @Getter
     private final Scheduler scheduler;
     private final GameBridge gameBridge;
-    private final DebugFlags debugFlags;
 
     private final DownedService downedService;
     private final ReviveService reviveService;
@@ -90,7 +91,7 @@ public final class MatchService {
 
         this.log = new MatchLogCenter(
             UUID.randomUUID().toString().substring(0, 6),
-            debugFlags
+            globals
         );
 
         // Load zones from config into session

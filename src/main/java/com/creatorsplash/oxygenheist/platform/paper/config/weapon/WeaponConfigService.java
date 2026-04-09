@@ -1,7 +1,9 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.sound.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -88,8 +90,14 @@ public final class WeaponConfigService {
         WeaponTypeConfig.CombatConfig combat = parseCombat(s);
         WeaponTypeConfig.PhysicsConfig physics = parsePhysics(s);
         WeaponTypeConfig.EffectConfig effects = parseEffects(s);
+        WeaponTypeConfig.SoundsConfig sounds = parseSounds(s);
 
-        return new WeaponTypeConfig(id, enabled, itemId, reloadFrames, ammo, timing, combat, physics, effects);
+        return new WeaponTypeConfig(
+            id, enabled, itemId,
+            reloadFrames, ammo, timing,
+            combat, physics,
+            effects, sounds
+        );
     }
 
     private WeaponTypeConfig.AmmoConfig parseAmmo(ConfigurationSection s) {
@@ -137,6 +145,29 @@ public final class WeaponConfigService {
         return new WeaponTypeConfig.EffectConfig(
             s.getInt("effect-duration-ticks", 0),
             s.getInt("poison-duration-ticks", 0)
+        );
+    }
+
+    private WeaponTypeConfig.SoundsConfig parseSounds(ConfigurationSection s) {
+        ConfigurationSection sec = s.getConfigurationSection("sounds");
+        return new WeaponTypeConfig.SoundsConfig(
+            sec != null ? parseSound(sec, "fire") : null,
+            sec != null ? parseSound(sec, "reload-start") : null,
+            sec != null ? parseSound(sec, "reload-complete") : null,
+            sec != null ? parseSound(sec, "reload-cancel") : null,
+            sec != null ? parseSound(sec, "hit") : null,
+            sec != null ? parseSound(sec, "empty") : null
+        );
+    }
+
+    private @Nullable SoundConfig parseSound(ConfigurationSection sec, String key) {
+        if (!sec.contains(key)) return null;
+        return SoundConfig.sound(
+            sec,
+            key,
+            null,
+            1.0f,
+            1.0f
         );
     }
 

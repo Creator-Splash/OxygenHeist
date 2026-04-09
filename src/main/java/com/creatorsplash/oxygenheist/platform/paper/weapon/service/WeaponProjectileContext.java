@@ -1,4 +1,4 @@
-package com.creatorsplash.oxygenheist.platform.paper.weapon;
+package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;

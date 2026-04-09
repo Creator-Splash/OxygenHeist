@@ -1,15 +1,9 @@
-package com.creatorsplash.oxygenheist.platform.paper.weapon;
+package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 
 import com.creatorsplash.oxygenheist.platform.paper.util.PDCKeys;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * PDC-based ammo tracking for weapons with per-item-instance ammo counts

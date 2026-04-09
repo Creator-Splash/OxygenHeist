@@ -4,7 +4,7 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.handler;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.ReloadTracker;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponAmmoService;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponAmmoService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import org.bukkit.entity.Player;

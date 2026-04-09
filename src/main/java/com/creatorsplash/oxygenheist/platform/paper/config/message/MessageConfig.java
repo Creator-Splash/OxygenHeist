@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.message;
 
+import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
 
@@ -26,23 +27,6 @@ public record MessageConfig(
 ) {
 
     /* Value Types */
-
-    /**
-     * A sound event with volume, pitch, and mixer source
-     *
-     * <p>{@code key} accepts both vanilla and resource pack sound IDs:
-     * <ul>
-     *   <li>Vanilla: {@code entity.player.hurt} - {@code minecraft:} namespace is implied</li>
-     *   <li>Resource pack: {@code mypack:weapons.claw.fire} - explicit namespace required</li>
-     * </ul>
-     * </p>
-     *
-     * <p>{@code source} controls which mixer channel the sound is routed to
-     * (e.g. {@link Sound.Source#PLAYER},
-     * {@link Sound.Source#HOSTILE}).
-     * Defaults to {@link Sound.Source#MASTER} if unspecified</p>
-     */
-    public record SoundConfig(String key, Sound.Source source, float volume, float pitch) {}
 
     /**
      * Title fade-in / stay / fade-out durations in ticks

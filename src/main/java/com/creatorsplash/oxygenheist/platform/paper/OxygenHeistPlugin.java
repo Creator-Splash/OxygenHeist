@@ -5,7 +5,6 @@ import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
-import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.MatchSnapshotProvider;
@@ -23,6 +22,7 @@ import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
@@ -33,7 +33,7 @@ import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHe
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponProjectileTracker;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
@@ -44,7 +44,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public final class OxygenHeistPlugin extends JavaPlugin {
 
@@ -68,11 +67,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
         saveDefaultConfig();
 
-        DebugFlags debugFlags = new DebugFlags(
-            Set.of("all") // todo
-        );
+        GlobalConfigService globals = new GlobalConfigService(this);
 
-        this.logCenter = new GlobalLogCenter(debugFlags);
+        this.logCenter = new GlobalLogCenter(globals);
 
         MatchConfigService matchConfigService = new MatchConfigService();
         matchConfigService.load(getConfig());
@@ -87,7 +84,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         messageConfigService.load();
 
         TeamConfigService teamConfigService = new TeamConfigService();
-        TeamService teamService = teamConfigService.load(this);
+        this.teamService = teamConfigService.load(this);
 
         /* == Gameplay Services == */
 
@@ -137,13 +134,13 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             .toList();
 
         this.matchService = new MatchService(
+            globals,
             matchConfigService,
             snapshotProvider,
             displayService,
             worldService,
             scheduler,
             bridge,
-            debugFlags,
             downedService,
             reviveService,
             playerPositionProvider,
@@ -173,7 +170,10 @@ public final class OxygenHeistPlugin extends JavaPlugin {
             new ReviveListener(this.matchService, reviveService, actionService),
             new PlayerRestrictionListener(actionService),
             new AirChangeListener(airBarController),
-            new WeaponListener(weaponRegistry, projectileTracker, effectsState, matchService, actionService)
+            new WeaponListener(
+                globals, weaponRegistry,
+                projectileTracker, effectsState,
+                matchService, actionService)
         );
 
         /* == Commands == */
@@ -181,7 +181,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         this.commandRegistrar = new CommandRegistrar(this);
         registerCommands(
             new GameCommands(this.matchService),
-            new DebugCommands(this.matchService),
+            new DebugCommands(this.matchService, weaponRegistry),
             new SetupCommands(
                 this.logCenter,
                 this.selectionService,

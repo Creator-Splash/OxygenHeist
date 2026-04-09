@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Shared state for active weapon-applied effects that must be queried
- *  * outside a handlers own invocation context
+ * outside a handlers own invocation context
  */
 public class WeaponEffectsState implements MatchLifecycle {
 

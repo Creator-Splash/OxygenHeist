@@ -1,0 +1,14 @@
+# OxygenHeist global configuration
+
+debug:
+  # Which debug flag categories to enable
+  # Use "all" to enable everything, or list specific keys e.g. [weapons, zones, match]
+  # Available keys: weapons, zones, match, capture, oxygen
+  flags: []
+
+  # Allow weapon usage outside an active match
+  # Useful for testing ItemsAdder items and weapon behaviour without starting a game
+  # Should be false in production
+  weapon-bypass: false
+
+# TODO

@@ -1,5 +1,8 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
+import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,8 @@ public record WeaponTypeConfig(
    TimingConfig timing,
    CombatConfig combat,
    PhysicsConfig physics,
-   EffectConfig effects
+   EffectConfig effects,
+   SoundsConfig sounds
 ) {
 
     /* Ammo config */
@@ -101,6 +105,31 @@ public record WeaponTypeConfig(
     public record EffectConfig(
         int effectDurationTicks,
         int poisonDurationTicks
+    ) {}
+
+    /**
+     * Sounds played during weapon lifecycle events
+     *
+     * <p>Not every field is used by every weapon - handlers only read what
+     * is relevant. Unused fields default to a silent no-op if the
+     * key is absent from {@code weapons.yml}</p>
+     *
+     * <ul>
+     *   <li>{@code fire} - played when the weapon fires</li>
+     *   <li>{@code reloadStart} - played when a reload begins</li>
+     *   <li>{@code reloadComplete} - played when a reload finishes</li>
+     *   <li>{@code reloadCancel} - played when a reload is interrupted</li>
+     *   <li>{@code hit} - played on a successful hit</li>
+     *   <li>{@code empty} - played when firing with no ammo</li>
+     * </ul>
+     */
+    public record SoundsConfig(
+        @Nullable SoundConfig fire,
+        @Nullable SoundConfig reloadStart,
+        @Nullable SoundConfig reloadComplete,
+        @Nullable SoundConfig reloadCancel,
+        @Nullable SoundConfig hit,
+        @Nullable SoundConfig empty
     ) {}
 
 }
