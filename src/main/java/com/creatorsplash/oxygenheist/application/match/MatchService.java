@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
@@ -43,6 +44,8 @@ public final class MatchService {
     private final MatchConfigService matchConfigService;
     private final MatchSnapshotProvider snapshotProvider;
     private final MatchDisplayService displayService;
+
+    private final GamePlayerService playerService;
     private final GameWorldService worldService;
 
     @Getter
@@ -118,6 +121,15 @@ public final class MatchService {
 
         session.startCooldown();
         teamService.populateMatchSession(session);
+
+        // Init match state for all teamed players only
+        for (Team team : teamService.getAllTeams()) {
+            for (UUID memberId : team.getMembers()) {
+                session.getOrCreatePlayer(memberId)
+                    .initOxygen(session.config().oxygen().max());
+            }
+        }
+
         startTasks();
 
         gameBridge.onGameStart();
@@ -144,6 +156,7 @@ public final class MatchService {
             scores.put(player.getPlayerId(), player.getScore());
         }
 
+        playerService.cleanupAfterMatch(session);
         gameBridge.onGameEnd(scores, winner);
         worldService.onMatchEnded();
         displayService.onMatchEnd(winner);
@@ -314,7 +327,9 @@ public final class MatchService {
             case SETUP -> {
                 if (session.isTimeExpired()) {
                     session.startMatch();
+                    playerService.prepareForMatch(session);
                     worldService.onMatchStarted(session.config());
+                    externalLifecycles.forEach(MatchLifecycle::onMatchStart);
                 }
             }
 
@@ -384,7 +399,20 @@ public final class MatchService {
             zonePresenceService.compute(session);
 
         zoneOxygenService.tick(session, presence);
-        captureService.tick(session, presence);
+
+        for (CaptureService.CaptureEvent event : captureService.tick(session, presence)) {
+            Team team = teamService.getTeam(event.teamId());
+            if (team != null) {
+                displayService.onZoneCaptured(
+                    event.teamId(),
+                    team.getName(),
+                    event.zone().getDisplayName(),
+                    event.oxygenRestored(),
+                    new HashSet<>(team.getMembers())
+                );
+            }
+        }
+
         playerOxygenService.tickDrain(session);
 
         /* Player State */

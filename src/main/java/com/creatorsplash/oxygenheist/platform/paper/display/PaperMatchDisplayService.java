@@ -14,6 +14,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -437,6 +438,13 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
         if (timerBar != null) {
             timerBar.color(BossBar.Color.RED);
         }
+    }
+
+    @Override
+    public void showBarsToNewPlayer(UUID playerId) {
+        Player player = Bukkit.getPlayer(playerId);
+        if (player == null) return;
+        if (timerBar != null) player.showBossBar(timerBar);
     }
 
     /* Internals/Helpers */

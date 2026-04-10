@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
 import com.creatorsplash.oxygenheist.application.common.Module;
@@ -19,6 +20,7 @@ import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
+import com.creatorsplash.oxygenheist.platform.paper.world.PaperGamePlayerService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
@@ -67,6 +69,9 @@ public final class GameplayModule implements Module {
             plugin.getServer(), configs.arenaConfig(), plugin.getLogCenter()
         );
 
+        GamePlayerService playerService =
+            new PaperGamePlayerService(plugin().getServer(), teamService, plugin.getLogCenter());
+
         this.snapshotProvider = new MatchSnapshotProvider();
 
         ZoneProvider zoneProvider = () -> configs.arenaConfig().getZones()
@@ -79,6 +84,7 @@ public final class GameplayModule implements Module {
             configs.matchConfig(),
             snapshotProvider,
             display().displayService(),
+            playerService,
             worldService,
             scheduler,
             bridge,

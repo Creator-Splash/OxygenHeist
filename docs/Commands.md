@@ -12,7 +12,8 @@ Before you can run a match, you need to complete these steps in order:
 - [ ] Get the selection wand
 - [ ] Set your arena boundary
 - [ ] Create at least one capture zone
-- [ ] Configure your teams
+- [ ] Configure your teams in `teams.yml`, then set their bases — `/oh team setbase`
+- [ ] Add players to teams — `/oh team add`
 - [ ] Start the match
 
 ---
@@ -161,28 +162,11 @@ Shows all configured zones with their shape, id, display name, and world
 
 ## Team Setup
 
-Teams are configured separately and persist between matches. Each team needs
-a name, a color, and a spawn base location before a match can start
+Teams persist between matches and are defined in `teams.yml`. Use the commands
+below to manage them at runtime. Each team needs at least one member and a base
+location before a match can start.
 
-### Create a Team
-
-```
-/oh team create <name> <color>
-```
-
-| Argument | Description |
-|---|---|
-| `name` | The team name, e.g. `red` or `blue` |
-| `color` | A color preset. See the list below |
-
-**Available color presets:**
-`red` `blue` `green` `yellow` `purple` `orange` `pink` `cyan` `white` `black`
-
-**Example:**
-```
-/oh team create red red
-/oh team create blue blue
-```
+> **Note:** To create or delete teams, edit `teams.yml` directly and run `/oh reload`
 
 ### Set a Team's Base Spawn
 
@@ -202,18 +186,38 @@ Stand at the location where the team should spawn at match start, then run:
 ```
 /oh team add <name> <player>
 ```
+Applies team armour immediately and moves the player out of spectator mode.
 
 ### Remove a Player from a Team
 
 ```
 /oh team remove <name> <player>
 ```
+Removes team armour and places the player into spectator mode
 
-### Delete a Team
+### Set a Team Captain
 
 ```
-/oh team delete <name>
+/oh team captain <player> <team>
 ```
+
+### Change a Teams Color
+
+Changes the armour dye color and display color for the team.
+
+```
+/oh team color <team> <color>
+```
+Valid colors are standard MiniMessage color names, e.g. `red`, `blue`, `green`,
+`yellow`, `aqua`, `gold`, `light_purple`, `white`.
+
+### View Team Info
+
+```
+/oh team info <team>
+```
+
+Shows team ID, member count, captain, and base location status.
 
 ### List All Teams
 
@@ -221,13 +225,7 @@ Stand at the location where the team should spawn at match start, then run:
 /oh team list
 ```
 
-### Toggle Friendly Fire
-
-Toggles whether players on the same team can damage each other. Off by default
-
-```
-/oh team ff <name>
-```
+Shows all teams with member counts and whether their base has been set
 
 ---
 
@@ -296,51 +294,32 @@ Immediately revives a downed player
 
 ## Full Setup Example
 
-Here is a complete walkthrough of setting up OxygenHeist from scratch on a
-fresh server
-
-**Step 1 - Get the wand**
 ```
 /oh wand
 ```
-
-**Step 2 - Select the arena boundary**
-
-Walk to one corner of your arena and left-click the ground.
-Walk to the opposite corner and right-click the ground.
-
+Left-click one corner of your arena, right-click the opposite corner.
 ```
 /oh arena set
 ```
-
-**Step 3 - Create capture zones**
-
-Walk to the center of your map, left-click the ground for Point 1,
-walk to the far corner of the zone area, right-click for Point 2.
-
+Walk to the center of your first zone, left-click, walk to the far edge, right-click.
 ```
-/oh zone set center "Center Point"
+/oh zone set center "Center"
+/oh zone set north "North Tower"
 ```
-
-Repeat for any additional zones.
-
-**Step 4 - Create teams and set their bases**
-```
-/oh team create red red
-/oh team create blue blue
-```
-
-Walk to the red team spawn location:
+Stand at the red team spawn:
 ```
 /oh team setbase red
 ```
-
-Walk to the blue team spawn location:
+Stand at the blue team spawn:
 ```
 /oh team setbase blue
 ```
-
-**Step 5 - Start the match**
+Add players:
+```
+/oh team add Steve red
+/oh team add Alex blue
+```
+Start the match:
 ```
 /oh start
 ```

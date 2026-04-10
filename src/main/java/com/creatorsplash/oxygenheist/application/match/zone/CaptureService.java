@@ -5,6 +5,9 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Handles capture zone progression during an active match
  *
@@ -27,16 +30,21 @@ public class CaptureService {
      *
      * @param session the match session
      */
-    public void tick(MatchSession session, ZonePresence presence) {
+    public List<CaptureEvent> tick(MatchSession session, ZonePresence presence) {
+        List<CaptureEvent> events = new ArrayList<>();
+
         for (CaptureZoneState zone : session.getZones()) {
-            applyCapture(zone, presence, session);
+            CaptureEvent event = applyCapture(zone, presence, session);
+            if (event != null) events.add(event);
         }
+
+        return events;
     }
 
     /**
      * Applies capture logic to a single zone
      */
-    private void applyCapture(
+    private CaptureEvent applyCapture(
         CaptureZoneState zone,
         ZonePresence presence,
         MatchSession session
@@ -46,15 +54,15 @@ public class CaptureService {
         double capturePerTick = config.captureRatePerTick();
         int captureOxygenRestore = config.captureOxygenRestore();
 
-        if (presence.isEmpty(zone)) return;
+        if (presence.isEmpty(zone)) return null;
 
-        if (presence.isContested(zone)) return;
+        if (presence.isContested(zone)) return null;
 
         String teamId = presence.getSingleTeam(zone).orElseThrow();
 
         if (zone.hasOwner() && !teamId.equals(zone.getOwnerTeamId())) {
             zone.regressCapture(teamId, capturePerTick);
-            return;
+            return null;
         }
 
         zone.progressCapture(teamId, capturePerTick);
@@ -62,7 +70,20 @@ public class CaptureService {
         if (zone.isFullyCaptured()) {
             zone.completeCapture();
             oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
+            session.addTeamScore(teamId, 1);
+            return new CaptureEvent(teamId, zone, captureOxygenRestore);
         }
+
+        return null;
     }
+
+    /**
+     * Represents a completed zone capture event for a single tick
+     *
+     * @param teamId the team that captured the zone
+     * @param zone the zone that was captured
+     * @param oxygenRestored the amount of oxygen restored to the capturing team
+     */
+    public record CaptureEvent(String teamId, CaptureZoneState zone, int oxygenRestored) {}
 
 }

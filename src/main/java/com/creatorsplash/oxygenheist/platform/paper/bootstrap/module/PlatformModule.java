@@ -52,7 +52,8 @@ public record PlatformModule(
                 gameplay.matchService(),
                 gameplay.actionService()
             ),
-            new TeamListener(gameplay.scheduler(), gameplay.teamService())
+            new TeamListener(gameplay.scheduler(), gameplay.teamService()),
+            new MatchJoinListener(gameplay.matchService(), display.displayService())
             // TODO zone listener
         );
 

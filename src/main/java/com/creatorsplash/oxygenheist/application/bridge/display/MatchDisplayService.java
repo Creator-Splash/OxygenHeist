@@ -74,4 +74,6 @@ public interface MatchDisplayService {
      */
     void onPlayerEliminated(UUID playerId, boolean wasInstantDeath);
 
+    default void showBarsToNewPlayer(UUID playerId) {}
+
 }

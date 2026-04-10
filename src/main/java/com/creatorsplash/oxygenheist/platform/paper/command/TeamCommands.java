@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.command;
 
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
+import com.creatorsplash.oxygenheist.domain.team.TeamBase;
 import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.listener.TeamListener;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamArmorUtils;
@@ -48,7 +49,6 @@ public final class TeamCommands implements CommandHandler {
         }
 
         TeamArmorUtils.applyArmor(player, team);
-        //teamListener.hideWaitingBar(player);
         if (player.getGameMode() == GameMode.SPECTATOR) {
             player.setGameMode(GameMode.ADVENTURE);
         }
@@ -64,8 +64,8 @@ public final class TeamCommands implements CommandHandler {
     @Command("remove <player>")
     @CommandDescription("Remove a player from their team")
     public void remove(
-            CommandSender sender,
-            @Argument("player") Player player
+        CommandSender sender,
+        @Argument("player") Player player
     ) {
         if (!teamService.removePlayerFromTeam(player.getUniqueId())) {
             sender.sendRichMessage("<red>" + player.getName() + " is not on any team.");
@@ -73,7 +73,6 @@ public final class TeamCommands implements CommandHandler {
         }
 
         TeamArmorUtils.removeArmor(player);
-        //teamListener.showWaitingBar(player);
         player.setGameMode(GameMode.SPECTATOR);
 
         teamConfigService.save(plugin, teamService);
@@ -82,12 +81,41 @@ public final class TeamCommands implements CommandHandler {
         sender.sendRichMessage("<green>Removed " + player.getName() + " from their team.");
     }
 
+    @Command("setbase <team>")
+    @CommandDescription("Set a team's spawn base to your current location")
+    public void setbase(
+            Player sender,
+            @Argument("team") String teamId
+    ) {
+        Team team = teamService.getTeam(teamId);
+        if (team == null) {
+            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist.");
+            return;
+        }
+
+        var loc = sender.getLocation();
+        TeamBase base = new TeamBase(
+            loc.getWorld().getName(),
+            loc.getX(), loc.getY(), loc.getZ(),
+            loc.getYaw(), loc.getPitch()
+        );
+
+        team.setBase(base);
+        teamConfigService.save(plugin, teamService);
+
+        sender.sendRichMessage("<green>Base set for team <"
+            + team.getColor() + ">" + team.getName()
+            + " <gray>at <white>" + loc.getWorld().getName()
+            + " (" + (int) loc.getX() + ", " + (int) loc.getY()
+            + ", " + (int) loc.getZ() + ")");
+    }
+
     @Command("captain <player> <team>")
     @CommandDescription("Set the captain of a team")
     public void captain(
-            CommandSender sender,
-            @Argument("player") Player player,
-            @Argument("team") String teamId
+        CommandSender sender,
+        @Argument("player") Player player,
+        @Argument("team") String teamId
     ) {
         if (!teamService.setCaptain(teamId, player.getUniqueId())) {
             sender.sendRichMessage("<red>Could not set captain — team '"

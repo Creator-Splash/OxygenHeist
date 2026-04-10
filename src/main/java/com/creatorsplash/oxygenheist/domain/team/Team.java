@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.domain.team;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Team {
     private String name;
     private String color; // color tag
 
+    @Setter
     @Nullable private TeamBase base;
     @Nullable private UUID captainId;
 

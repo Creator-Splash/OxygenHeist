@@ -1,17 +1,13 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
-import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Command("oxygenheist|oh")
 @Permission("com.creatorsplash.oxygenheist.game")
@@ -24,11 +20,6 @@ public final class GameCommands implements CommandHandler {
     @CommandDescription("Start a match")
     public void start(CommandSender sender) {
         matchService.createMatch();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            matchService.addPlayer(player.getUniqueId());
-        }
-
         matchService.startMatch();
 
         Bukkit.getServer().sendRichMessage("<aqua>Oxygen Heist Match Started!");
