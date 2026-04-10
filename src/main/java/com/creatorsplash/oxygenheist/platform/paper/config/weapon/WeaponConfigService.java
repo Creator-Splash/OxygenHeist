@@ -79,8 +79,9 @@ public final class WeaponConfigService {
     private WeaponTypeConfig parseWeapon(String id, ConfigurationSection s) {
         boolean enabled = s.getBoolean("enabled", true);
 
-        String itemId = s.getString("item-id", id);
         int reloadFrames = s.getInt("reload-frames", 0);
+
+        Map<String, String> frames = parseFrames(s);
 
         WeaponTypeConfig.AmmoConfig ammo = parseAmmo(s);
         WeaponTypeConfig.TimingConfig timing = parseTiming(s);
@@ -90,11 +91,22 @@ public final class WeaponConfigService {
         WeaponTypeConfig.SoundsConfig sounds = parseSounds(s);
 
         return new WeaponTypeConfig(
-            id, enabled, itemId,
-            reloadFrames, ammo, timing,
+            id, enabled,
+            reloadFrames, frames,
+            ammo, timing,
             combat, physics,
             effects, sounds
         );
+    }
+
+    private Map<String, String> parseFrames(ConfigurationSection s) {
+        ConfigurationSection sec = s.getConfigurationSection("frames");
+        if (sec == null) return Map.of();
+        Map<String, String> frames = new HashMap<>();
+        for (String key : sec.getKeys(false)) {
+            frames.put(key, sec.getString(key));
+        }
+        return Collections.unmodifiableMap(frames);
     }
 
     private WeaponTypeConfig.AmmoConfig parseAmmo(ConfigurationSection s) {

@@ -1,7 +1,11 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.MatchState;
+import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -80,21 +84,32 @@ public final class WeaponRegistry implements MatchLifecycle {
     /* Lifecycle */
 
     /**
-     * Ticks all handlers for players currently holding a registered weapon.
+     * Ticks all handlers for players currently holding a registered weapon
      *
-     * <p>Called every 2 ticks by a scheduled task in {@code OxygenHeistPlugin}.
+     * <p>Called every 2 ticks by a scheduled task in {@code OxygenHeistPlugin}</p>
+     * <p>
      * Each handler's {@link WeaponHandler#tick} is responsible for HUD updates,
-     * reload animation, and any continuous-fire logic.</p>
+     * reload animation, and any continuous-fire logic
+     * </p>
      */
-    public void tickAll(Iterable<? extends Player> players) {
-        for (Player player : players) {
+    @Override
+    public void onGameTick(MatchSession session) {
+        boolean effectsActive = session.state() == MatchState.PLAYING;
+
+        for (PlayerMatchState p : session.getPlayers()) {
+            if (p.isDowned()) continue;
+
+            Player player = Bukkit.getPlayer(p.getPlayerId());
+            if (player == null) continue;
+
             ItemStack item = player.getInventory().getItemInMainHand();
             WeaponHandler handler = find(item);
-            if (handler != null) {
-                handler.tick(player, item);
-            }
+            if (handler == null) continue;
+
+            handler.tick(new WeaponContext(player, item, session, effectsActive));
         }
     }
+
 
     @Override
     public void onMatchEnd() {

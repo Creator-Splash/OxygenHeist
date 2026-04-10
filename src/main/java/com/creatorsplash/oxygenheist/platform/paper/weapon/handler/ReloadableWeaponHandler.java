@@ -4,6 +4,7 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.handler;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.ReloadTracker;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponAmmoService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
@@ -37,48 +38,54 @@ public abstract class ReloadableWeaponHandler extends AbstractWeaponHandler {
 
     protected void cancelReload(Player player, ItemStack item) {
         reload.cancel(player.getUniqueId());
-        if (item != null) provider.applyBaseFrame(item, id());
+        if (item != null) provider.applyIdleFrame(item, id());
         player.sendActionBar(MM.msg("<red>Reload canceled!"));
         onReloadCancel(player);
     }
 
     protected void completeReload(Player player, ItemStack item) {
         ammo.setAmmo(item, config.ammo().maxAmmo());
-        provider.applyBaseFrame(item, id());
+        provider.applyIdleFrame(item, id());
         reload.cancel(player.getUniqueId());
         player.sendActionBar(MM.msg("<green>Weapon Reloaded!"));
         onReloadComplete(player);
     }
 
     /** Called when a reload starts - override to add sounds or effects */
-    protected void onReloadStart(Player player) {}
+    protected void onReloadStart(Player player) {
+        config.sounds().reloadStart().playTo(player);
+    }
 
     /** Called when a reload is canceled - override to add sounds or effects */
-    protected void onReloadCancel(Player player) {}
+    protected void onReloadCancel(Player player) {
+        config.sounds().reloadCancel().playTo(player);
+    }
 
     /** Called when a reload completes - override to add sounds or effects */
-    protected  void onReloadComplete(Player player) {}
+    protected  void onReloadComplete(Player player) {
+        config.sounds().reloadComplete().playTo(player);
+    }
 
     /* == Default tick - reload animation + auto-complete == */
 
     @Override
-    public void tick(Player player, ItemStack item) {
-        UUID id = player.getUniqueId();
+    public void tick(WeaponContext ctx) {
+        UUID id = ctx.player().getUniqueId();
         if (!reload.isReloading(id)) return;
 
         long elapsed = reload.elapsedMs(id);
         long reloadMs = config.timing().reloadMs();
 
         if (elapsed >= reloadMs) {
-            completeReload(player, item);
+            completeReload(ctx.player(), ctx.item());
             return;
         }
 
         int frameIndex = WeaponUtils.calculateReloadFrameIndex(
             elapsed, reloadMs, config.reloadFrames()
         );
-        provider.applyReloadFrame(item, id(), frameIndex);
-        player.sendActionBar(WeaponUtils.reloadBar((double) elapsed / reloadMs));
+        provider.applyReloadFrame(ctx.item(), id(), frameIndex);
+        ctx.player().sendActionBar(WeaponUtils.reloadBar((double) elapsed / reloadMs));
     }
 
     /* == Default slot/swap/drop behaviour == */

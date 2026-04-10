@@ -1,11 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
-import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,8 +9,8 @@ import java.util.Map;
 public record WeaponTypeConfig(
    String id,
    boolean enabled,
-   String itemId,
    int reloadFrames,
+   Map<String, String> frames,
    AmmoConfig ammo,
    TimingConfig timing,
    CombatConfig combat,

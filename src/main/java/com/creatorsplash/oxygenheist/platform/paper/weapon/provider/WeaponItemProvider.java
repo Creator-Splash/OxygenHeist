@@ -28,17 +28,25 @@ public interface WeaponItemProvider {
     ItemStack createWeaponItem(String weaponId, String displayName);
 
     /**
+     * Applies a named frame to the item, e.g, "idle", "charged", "launch"
+     * <p>No-ops silently if the frame is not defined for this weapon</p>
+     */
+    void applyFrame(ItemStack item, String weaponId, String frameName);
+
+    /**
      * Transitions the given item to the correct reload animation frame
      *
      * <p>Mutates the item in place. {@code frameIndex} is zero-based.
      * Implementations should clamp silently if {@code frameIndex} exceeds
      * the number of frames defined for this weapon</p>
      *
-     * @param item the item currently in the player's hand
+     * @param item the item currently in the players hand
      * @param weaponId the weapons config id
      * @param frameIndex zero-based frame index
      */
-    void applyReloadFrame(ItemStack item, String weaponId, int frameIndex);
+    default void applyReloadFrame(ItemStack item, String weaponId, int frameIndex) {
+        applyFrame(item, weaponId, "reload_" + frameIndex);
+    }
 
     /**
      * Transitions the given item to its aim visual state
@@ -51,7 +59,9 @@ public interface WeaponItemProvider {
      * @param item the item currently in the players hand
      * @param weaponId the weapons config id
      */
-    void applyAimFrame(ItemStack item, String weaponId);
+    default void applyAimFrame(ItemStack item, String weaponId) {
+        applyFrame(item, weaponId, "aim");
+    }
 
     /**
      * Transitions the given item back to its base visual state
@@ -61,7 +71,9 @@ public interface WeaponItemProvider {
      * @param item the item currently in the player's hand
      * @param weaponId the weapons config id
      */
-    void applyBaseFrame(ItemStack item, String weaponId);
+    default void applyIdleFrame(ItemStack item, String weaponId) {
+        applyFrame(item, weaponId, "idle");
+    }
 
     /**
      * Returns true if the provider has fully loaded and is safe to call

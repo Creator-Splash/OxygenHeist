@@ -1,8 +1,10 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.WeaponCooldownService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
@@ -31,6 +33,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
     private static final String ID = "claw_cannon";
 
+    private final LogCenter log;
     private final Scheduler scheduler;
     private final WeaponCooldownService cooldown = new WeaponCooldownService();
 
@@ -44,6 +47,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
     ) {
         super(config, provider);
         this.scheduler = scheduler;
+        this.log = OxygenHeistPlugin.log();
     }
 
     @Override public String id() { return ID; }
@@ -70,7 +74,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             return;
         }
 
-        launchPlayer(player, ctx.session());
+        launchPlayer(player, ctx, ctx.session());
         cooldown.recordUse(id);
     }
 
@@ -102,7 +106,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
     /* == Launch == */
 
-    private void launchPlayer(Player player, @Nullable MatchSession session) {
+    private void launchPlayer(Player player, WeaponContext ctx, @Nullable MatchSession session) {
         UUID id = player.getUniqueId();
 
         var direction = player.getLocation().getDirection();
@@ -121,9 +125,11 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
         ParticleUtils.spawn(Particle.CLOUD, player.getLocation(),
             20, 0.3, 0.3, 0.3, 0.1, session);
 
+        provider.applyFrame(player.getInventory().getItemInMainHand(), ID, "launch");
+
         player.sendActionBar(MM.msg("<gold><bold>LAUNCHED!"));
 
-        FlightTask task = new FlightTask(player, session);
+        FlightTask task = new FlightTask(player, session, ctx);
         task.handle = scheduler.runRepeating(task, 0L, 1L);
         trackPlayerTask(player.getUniqueId(), task.handle);
     }
@@ -137,7 +143,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
         private int ticks = 0;
         private Location lastLoc;
         Scheduler.Task handle;
-
+        private final WeaponContext ctx;
 
         @Override
         public void run() {
@@ -161,7 +167,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             // Landing detection
             boolean dropping = lastLoc != null && currentLoc.getY() < lastLoc.getY() - 0.5;
             if (ticks > 5 && (hasLanded(player)|| dropping)) {
-                explodeOnLanding(player, currentLoc, session);
+                explodeOnLanding(player, currentLoc, ctx, session);
                 inFlight.remove(id);
                 handle.cancel();
                 return;
@@ -178,7 +184,15 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
                 && player.getVelocity().getY() <= 0.1;
         }
 
-        private void explodeOnLanding(Player player, Location landLoc, @Nullable MatchSession session) {
+        private void explodeOnLanding(
+            Player player,
+            Location landLoc,
+            WeaponContext ctx,
+            @Nullable MatchSession session
+        ) {
+            log.warn("Item context on explode landing: " + ctx.item());
+            provider.applyIdleFrame(ctx.item(), ID);
+
             UUID shooterId = player.getUniqueId();
             double radius = config.combat().explosionRadius();
 

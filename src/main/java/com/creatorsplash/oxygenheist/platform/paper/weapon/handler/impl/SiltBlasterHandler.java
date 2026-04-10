@@ -163,11 +163,13 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
 
     @Override
     public void onMatchEnd() {
+        super.onMatchEnd();
         cooldown.clearAll();
     }
 
     @Override
     public void onPlayerLeave(UUID playerId) {
+        super.onPlayerLeave(playerId);
         cooldown.clear(playerId);
         effectsState.removeInvertedControls(playerId);
     }

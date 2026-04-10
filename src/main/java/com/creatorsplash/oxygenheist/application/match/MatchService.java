@@ -4,7 +4,6 @@ import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
-import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
@@ -307,6 +306,9 @@ public final class MatchService {
 
         tickCounter++;
         session.tickTimer();
+
+        // External systems tick against current state first
+        externalLifecycles.forEach(l -> l.onGameTick(session));
 
         switch (session.state()) {
             case SETUP -> {

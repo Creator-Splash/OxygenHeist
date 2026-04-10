@@ -1,24 +1,36 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl;
 
-import com.creatorsplash.oxygenheist.application.match.MatchService;
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.ReloadableWeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Venom Spitter - continuous-fire raycast weapon
+ * <p>
+ * Left-click or melee to begin firing; each tick drains 1 ammo and deals
+ * damage + stacking poison to any hit entity along the ray
+ * <p>Sneak to enter aim mode. Right-click to manually reload</p>
+ */
 public final class VenomSpitterHandler extends ReloadableWeaponHandler {
 
     private static final String ID = "venom_spitter";
-
-    private final MatchService matchService;
 
     /** Players currently in continuous-fire mode */
     private final Set<UUID> shooting = new HashSet<>();
@@ -27,11 +39,9 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
 
     public VenomSpitterHandler(
         @NotNull WeaponTypeConfig config,
-        @NotNull WeaponItemProvider provider,
-        @NotNull MatchService matchService
+        @NotNull WeaponItemProvider provider
     ) {
         super(config, provider);
-        this.matchService = matchService;
     }
 
     @Override public String id() { return ID; }
@@ -84,14 +94,86 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     @Override
     public void onSneakToggle(WeaponContext ctx, boolean sneaking) {
         if (sneaking) {
-            provider.applyAimFrame(ctx.item(), ID);
+            provider.applyFrame(ctx.item(), ID, "charged");
         } else {
             shooting.remove(ctx.player().getUniqueId());
-            provider.applyBaseFrame(ctx.item(), ID);
+            provider.applyIdleFrame(ctx.item(), ID);
         }
     }
 
+    @Override
+    public void onSlotChange(Player player) {
+        super.onSlotChange(player);
+        shooting.remove(player.getUniqueId());
+        // Restore idle - player may have switched away while charged
+        ItemStack item = player.getInventory().getItemInMainHand();
+        provider.applyIdleFrame(item, ID);
+    }
+
     /* == Tick == */
+
+    @Override
+    public void tick(WeaponContext ctx) {
+        super.tick(ctx);
+
+        Player player = ctx.player();
+        ItemStack item = ctx.item();
+
+        UUID id = player.getUniqueId();
+        if (!shooting.contains(id)) return;
+
+        int currentAmmo = ammo.getAmmo(item);
+        if (currentAmmo <= 0) {
+            shooting.remove(id);
+            startReload(player, item);
+            return;
+        }
+
+        shoot(player, ctx.session());
+        ammo.setAmmo(item, currentAmmo - 1);
+        player.sendActionBar(MM.msg("<yellow>Ammo: <white>" + (currentAmmo - 1) + "/" + config.ammo().maxAmmo()));
+    }
+
+    private void shoot(Player player, @NotNull MatchSession session) {
+        Location start = player.getEyeLocation();
+        var dir = start.getDirection().normalize();
+        double maxRange = config.combat().maxRange();
+        UUID shooterId = player.getUniqueId();
+
+        Set<UUID> hitThisTick = new HashSet<>();
+
+        for (double i = 1.0; i <= maxRange; i += 1.0) {
+            Location loc = start.clone().add(dir.clone().multiply(i));
+
+            ParticleUtils.spawn(
+                Particle.DUST, loc, 4, 0, 0, 0, 0,
+                new Particle.DustOptions(Color.GREEN, 1.2f),
+                session
+            );
+
+            loc.getNearbyPlayers(1.5, 2.0, 1.5, target -> {
+                if (target.equals(player)) return false;
+                if (hitThisTick.contains(target.getUniqueId())) return false;
+                return !session.isSameTeam(shooterId, target.getUniqueId());
+            }).forEach(target -> {
+                hitThisTick.add(target.getUniqueId());
+
+                bypassMeleeCancel.add(shooterId);
+                target.damage(config.combat().damagePerShot(), player);
+                bypassMeleeCancel.remove(shooterId);
+
+                int addedDuration = config.effects().poisonDurationTicks();
+                PotionEffect current = target.getPotionEffect(PotionEffectType.POISON);
+                int newDuration = addedDuration + (current != null ? current.getDuration() : 0);
+                if (current != null) target.removePotionEffect(PotionEffectType.POISON);
+                target.addPotionEffect(
+                    new PotionEffect(PotionEffectType.POISON, newDuration,
+                        0, false, false, true));
+            });
+        }
+
+        config.sounds().fire().playTo(player);
+    }
 
     /* == Lifecycle == */
 
@@ -107,18 +189,6 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
         super.onPlayerLeave(playerId);
         shooting.remove(playerId);
         bypassMeleeCancel.remove(playerId);
-    }
-
-    /* == Reload Hooks == */
-
-    @Override
-    protected void onReloadStart(Player player) {
-        // sound
-    }
-
-    @Override
-    protected void onReloadComplete(Player player) {
-        // sound
     }
 
 }

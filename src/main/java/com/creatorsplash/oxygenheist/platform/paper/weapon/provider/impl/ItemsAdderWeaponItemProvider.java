@@ -46,13 +46,17 @@ public final class ItemsAdderWeaponItemProvider implements WeaponItemProvider, L
         checkReady();
 
         WeaponTypeConfig config = requireConfig(weaponId);
-        CustomStack stack = requireCustomStack(config.itemId());
+
+        String idleId = config.frames().get("idle");
+        if (idleId == null) throw new IllegalStateException(
+            "Weapon '" + weaponId + "' has no 'idle' frame defined in weapons.yml"
+        );
+
+        CustomStack stack = requireCustomStack(idleId);
 
         ItemStack item = stack.getItemStack();
         item.editMeta(meta -> {
-            if (displayName != null) {
-                meta.displayName(MM.item(displayName));
-            }
+            if (displayName != null) meta.displayName(MM.item(displayName));
             meta.getPersistentDataContainer().set(
                 PDCKeys.WEAPON_ID, PersistentDataType.STRING, weaponId
             );
@@ -61,28 +65,12 @@ public final class ItemsAdderWeaponItemProvider implements WeaponItemProvider, L
     }
 
     @Override
-    public void applyReloadFrame(ItemStack item, String weaponId, int frameIndex) {
+    public void applyFrame(ItemStack item, String weaponId, String frameName) {
         WeaponTypeConfig config = requireConfig(weaponId);
-        String frameItemId = config.itemId() + "_reload_" + frameIndex;
-        CustomStack frameStack = CustomStack.getInstance(frameItemId);
-        if (frameStack == null) return;
-
-        copyModelData(item, frameStack);
-    }
-
-    @Override
-    public void applyAimFrame(ItemStack item, String weaponId) {
-        WeaponTypeConfig config = requireConfig(weaponId);
-        CustomStack aimStack = CustomStack.getInstance(config.itemId() + "_aim");
-        if (aimStack == null) return;
-        copyModelData(item, aimStack);
-    }
-
-    @Override
-    public void applyBaseFrame(ItemStack item, String weaponId) {
-        WeaponTypeConfig config = requireConfig(weaponId);
-        CustomStack stack = requireCustomStack(config.itemId());
-
+        String itemId = config.frames().get(frameName);
+        if (itemId == null) return;
+        CustomStack stack = CustomStack.getInstance(itemId);
+        if (stack == null) return;
         copyModelData(item, stack);
     }
 

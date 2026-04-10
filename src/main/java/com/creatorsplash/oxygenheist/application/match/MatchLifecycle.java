@@ -1,5 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match;
 
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+
 import java.util.UUID;
 
 /**
@@ -38,5 +40,12 @@ public interface MatchLifecycle {
      * @param playerId the UUID of the player who left
      */
     default void onPlayerLeave(UUID playerId) {}
+
+    /**
+     * Called every match tick
+     *
+     * @param session the match session relevant to this match lifecycle
+     */
+    default void onGameTick(MatchSession session) {}
 
 }

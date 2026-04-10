@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
 import com.creatorsplash.oxygenheist.application.common.Module;
+import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
@@ -24,8 +25,18 @@ public record PlatformModule(
         registerListeners();
         registerCommands();
         registerPlaceholders();
+        registerLifecycles();
 
         return this;
+    }
+
+    private void registerLifecycles() {
+        MatchService matchService = gameplay.matchService();
+
+        matchService.registerLifecycle(weapons().weaponRegistry());
+        matchService.registerLifecycle(weapons().projectileTracker());
+        matchService.registerLifecycle(weapons().effectsState());
+        matchService.registerLifecycle(weapons().hideService());
     }
 
     private void registerListeners() {

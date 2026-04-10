@@ -111,6 +111,6 @@ public interface WeaponHandler extends MatchLifecycle {
      *
      * <p>Used for reload animation, ammo HUD updates, and continuous-fire logic</p>
      */
-    default void tick(Player player, ItemStack item) {}
+    default void tick(WeaponContext ctx) {}
 
 }

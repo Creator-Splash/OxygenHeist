@@ -2,11 +2,15 @@ package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.Module;
+import com.creatorsplash.oxygenheist.application.match.MatchService;
+import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.ClawCannonHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.SiltBlasterHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.VenomSpitterHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAdderWeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponHideService;
@@ -54,12 +58,25 @@ public final class WeaponModule implements Module {
     }
 
     private void registerHandlers() {
+        Scheduler scheduler = gameplay.scheduler();
+
         register("silt_blaster", config -> new SiltBlasterHandler(
-            gameplay.scheduler(),
+            scheduler,
             config,
             itemProvider,
             effectsState,
             hideService
+        ));
+
+        register("venom_spitter", config -> new VenomSpitterHandler(
+            config,
+            itemProvider
+        ));
+
+        register("claw_cannon", config -> new ClawCannonHandler(
+            scheduler,
+            config,
+            itemProvider
         ));
 
         // TODO
