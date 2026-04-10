@@ -23,7 +23,7 @@ public final class PaperAirBarController {
         int maxAir = player.getMaximumAir();
 
         int air = (int) (oxygen / maxOxygen * maxAir);
-        air = Math.clamp(0, maxAir, air);
+        air = Math.clamp(air, 0, maxAir);
 
         player.setRemainingAir(air);
     }

@@ -190,7 +190,6 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             WeaponContext ctx,
             @Nullable MatchSession session
         ) {
-            log.warn("Item context on explode landing: " + ctx.item());
             provider.applyIdleFrame(ctx.item(), ID);
 
             UUID shooterId = player.getUniqueId();

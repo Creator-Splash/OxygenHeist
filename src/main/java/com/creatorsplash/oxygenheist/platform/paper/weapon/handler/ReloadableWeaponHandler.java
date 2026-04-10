@@ -29,6 +29,20 @@ public abstract class ReloadableWeaponHandler extends AbstractWeaponHandler {
         this.ammo = new WeaponAmmoService(config.ammo().maxAmmo());
     }
 
+    /**
+     * @return true if the player can fire - has ammo and is not reloading
+     * <p>If ammo is empty, automatically triggers a reload and returns false</p>
+     */
+    protected boolean canFire(Player player, ItemStack item) {
+        UUID id = player.getUniqueId();
+        if (reload.isReloading(id)) return false;
+        if (ammo.getAmmo(item) <= 0) {
+            startReload(player, item);
+            return false;
+        }
+        return true;
+    }
+
     protected void startReload(Player player, ItemStack item) {
         reload.begin(player.getUniqueId(), player.getInventory().getHeldItemSlot());
         provider.applyReloadFrame(item, id(), 0);

@@ -59,13 +59,8 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     @Override
     public void onLeftClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        UUID id = ctx.player().getUniqueId();
-        if (reload.isReloading(id)) return;
-        if (ammo.getAmmo(ctx.item()) <= 0) {
-            ctx.player().sendActionBar(MM.msg("<red>No ammo! Reloading..."));
-            return;
-        }
-        shooting.add(id);
+        if (!canFire(ctx.player(), ctx.item())) return;
+        shooting.add(ctx.player().getUniqueId());
     }
 
     @Override
