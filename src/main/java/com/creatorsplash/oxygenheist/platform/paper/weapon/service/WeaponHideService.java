@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
+import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -75,7 +76,25 @@ public final class WeaponHideService implements MatchLifecycle {
         Player player = org.bukkit.Bukkit.getPlayer(id);
         if (player == null || !player.isOnline()) return;
 
-        // Return to original slot, not blindly to current main hand
+        ItemStack current = player.getInventory().getItem(state.slot());
+
+        if (current == null || current.isEmpty()) {
+            // Slot is free - restore directly
+            player.getInventory().setItem(state.slot(), state.item());
+            return;
+        }
+
+        if (current.isSimilar(state.item())) return;
+
+        int freeSlot = player.getInventory().firstEmpty();
+        if (freeSlot != -1) {
+            player.getInventory().setItem(freeSlot, current);
+        } else {
+            // Inventory completely full - drop the displaced item at the players feet
+            player.getWorld().dropItemNaturally(player.getLocation(), current);
+            player.sendActionBar(MM.msg("<yellow>Your inventory was full - an item was dropped"));
+        }
+
         player.getInventory().setItem(state.slot(), state.item());
     }
 
