@@ -184,6 +184,20 @@ public final class MatchSession {
         return Collections.unmodifiableMap(teamScores);
     }
 
+    /**
+     * Returns the set of team IDs that still have at least one living (non-eliminated) player.
+     * <p>Downed players count - their team is not out until every member is fully eliminated</p>
+     */
+    public Set<String> getTeamsWithAlivePlayers() {
+        Set<String> alive = new HashSet<>();
+        for (PlayerMatchState player : players.values()) {
+            if (!player.isAlive()) continue;
+            String teamId = playerTeams.get(player.getPlayerId());
+            if (teamId != null) alive.add(teamId);
+        }
+        return alive;
+    }
+
     /* == Timing == */
 
     /* Countdown */

@@ -5,7 +5,7 @@ import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
 import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.listener.TeamListener;
-import com.creatorsplash.oxygenheist.platform.paper.util.TeamArmorUtils;
+import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -48,7 +48,7 @@ public final class TeamCommands implements CommandHandler {
             return;
         }
 
-        TeamArmorUtils.applyArmor(player, team);
+        TeamUtils.applyArmor(player, team);
         if (player.getGameMode() == GameMode.SPECTATOR) {
             player.setGameMode(GameMode.ADVENTURE);
         }
@@ -72,7 +72,7 @@ public final class TeamCommands implements CommandHandler {
             return;
         }
 
-        TeamArmorUtils.removeArmor(player);
+        TeamUtils.removeArmor(player);
         player.setGameMode(GameMode.SPECTATOR);
 
         teamConfigService.save(plugin, teamService);
@@ -126,7 +126,7 @@ public final class TeamCommands implements CommandHandler {
         Team team = teamService.getTeam(teamId);
         // team null check
 
-        TeamArmorUtils.applyArmor(player, team);
+        TeamUtils.applyArmor(player, team);
         //teamListener.hideWaitingBar(player);
 
         teamConfigService.save(plugin, teamService);
@@ -155,7 +155,7 @@ public final class TeamCommands implements CommandHandler {
         for (UUID memberId : team.getMembers()) {
             Player member = Bukkit.getPlayer(memberId);
             if (member != null && member.isOnline()) {
-                TeamArmorUtils.applyArmor(member, team);
+                TeamUtils.applyArmor(member, team);
             }
         }
 

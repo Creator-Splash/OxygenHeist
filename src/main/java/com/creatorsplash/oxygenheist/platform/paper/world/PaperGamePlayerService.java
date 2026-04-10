@@ -7,7 +7,7 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
-import com.creatorsplash.oxygenheist.platform.paper.util.TeamArmorUtils;
+import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -65,7 +65,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
             player.getInventory().clear();
             player.clearActivePotionEffects();
             player.setRemainingAir(player.getMaximumAir());
-            TeamArmorUtils.applyArmor(player, team);
+            TeamUtils.applyArmor(player, team);
         }
 
         log.info("Players prepared for match start");
@@ -85,7 +85,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
             player.getInventory().clear();
             player.setSneaking(false);
             player.setRemainingAir(player.getMaximumAir());
-            TeamArmorUtils.removeArmor(player);
+            TeamUtils.removeArmor(player);
         }
 
         log.info("Players cleaned up after match end");

@@ -18,9 +18,10 @@ public final class DisplayModule implements Module {
     private final ConfigModule configs;
 
     private MatchDisplayService displayService;
+    private PaperAirBarController airBarController;
 
     public DisplayModule build() {
-        PaperAirBarController airBarController = new PaperAirBarController();
+        this.airBarController = new PaperAirBarController();
 
         this.displayService = new PaperMatchDisplayService(
             plugin,

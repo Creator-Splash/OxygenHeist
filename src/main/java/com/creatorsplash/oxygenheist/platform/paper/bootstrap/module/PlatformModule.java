@@ -8,6 +8,7 @@ import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.ReloadCommands;
 import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
+import com.creatorsplash.oxygenheist.platform.paper.display.ZoneDisplayManager;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import org.bukkit.Bukkit;
@@ -37,6 +38,16 @@ public record PlatformModule(
         matchService.registerLifecycle(weapons().projectileTracker());
         matchService.registerLifecycle(weapons().effectsState());
         matchService.registerLifecycle(weapons().hideService());
+
+        ZoneDisplayManager zoneDisplayManager = new ZoneDisplayManager(
+            plugin.getServer(),
+            gameplay.teamService(),
+            configs.arenaConfig(),
+            gameplay.snapshotProvider(),
+            gameplay.scheduler(),
+            plugin.getLogCenter()
+        );
+        matchService.registerLifecycle(zoneDisplayManager);
     }
 
     private void registerListeners() {
@@ -52,9 +63,9 @@ public record PlatformModule(
                 gameplay.matchService(),
                 gameplay.actionService()
             ),
-            new TeamListener(gameplay.scheduler(), gameplay.teamService()),
-            new MatchJoinListener(gameplay.matchService(), display.displayService())
-            // TODO zone listener
+            new TeamListener(gameplay.scheduler(), gameplay.teamService(), gameplay.matchService()),
+            new MatchJoinListener(gameplay.matchService(), display.displayService()),
+            new AirChangeListener(display.airBarController())
         );
 
         // Register weapon listeners
@@ -64,7 +75,11 @@ public record PlatformModule(
     private void registerCommands() {
         CommandRegistrar registrar = new CommandRegistrar(plugin);
 
-        registrar.registerAnnotated(new GameCommands(gameplay.matchService()));
+        registrar.registerAnnotated(new GameCommands(
+            gameplay.matchService(),
+            configs.arenaConfig(),
+            gameplay.teamService()
+        ));
         registrar.registerAnnotated(new DebugCommands(gameplay.matchService(), weapons.weaponRegistry()));
         registrar.registerAnnotated(new SetupCommands(
             plugin.getLogCenter(),

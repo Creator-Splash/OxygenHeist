@@ -11,10 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 /**
- * Applies and removes colored leather armor based on team color tags
+ * Team utils
  */
 @UtilityClass
-public class TeamArmorUtils {
+public class TeamUtils {
 
     public void applyArmor(Player player, Team team) {
         Color color = colorTagToRgb(team.getColor());
@@ -42,7 +42,7 @@ public class TeamArmorUtils {
         return item;
     }
 
-    private Color colorTagToRgb(String colorTag) {
+    public Color colorTagToRgb(String colorTag) {
         // Try named color first ("red", "dark_blue", "gold", etc.)
         TextColor textColor = NamedTextColor.NAMES.value(colorTag);
 

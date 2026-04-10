@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Handles player oxygen logic during an active match
@@ -29,7 +30,7 @@ public class PlayerOxygenService {
      *
      * @param session the active match session
      */
-    public void tickDrain(MatchSession session) {
+    public void tickDrain(MatchSession session, Consumer<UUID> onDepleted) {
         double drainAmountPerTick = session.config().oxygen().drainPerTick();
 
         for (PlayerMatchState player: session.getPlayers()) {
@@ -42,7 +43,7 @@ public class PlayerOxygenService {
             player.drainOxygen(drainAmountPerTick);
 
             if (player.isOxygenDepleted()) {
-                handleOxygenDepleted(session, player.getPlayerId());
+                onDepleted.accept(player.getPlayerId());
             }
         }
     }
@@ -75,14 +76,6 @@ public class PlayerOxygenService {
     public double getOxygen(MatchSession session, UUID playerId) {
         PlayerMatchState state = session.getPlayer(playerId).orElse(null);
         return state != null ? state.getOxygen() : 0.0;
-    }
-
-    public void handleOxygenDepleted(MatchSession session, UUID playerId) {
-        session.getPlayer(playerId).ifPresent(player -> {
-            if (!player.isDowned()) {
-                player.down(session.config().oxygen().depletionDownTicks());
-            }
-        });
     }
 
 }

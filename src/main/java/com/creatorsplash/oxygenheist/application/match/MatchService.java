@@ -202,6 +202,7 @@ public final class MatchService {
         displayService.onPlayerRemoved(playerId);
 
         externalLifecycles.forEach(l -> l.onPlayerLeave(playerId));
+        checkWinCondition();
 
         log.debug("player", "Player " + playerId + " removed from match");
     }
@@ -251,6 +252,8 @@ public final class MatchService {
         gameBridge.onPlayerEliminated(playerId, reason);
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
+
+        checkWinCondition();
     }
 
     /**
@@ -413,7 +416,7 @@ public final class MatchService {
             }
         }
 
-        playerOxygenService.tickDrain(session);
+        playerOxygenService.tickDrain(session, this::downPlayer);
 
         /* Player State */
 
@@ -464,6 +467,20 @@ public final class MatchService {
             }
         }
         return teammates;
+    }
+
+    private void checkWinCondition() {
+        if (session == null || !session.isPlaying()) return;
+
+        Set<String> aliveTeams = session.getTeamsWithAlivePlayers();
+
+        if (aliveTeams.size() == 1) {
+            String winnerId = aliveTeams.iterator().next();
+            Team winner = teamService.getTeam(winnerId);
+            endMatch(winner != null ? winner.getName() : winnerId);
+        } else if (aliveTeams.isEmpty()) {
+            endMatch("");
+        }
     }
 
 }

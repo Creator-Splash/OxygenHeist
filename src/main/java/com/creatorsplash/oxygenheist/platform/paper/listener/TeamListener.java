@@ -1,9 +1,10 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
+import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
-import com.creatorsplash.oxygenheist.platform.paper.util.TeamArmorUtils;
+import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public final class TeamListener implements Listener {
 
     private final Scheduler scheduler;
     private final TeamService teamService;
+    private final MatchService matchService;
 
     // TODO
 
@@ -52,7 +54,7 @@ public final class TeamListener implements Listener {
         Team team = teamService.getPlayerTeam(player.getUniqueId());
 
         if (team != null) {
-            TeamArmorUtils.applyArmor(player, team);
+            TeamUtils.applyArmor(player, team);
             //hideWaitingBar(player);
         } else {
             enforceSpectator(player);
@@ -64,6 +66,12 @@ public final class TeamListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         //hideWaitingBar(event.getPlayer());
         // display?
+        Player player = event.getPlayer();
+        matchService.getSession().ifPresent(session -> {
+            if (session.getPlayer(player.getUniqueId()).isPresent()) {
+                matchService.removePlayer(player.getUniqueId());
+            }
+        });
     }
 
     /* Helpers */
