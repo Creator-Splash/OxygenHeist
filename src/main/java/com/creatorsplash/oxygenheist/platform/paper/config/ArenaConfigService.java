@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Blocking;
 
 import java.io.File;
@@ -55,6 +56,7 @@ public final class ArenaConfigService {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(arenaFile);
 
         loadArena(config);
+        loadZones(config);
     }
 
     private void loadArena(YamlConfiguration config) {
@@ -142,10 +144,10 @@ public final class ArenaConfigService {
     public void saveArena(ArenaSetup setup) {
         YamlConfiguration config = loadOrEmpty();
 
-        config.set(WORLD, setup.worldName());
-        config.set(CENTER_X, setup.centerX());
-        config.set(CENTER_Z, setup.centerZ());
-        config.set(INITIAL_SIZE, setup.initialSize());
+        config.set(path(ARENA, WORLD), setup.worldName());
+        config.set(path(ARENA, CENTER_X), setup.centerX());
+        config.set(path(ARENA, CENTER_Z), setup.centerZ());
+        config.set(path(ARENA, INITIAL_SIZE), setup.initialSize());
 
         persist(config);
         this.arena = Optional.of(setup);

@@ -4,10 +4,7 @@ import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
-import com.creatorsplash.oxygenheist.platform.paper.command.DebugCommands;
-import com.creatorsplash.oxygenheist.platform.paper.command.GameCommands;
-import com.creatorsplash.oxygenheist.platform.paper.command.ReloadCommands;
-import com.creatorsplash.oxygenheist.platform.paper.command.SetupCommands;
+import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.display.ZoneDisplayManager;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
@@ -38,6 +35,7 @@ public record PlatformModule(
         matchService.registerLifecycle(weapons().projectileTracker());
         matchService.registerLifecycle(weapons().effectsState());
         matchService.registerLifecycle(weapons().hideService());
+        matchService.registerLifecycle(weapons().dropService());
 
         ZoneDisplayManager zoneDisplayManager = new ZoneDisplayManager(
             plugin.getServer(),
@@ -48,10 +46,15 @@ public record PlatformModule(
             plugin.getLogCenter()
         );
         matchService.registerLifecycle(zoneDisplayManager);
+
+        matchService.registerLifecycle(gameplay.reviveService());
+        matchService.registerLifecycle(gameplay.downedService());
     }
 
     private void registerListeners() {
         register(
+            weapons().dropService(),
+            gameplay().selectionService(),
             new CombatListener(gameplay.combatService(), gameplay.actionService()),
             new ReviveListener(gameplay.matchService(), gameplay.reviveService(), gameplay.actionService()),
             new PlayerRestrictionListener(gameplay.actionService()),
@@ -92,6 +95,11 @@ public record PlatformModule(
             configs.matchConfig(),
             configs.messageConfig(),
             plugin.getLogCenter()
+        ));
+        registrar.registerAnnotated(new TeamCommands(
+            plugin,
+            gameplay.teamService(),
+            gameplay.configs().teamConfig()
         ));
     }
 

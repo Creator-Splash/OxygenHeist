@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.application.match.combat;
 
+import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
  * <p>Scheduling is owned by the match lifecycle rather than this service itself.
  * This class only contains the domain/application logic for downed-state behavior</p>
  */
-public class DownedService {
+public class DownedService implements MatchLifecycle {
 
     /**
      * Places a player into the downed state if they are eligible
@@ -52,19 +53,6 @@ public class DownedService {
                 onBleedout.accept(player.getPlayerId());
             }
         }
-    }
-
-    /**
-     * Revives a downed player if they are currently downed
-     *
-     * @param playerId the UUID of the player to revive
-     */
-    public void revivePlayer(MatchSession session, UUID playerId) {
-        PlayerMatchState player = session.getOrCreatePlayer(playerId);
-
-        if (!player.isDowned()) return;
-
-        player.revive();
     }
 
 }

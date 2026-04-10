@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.domain.team.TeamBase;
 import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.listener.TeamListener;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -16,7 +17,10 @@ import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
 
+import java.util.List;
 import java.util.UUID;
 
 @Command("oxygenheist|oh team")
@@ -27,14 +31,13 @@ public final class TeamCommands implements CommandHandler {
     private final JavaPlugin plugin;
     private final TeamService teamService;
     private final TeamConfigService teamConfigService;
-    private final TeamListener teamListener;
 
     @Command("add <player> <team>")
     @CommandDescription("Add a player to a team")
     public void add(
         CommandSender sender,
         @Argument("player") Player player,
-        @Argument("team") String teamId
+        @Argument(value = "team", suggestions = "teams") String teamId
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
@@ -85,7 +88,7 @@ public final class TeamCommands implements CommandHandler {
     @CommandDescription("Set a team's spawn base to your current location")
     public void setbase(
             Player sender,
-            @Argument("team") String teamId
+            @Argument(value = "team", suggestions = "teams") String teamId
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
@@ -115,7 +118,7 @@ public final class TeamCommands implements CommandHandler {
     public void captain(
         CommandSender sender,
         @Argument("player") Player player,
-        @Argument("team") String teamId
+        @Argument(value = "team", suggestions = "teams") String teamId
     ) {
         if (!teamService.setCaptain(teamId, player.getUniqueId())) {
             sender.sendRichMessage("<red>Could not set captain — team '"
@@ -141,7 +144,7 @@ public final class TeamCommands implements CommandHandler {
     @CommandDescription("Change a team's armor color (MiniMessage color tag)")
     public void color(
         CommandSender sender,
-        @Argument("team") String teamId,
+        @Argument(value = "team", suggestions = "teams") String teamId,
         @Argument("color") String color
     ) {
         Team team = teamService.getTeam(teamId);
@@ -167,7 +170,7 @@ public final class TeamCommands implements CommandHandler {
     @CommandDescription("Show info about a team")
     public void info(
         CommandSender sender,
-        @Argument("team") String teamId
+        @Argument(value = "team", suggestions = "teams") String teamId
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
@@ -213,6 +216,11 @@ public final class TeamCommands implements CommandHandler {
             sender.sendRichMessage("<" + team.getColor() + ">● " + team.getName()
                 + " <gray>(" + team.getSize() + " members)");
         }
+    }
+
+    @Suggestions("teams")
+    public List<String> suggestTeams(CommandContext<CommandSender> ctx) {
+        return teamService.getAllTeams().stream().map(Team::getId).toList();
     }
 
 }

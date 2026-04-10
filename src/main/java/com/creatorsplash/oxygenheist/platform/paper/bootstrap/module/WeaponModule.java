@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
@@ -13,6 +14,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.SiltBlas
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.VenomSpitterHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAdderWeaponItemProvider;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponHideService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
 import lombok.Getter;
@@ -29,6 +31,7 @@ import java.util.function.Function;
 @Accessors(fluent = true)
 public final class WeaponModule implements Module {
 
+    private final OxygenHeistPlugin plugin;
     private final LogCenter log;
     private final ConfigModule configs;
     private final GameplayModule gameplay;
@@ -38,6 +41,7 @@ public final class WeaponModule implements Module {
     private WeaponProjectileTracker projectileTracker;
     private WeaponEffectsState effectsState;
     private WeaponHideService hideService;
+    private WeaponDropService dropService;
 
     /** Listeners that must be registered after build completes */
     private final List<Listener> listeners = new ArrayList<>();
@@ -51,6 +55,16 @@ public final class WeaponModule implements Module {
         this.effectsState = new WeaponEffectsState();
         this.weaponRegistry = new WeaponRegistry();
         this.hideService = new WeaponHideService(gameplay.scheduler());
+
+        this.dropService = new WeaponDropService(
+            plugin.getServer(),
+            configs.globals(),
+            configs.arenaConfig(),
+            weaponRegistry,
+            gameplay.matchService(),
+            gameplay.scheduler(),
+            plugin.getLogCenter()
+        );
 
         registerHandlers();
 

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -16,12 +17,26 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Responsible for applying and resetting the world border</p>
  */
-@RequiredArgsConstructor
 public final class PaperGameWorldService implements GameWorldService {
 
     private final Server server;
     private final ArenaConfigService arenaConfigService;
     private final LogCenter log;
+
+    public PaperGameWorldService(
+        @NotNull final Server server,
+        @NotNull final ArenaConfigService arenaConfigService,
+        @NotNull final LogCenter log
+    ) {
+        this.server = server;
+        this.arenaConfigService = arenaConfigService;
+        this.log = log;
+
+        World world = resolveWorld();
+        if (world == null) return;
+        WorldBorder border = world.getWorldBorder();
+        border.reset();
+    }
 
     @Override
     public void onMatchStarted(MatchConfig config) {

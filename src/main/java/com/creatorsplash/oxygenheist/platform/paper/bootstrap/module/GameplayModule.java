@@ -44,6 +44,7 @@ public final class GameplayModule implements Module {
     private ZoneSelectionService zoneSelectionService;
     private PlayerActionService actionService;
     private CombatService combatService;
+    private DownedService downedService;
     private ReviveService reviveService;
     private MatchSnapshotProvider snapshotProvider;
 
@@ -54,7 +55,7 @@ public final class GameplayModule implements Module {
 
         PlayerPositionProvider positionProvider = buildPositionProvider();
 
-        DownedService downedService = new DownedService();
+        this.downedService = new DownedService();
         this.reviveService = new ReviveService();
 
         ZoneService zoneService = new ZoneService(positionProvider);

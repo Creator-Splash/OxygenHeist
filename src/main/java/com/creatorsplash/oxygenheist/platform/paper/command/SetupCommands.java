@@ -39,7 +39,7 @@ public final class SetupCommands implements CommandHandler {
     public void wand(Player player) {
         player.getInventory().addItem(selectionService.createWand());
         player.sendRichMessage(
-            "<gold>Selection wand given!" +
+            "<gold>Selection wand given!\n" +
             "<gray>Hover item for instructions"
         );
     }

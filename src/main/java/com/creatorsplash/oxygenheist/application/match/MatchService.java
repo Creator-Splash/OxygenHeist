@@ -200,6 +200,7 @@ public final class MatchService {
 
         session.removePlayer(playerId);
         displayService.onPlayerRemoved(playerId);
+        reviveService.cancelRevivesInvolving(playerId);
 
         externalLifecycles.forEach(l -> l.onPlayerLeave(playerId));
         checkWinCondition();

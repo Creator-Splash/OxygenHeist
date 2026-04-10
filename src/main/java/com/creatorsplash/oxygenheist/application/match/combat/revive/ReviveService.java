@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match.combat.revive;
 
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
+import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.config.DownedConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -11,7 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Handles revive interactions between players
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  * <p>This service manages active revive sessions, including validation,
  * progression, and cancellation</p>
  */
-public class ReviveService {
+public class ReviveService implements MatchLifecycle {
 
     private final Map<UUID, ReviveSession> activeRevives = new HashMap<>();
     private long currentTick = 0L;
@@ -131,6 +131,19 @@ public class ReviveService {
                 it.remove();
             }
         }
+    }
+
+
+    /* Lifecycle */
+
+    @Override
+    public void onMatchEnd() {
+        activeRevives.clear();
+    }
+
+    @Override
+    public void onPlayerLeave(UUID playerId) {
+        cancelRevivesInvolving(playerId);
     }
 
     /* Internals */

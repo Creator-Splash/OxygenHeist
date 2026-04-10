@@ -37,11 +37,22 @@ public final class GlobalConfigService implements Supplier<GlobalConfig> {
 
         this.config = new GlobalConfig(
             flags,
-            weaponDebugBypass
+            weaponDebugBypass,
+            loadWeaponSpawner(raw)
         );
     }
 
     /* Internals */
+
+    private GlobalConfig.WeaponSpawnerConfig loadWeaponSpawner(FileConfiguration c) {
+        return new GlobalConfig.WeaponSpawnerConfig(
+            c.getInt("weapons.spawner.initial-count", 3),
+            c.getInt("weapons.spawner.max-active", 8),
+            c.getInt("weapons.spawner.spawn-interval-seconds", 45),
+            c.getDouble("weapons.spawner.pickup-radius", 1.5),
+            c.getInt("weapons.spawner.pickup-cooldown-seconds", 3)
+        );
+    }
 
     private DebugFlags loadDebugFlags(FileConfiguration config) {
         List<String> flags = config.getStringList("debug.flags");

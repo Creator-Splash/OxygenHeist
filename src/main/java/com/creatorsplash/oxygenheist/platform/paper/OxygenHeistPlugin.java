@@ -38,7 +38,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
         var configs = new ConfigModule(this, configService).load();
         var display = new DisplayModule(this, configs).build();
         var gameplay = new GameplayModule(this, configs, display).build();
-        var weapons = new WeaponModule(logCenter, configs, gameplay).build();
+        var weapons = new WeaponModule(this, logCenter, configs, gameplay).build();
         var platform = new PlatformModule(this, configs, gameplay, display, weapons).wire();
 
         this.modules = List.of(

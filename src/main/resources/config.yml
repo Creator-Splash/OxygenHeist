@@ -13,4 +13,13 @@ debug:
   # Should be false in production
   weapon-bypass: false
 
+weapons:
+  friendly-fire: false
+  spawner:
+    initial-count: 3
+    max-active: 8
+    spawn-interval-seconds: 45
+    pickup-radius: 1.5
+    pickup-cooldown-seconds: 3
+
 # TODO

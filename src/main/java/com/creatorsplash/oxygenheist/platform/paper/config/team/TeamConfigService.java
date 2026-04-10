@@ -92,7 +92,21 @@ public final class TeamConfigService {
             }
             config.set(path + ".members", memberStrings);
             config.set(path + ".captain",
-                    team.getCaptainId() != null ? team.getCaptainId().toString() : null);
+                team.getCaptainId() != null ? team.getCaptainId().toString() : null);
+
+            TeamBase base = team.getBase();
+            if (base != null) {
+                String basePath = path + ".base";
+
+                config.set(basePath + ".world", base.world());
+                config.set(basePath + ".x", base.x());
+                config.set(basePath + ".y", base.y());
+                config.set(basePath + ".z", base.z());
+                config.set(basePath + ".yaw", base.yaw());
+                config.set(basePath + ".pitch", base.pitch());
+            } else {
+                config.set(path + ".base", null);
+            }
         }
 
         try {

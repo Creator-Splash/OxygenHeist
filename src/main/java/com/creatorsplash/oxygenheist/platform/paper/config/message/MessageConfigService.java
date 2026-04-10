@@ -2,7 +2,6 @@ package com.creatorsplash.oxygenheist.platform.paper.config.message;
 
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import lombok.RequiredArgsConstructor;
-import net.kyori.adventure.sound.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,7 +24,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
 
     @Override
     public MessageConfig get() {
-        return null;
+        return config;
     }
 
     /**

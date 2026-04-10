@@ -10,8 +10,6 @@ import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -78,8 +76,10 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
         if (snapshot.state() == lastState) return;
 
         if (snapshot.state() == MatchState.PLAYING && lastState == MatchState.SETUP) {
-            // todo
+            onCooldownComplete(snapshot);
         }
+
+        lastState = snapshot.state();
     }
 
     private void onCooldownComplete(MatchSnapshot snapshot) {
