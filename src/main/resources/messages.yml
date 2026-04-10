@@ -31,9 +31,11 @@ match:
   instant-death-title-fade-in: 10
   instant-death-title-stay: 60
   instant-death-title-fade-out: 20
-  instant-death-sound: "entity.ender_dragon.growl"
-  instant-death-sound-volume: 1.0
-  instant-death-sound-pitch: 1.0
+
+  instant-death-sound:
+    sound: "entity.ender_dragon.growl"
+    volume: 1.0
+    pitch: 1.0
   # Broadcast when 60, 30, or 10 seconds remain. Placeholder: <time>
   time-warning: "<yellow><bold>Round ending in <time> seconds!"
 
@@ -58,9 +60,10 @@ player:
   downed-title-fade-in: 0
   downed-title-stay: 60
   downed-title-fade-out: 20
-  downed-sound: "entity.player.hurt"
-  downed-sound-volume: 1.0
-  downed-sound-pitch: 0.5
+  downed-sound:
+    sound: "entity.player.hurt"
+    volume: 1.0
+    pitch: 0.5
   # Sent to teammates when a player is downed. Placeholder: <player>
   downed-teammate-alert: "<yellow><bold><player> <gray>is down! Go revive them!"
   # Sent to the attacker when they down a player. Placeholder: <player>
@@ -72,9 +75,10 @@ player:
   revived-title-fade-in: 0
   revived-title-stay: 40
   revived-title-fade-out: 10
-  revived-sound: "entity.player.levelup"
-  revived-sound-volume: 1.0
-  revived-sound-pitch: 1.5
+  revived-sound:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.5
   # Sent to the reviver when a revive completes. Placeholder: <player>
   revive-success: "<green><bold>You revived <yellow><player><green>!"
 
@@ -87,9 +91,10 @@ player:
   eliminated-title-fade-in: 0
   eliminated-title-stay: 60
   eliminated-title-fade-out: 20
-  eliminated-sound: "entity.wither.death"
-  eliminated-sound-volume: 0.5
-  eliminated-sound-pitch: 1.0
+  eliminated-sound:
+    sound: "entity.wither.death"
+    volume: 0.5
+    pitch: 1.0
   # Broadcast to all players when a player is eliminated. Placeholder: <player>
   eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
 

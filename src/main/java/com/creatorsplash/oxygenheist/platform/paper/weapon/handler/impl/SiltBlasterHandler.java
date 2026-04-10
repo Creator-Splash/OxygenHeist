@@ -40,11 +40,11 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     private final WeaponCooldownService cooldown = new WeaponCooldownService();
 
     public SiltBlasterHandler(
+        Scheduler scheduler,
         WeaponTypeConfig config,
         WeaponItemProvider provider,
         WeaponEffectsState effectsState,
-        WeaponHideService hideService,
-        Scheduler scheduler
+        WeaponHideService hideService
     ) {
         super(config, provider);
         this.scheduler = scheduler;
@@ -83,11 +83,9 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     /* == Activation == */
 
     private void activate(Player player, ItemStack item, @Nullable MatchSession session) {
-        player.sendRichMessage("<green>SILT BLAST POOOPY");
-
         var loc = player.getLocation();
 
-        if (config.sounds().fire() != null) config.sounds().fire().playTo(player);
+        if (!config.sounds().fire().isEmpty()) config.sounds().fire().playTo(player);
 
         ParticleUtils.spawn(Particle.CAMPFIRE_COSY_SMOKE, loc,
             1, 0.1, 0.1, 0.1, 0.01, session);

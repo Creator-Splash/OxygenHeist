@@ -19,9 +19,32 @@ claw_cannon:
   melee-knockback: 2.0
   melee-knockback-y: 0.5
   sounds:
-    fire: "entity.firework_rocket.launch"
-    fire-volume: 1.5
-    fire-pitch: 0.8
+    fire:
+      dragon:
+        sound: "entity.ender_dragon.flap"
+        volume: 1.5
+        pitch: 1.2
+      rocket:
+        sound: "entity.firework_rocket.launch"
+        volume: 1.5
+        pitch: 0.8
+    melee:
+      sound: "entity.iron_golem.hurt"
+      volume: 1.0
+      pitch: 1.5
+    land:
+      explode:
+        sound: "entity.generic.explode"
+        volume: 2.5
+        pitch: 0.7
+      fireball:
+        sound: "entity.dragon_fireball.explode"
+        volume: 2.0
+        pitch: 0.9
+      anvil:
+        sound: "block.anvil.land"
+        volume: 1.5
+        pitch: 0.5
 
 manta_cannon:
   enabled: true

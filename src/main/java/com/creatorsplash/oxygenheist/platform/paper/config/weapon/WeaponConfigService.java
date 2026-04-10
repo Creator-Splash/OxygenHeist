@@ -9,8 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Loads and parses {@code weapons.yml} into typed {@link WeaponTypeConfig} instances
@@ -148,25 +147,47 @@ public final class WeaponConfigService {
 
     private WeaponTypeConfig.SoundsConfig parseSounds(ConfigurationSection s) {
         ConfigurationSection sec = s.getConfigurationSection("sounds");
+        if (sec == null) {
+            return new WeaponTypeConfig.SoundsConfig(
+                WeaponSoundSlot.EMPTY, WeaponSoundSlot.EMPTY, WeaponSoundSlot.EMPTY,
+                WeaponSoundSlot.EMPTY, WeaponSoundSlot.EMPTY, WeaponSoundSlot.EMPTY,
+                Map.of()
+            );
+        }
+
+        Set<String> standard = Set.of("fire", "reload-start", "reload-complete", "reload-cancel", "hit", "empty");
+
+        Map<String, WeaponSoundSlot> extra = new HashMap<>();
+        for (String key : sec.getKeys(false)) {
+            if (!standard.contains(key)) extra.put(key, parseSoundSlot(sec, key));
+        }
+
         return new WeaponTypeConfig.SoundsConfig(
-            sec != null ? parseSound(sec, "fire") : null,
-            sec != null ? parseSound(sec, "reload-start") : null,
-            sec != null ? parseSound(sec, "reload-complete") : null,
-            sec != null ? parseSound(sec, "reload-cancel") : null,
-            sec != null ? parseSound(sec, "hit") : null,
-            sec != null ? parseSound(sec, "empty") : null
+            parseSoundSlot(sec, "fire"),
+            parseSoundSlot(sec, "reload-start"),
+            parseSoundSlot(sec, "reload-complete"),
+            parseSoundSlot(sec, "reload-cancel"),
+            parseSoundSlot(sec, "hit"),
+            parseSoundSlot(sec, "empty"),
+            Collections.unmodifiableMap(extra)
         );
     }
 
-    private @Nullable SoundConfig parseSound(ConfigurationSection sec, String key) {
-        if (!sec.contains(key)) return null;
-        return SoundConfig.sound(
-            sec,
-            key,
-            null,
-            1.0f,
-            1.0f
-        );
+    private WeaponSoundSlot parseSoundSlot(ConfigurationSection sec, String key) {
+        ConfigurationSection slot = sec.getConfigurationSection(key);
+        if (slot == null) return WeaponSoundSlot.EMPTY;
+
+        if (slot.contains("sound")) {
+            SoundConfig sound = SoundConfig.from(slot);
+            return new WeaponSoundSlot(List.of(sound));
+        }
+
+        List<SoundConfig> sounds = new ArrayList<>();
+        for (String soundKey : slot.getKeys(false)) {
+            ConfigurationSection entry = slot.getConfigurationSection(soundKey);
+            if (entry != null) sounds.add(SoundConfig.from(entry));
+        }
+        return new WeaponSoundSlot(sounds);
     }
 
 }

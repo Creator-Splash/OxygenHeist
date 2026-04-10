@@ -63,7 +63,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "match.instant-death", "<red><bold>⚠ INSTANT DEATH MODE!"),
             s(c, "match.instant-death-subtitle", "<gray>No more revives!"),
             times(c, "match.instant-death", 10, 60, 20),
-            SoundConfig.sound(c, "match.instant-death-sound", "entity.ender_dragon.growl", 1.0f, 1.0f),
+            SoundConfig.sound(c, "match.instant-death-sound"),
             s(c, "match.time-warning", "<yellow><bold>Round ending in <time> seconds!")
         );
     }
@@ -83,7 +83,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.downed-title", "<red><bold>YOU'RE DOWN!"),
             s(c, "player.downed-subtitle", "<gray>Hold on! A teammate can revive you"),
             times(c, "player.downed", 0, 60, 20),
-            SoundConfig.sound(c, "player.downed-sound", "entity.player.hurt", 1.0f, 0.5f),
+            SoundConfig.sound(c, "player.downed-sound"),
             s(c, "player.downed-teammate-alert", "<yellow><bold><player> <gray>is down! Go revive them!"),
             s(c, "player.downed-attacker-alert", "<gray>You knocked down <yellow><player><gray>!"),
 
@@ -91,7 +91,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.revived-title", "<green><bold>REVIVED!"),
             s(c, "player.revived-subtitle", "<gray>You're back in the fight!"),
             times(c, "player.revived", 0, 40, 10),
-            SoundConfig.sound(c, "player.revived-sound", "entity.player.levelup", 1.0f, 1.5f),
+            SoundConfig.sound(c, "player.revived-sound"),
             s(c, "player.revive-success", "<green><bold>You revived <yellow><player><green>!"),
 
             // Eliminated
@@ -99,7 +99,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.eliminated-subtitle-bleedout", "<gray>You've bled out!"),
             s(c, "player.eliminated-subtitle-instant", "<gray>You've been eliminated!"),
             times(c, "player.eliminated", 0, 60, 20),
-            SoundConfig.sound(c, "player.eliminated-sound", "entity.wither.death", 0.5f, 1.0f),
+            SoundConfig.sound(c, "player.eliminated-sound"),
             s(c, "player.eliminated-broadcast", "<dark_red><bold><player> <gray>has been eliminated!")
         );
     }

@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -121,15 +122,22 @@ public record WeaponTypeConfig(
      *   <li>{@code reloadCancel} - played when a reload is interrupted</li>
      *   <li>{@code hit} - played on a successful hit</li>
      *   <li>{@code empty} - played when firing with no ammo</li>
+     *   <li>{@code extra} - extra sounds specific to the weapon</li>
      * </ul>
      */
     public record SoundsConfig(
-        @Nullable SoundConfig fire,
-        @Nullable SoundConfig reloadStart,
-        @Nullable SoundConfig reloadComplete,
-        @Nullable SoundConfig reloadCancel,
-        @Nullable SoundConfig hit,
-        @Nullable SoundConfig empty
-    ) {}
+        @NotNull WeaponSoundSlot fire,
+        @NotNull WeaponSoundSlot reloadStart,
+        @NotNull WeaponSoundSlot reloadComplete,
+        @NotNull WeaponSoundSlot reloadCancel,
+        @NotNull WeaponSoundSlot hit,
+        @NotNull WeaponSoundSlot empty,
+        Map<String, WeaponSoundSlot> extra
+    ) {
+        @NotNull
+        public WeaponSoundSlot get(String key) {
+            return extra.getOrDefault(key, WeaponSoundSlot.EMPTY);
+        }
+    }
 
 }

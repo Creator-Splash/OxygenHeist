@@ -55,11 +55,11 @@ public final class WeaponModule implements Module {
 
     private void registerHandlers() {
         register("silt_blaster", config -> new SiltBlasterHandler(
+            gameplay.scheduler(),
             config,
             itemProvider,
             effectsState,
-            hideService,
-            gameplay.scheduler()
+            hideService
         ));
 
         // TODO
