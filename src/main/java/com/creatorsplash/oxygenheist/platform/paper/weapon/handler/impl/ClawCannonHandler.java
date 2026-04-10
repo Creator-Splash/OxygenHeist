@@ -3,7 +3,6 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.WeaponCooldownService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
-import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
@@ -12,7 +11,6 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.AbstractWeapo
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -124,6 +122,10 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             20, 0.3, 0.3, 0.3, 0.1, session);
 
         player.sendActionBar(MM.msg("<gold><bold>LAUNCHED!"));
+
+        FlightTask task = new FlightTask(player, session);
+        task.handle = scheduler.runRepeating(task, 0L, 1L);
+        trackPlayerTask(player.getUniqueId(), task.handle);
     }
 
     /* == Flight + Landing == */
@@ -209,6 +211,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
             ExplosionRingTask ring = new ExplosionRingTask(session, landLoc, radius);
             ring.handle = scheduler.runRepeating(ring, 0L, 1L);
+            trackWorldTask(ring.handle);
         }
 
         @RequiredArgsConstructor
@@ -241,6 +244,8 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
     @Override
     public void onMatchEnd() {
+        super.onMatchEnd();
+
         inFlight.clear();
         cooldown.clearAll();
         bypassMeleeCancel.clear();
@@ -248,6 +253,8 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
     @Override
     public void onPlayerLeave(UUID playerId) {
+        super.onPlayerLeave(playerId);
+
         inFlight.remove(playerId);
         cooldown.clear(playerId);
         bypassMeleeCancel.remove(playerId);

@@ -126,6 +126,7 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     private void spawnCloud(Location center, @Nullable MatchSession session) {
         CloudTask task = new CloudTask(center, session);
         task.handle = scheduler.runRepeating(task, 0L, 1L);
+        trackWorldTask(task.handle);
     }
 
     @RequiredArgsConstructor

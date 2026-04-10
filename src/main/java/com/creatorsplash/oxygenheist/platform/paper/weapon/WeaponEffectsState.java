@@ -14,7 +14,7 @@ public class WeaponEffectsState implements MatchLifecycle {
 
     private final Set<UUID> invertedControls = new HashSet<>();
 
-    /* Inverted controls — SiltBlaster */
+    /* Inverted controls */
 
     public void addInvertedControls(UUID playerId) {
         invertedControls.add(playerId);
