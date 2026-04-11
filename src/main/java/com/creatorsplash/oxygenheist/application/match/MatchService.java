@@ -229,7 +229,7 @@ public final class MatchService {
         @Nullable UUID attackerId = session.getPlayer(victimId)
             .map(PlayerMatchState::getLastAttacker)
             .orElse(null);
-        
+
         displayService.onPlayerDowned(victimId, attackerId, getTeammates(victimId));
     }
 

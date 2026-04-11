@@ -82,6 +82,7 @@ public final class GameplayModule implements Module {
 
         this.matchService = new MatchService(
             configs.globals(),
+            configs.messageConfig(),
             configs.matchConfig(),
             snapshotProvider,
             display().displayService(),
