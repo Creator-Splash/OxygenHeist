@@ -11,13 +11,16 @@ public record MatchZoneConfig(
 
     double refillPercentPerSecond,
 
-    int captureOxygenRestore
+    int captureOxygenRestore,
+
+    int holdingPointsPerTick
 ) {
     public static final MatchZoneConfig EMPTY = new MatchZoneConfig(
         0.05,
         100.0 / 120.0,
         5,
         (100.0 / 120.0) * 0.5,
-        50
+        50,
+        1
     );
 }

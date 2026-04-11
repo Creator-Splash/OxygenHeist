@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.display;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
+import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
@@ -156,8 +157,19 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
                     ? Math.clamp((float) snapshot.remainingTicks() / totalTicks, 0f, 1f)
                     : 0f;
 
-            timerBar.name(MM.msg(msg().ui().timerBarPlaying(),
-                    Map.of("time", formatTime(secondsLeft))));
+            TeamSnapshot leader = snapshot.teams().values().stream()
+                .filter(t -> t.score() > 0)
+                .max(Comparator.comparingInt(TeamSnapshot::score))
+                .orElse(null);
+
+            String barStr = leader != null
+                ? "<" + leader.color() + ">" + leader.name() + "</" + leader.color() + ">"
+                    + " <gray>(" + leader.score() + ") <reset>"
+                    + msg().ui().timerBarPlaying()
+                : msg().ui().timerBarPlaying();
+
+            timerBar.name(MM.msg(barStr, Map.of("time", formatTime(secondsLeft))));
+
             timerBar.progress(progress);
 
             // Switch bar to red during instant death

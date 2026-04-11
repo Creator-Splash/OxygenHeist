@@ -32,6 +32,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
 
         boolean globalFF = fileConfig.getBoolean("weapons.friendly-fire", false);
 
+        int killReward = fileConfig.getInt("match.kill-reward", 10);
+        int captainKillBonus = fileConfig.getInt("match.captain-kill-bonus", 5);
+
         MatchBorderConfig border = new MatchBorderConfig(
             fileConfig.getInt("border.shrink-delay-seconds", 60),
             fileConfig.getInt("border.shrink-duration-seconds", 300),
@@ -57,14 +60,17 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             fileConfig.getDouble("zones.drain-percent-per-second", 100.0 / 120.0),
             fileConfig.getInt("zones.max-drain-multiplier", 5),
             fileConfig.getDouble("zones.refill-percent-per-second", (100.0 / 120.0) * 0.5),
-            fileConfig.getInt("zones.capture-oxygen-restore", 50)
+            fileConfig.getInt("zones.capture-oxygen-restore", 50),
+            fileConfig.getInt("zones.holding-points-per-tick", 1)
         );
 
-        MatchConfig newConfig =  new MatchConfig(
+        MatchConfig newConfig = new MatchConfig(
             duration,
             countdown,
             instantDeathSecondsRemaining,
             globalFF,
+            killReward,
+            captainKillBonus,
             border,
             oxygen,
             downed,

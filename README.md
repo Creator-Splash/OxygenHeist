@@ -119,18 +119,52 @@ weapons:
 Requires PlaceholderAPI. Use these in scoreboards, tab lists, or any other
 plugin that supports PAPI
 
+### Game
+
 | Placeholder | Description |
 |---|---|
-| `%oxygenheist_game_state%` | Current match state (`WAITING`, `STARTING`, `PLAYING`, `ENDING`) |
-| `%oxygenheist_game_state_display%` | Human-readable match state |
+| `%oxygenheist_game_state%` | Current match state (`WAITING`, `SETUP`, `PLAYING`, `ENDING`) |
+| `%oxygenheist_game_state_display%` | Human-readable match state (`Waiting`, `Starting`, `In Progress`, `Ended`) |
 | `%oxygenheist_game_time%` | Remaining time formatted as `MM:SS` |
 | `%oxygenheist_game_time_seconds%` | Remaining time in seconds |
 | `%oxygenheist_game_instant_death%` | `true` if instant death is active |
-| `%oxygenheist_player_oxygen%` | The viewing player's current oxygen |
+
+### Player
+
+| Placeholder | Description |
+|---|---|
+| `%oxygenheist_player_team%` | The viewing player's team name, or `None` |
+| `%oxygenheist_player_team_color%` | The viewing player's team color, or `gray` |
+| `%oxygenheist_player_is_captain%` | `true` if the viewing player is their team's captain |
+| `%oxygenheist_player_oxygen%` | The viewing player's current oxygen level |
 | `%oxygenheist_player_is_downed%` | `true` if the viewing player is downed |
 | `%oxygenheist_player_is_dead%` | `true` if the viewing player is eliminated |
+
+### Teams
+
+Replace `<id>` with the team's ID as defined in `teams.yml`
+
+| Placeholder | Description |
+|---|---|
+| `%oxygenheist_team_<id>_score%` | Score for the given team |
+| `%oxygenheist_team_<id>_members%` | Number of members on the given team |
+| `%oxygenheist_team_<id>_captain%` | Name of the given team's captain, or `None` |
+| `%oxygenheist_leading_team%` | Name of the team with the highest score, or `None` |
+| `%oxygenheist_leading_team_score%` | Score of the leading team |
+| `%oxygenheist_top_<n>_name%` | Name of the Nth-place team by score (e.g. `top_1_name`) |
+| `%oxygenheist_top_<n>_score%` | Score of the Nth-place team (e.g. `top_1_score`) |
+| `%oxygenheist_top_<n>_members%` | Member count of the Nth-place team (e.g. `top_1_members`) |
+
+### Zones
+
+Replace `<id>` with the zone's ID as defined in your arena config
+
+| Placeholder | Description |
+|---|---|
 | `%oxygenheist_zone_count%` | Number of active zones |
-| `%oxygenheist_zone_<id>_progress%` | Capture progress of a zone by id (0–100) |
+| `%oxygenheist_zone_<id>_progress%` | Capture progress of the zone (0–100) |
+| `%oxygenheist_zone_<id>_owner%` | Name of the team that owns the zone, or `Neutral` |
+| `%oxygenheist_zone_<id>_capturing%` | Name of the team currently capturing the zone, or `None` |
 
 ---
 

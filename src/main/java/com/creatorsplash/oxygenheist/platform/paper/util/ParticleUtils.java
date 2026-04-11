@@ -8,10 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 /**
  * Particle helpers that scope visibility to match participants
@@ -102,7 +103,7 @@ public class ParticleUtils {
         double offsetZ,
         double extra,
         @Nullable T data,
-        @Nullable Collection<Player> players
+        @NotNull Collection<Player> players
     ) {
         ParticleBuilder builder = new ParticleBuilder(particle)
             .location(location)
@@ -112,7 +113,7 @@ public class ParticleUtils {
 
         if (data != null) builder.data(data);
 
-        if (players != null) {
+        if (players.isEmpty()) {
             builder.receivers(players);
         } else {
             // Debug bypass - no session, fall back to radius
@@ -125,7 +126,7 @@ public class ParticleUtils {
     /* == Internals == */
 
     private Collection<Player> resolveReceivers(MatchSession session) {
-        if (session == null) return null;
+        if (session == null) return Collections.emptyList();
 
         return session.getPlayers().stream()
             .map(mp -> Bukkit.getPlayer(mp.getPlayerId()))
@@ -134,7 +135,7 @@ public class ParticleUtils {
     }
 
     private Collection<Player> resolveReceivers(MatchSnapshot snapshot) {
-        if (snapshot == null) return null;
+        if (snapshot == null) return Collections.emptyList();
 
         return snapshot.players().keySet().stream()
             .map(Bukkit::getPlayer)

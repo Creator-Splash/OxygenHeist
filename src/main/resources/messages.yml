@@ -97,6 +97,8 @@ player:
     pitch: 1.0
   # Broadcast to all players when a player is eliminated. Placeholder: <player>
   eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
+  kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"
+  captain-kill-attacker: "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"
 
 # Zone Events
 

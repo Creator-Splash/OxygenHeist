@@ -13,6 +13,103 @@ debug:
   # Should be false in production
   weapon-bypass: false
 
+# =====
+# Match
+# =====
+
+match:
+  # Total match duration in seconds
+  duration-seconds: 600
+
+  # Countdown before the match starts (in seconds)
+  countdown-seconds: 10
+
+  # When this many seconds remain, instant-death mode activates
+  # Players outside a zone will take damage rapidly
+  instant-death-seconds-remaining: 120
+
+  # Points awarded to a team for eliminating an enemy player
+  kill-reward: 10
+
+  # Bonus points for killing a team captain
+  captain-kill-bonus: 5
+
+# ============
+# World border
+# ============
+
+border:
+  # Seconds after match start before the border begins shrinking
+  shrink-delay-seconds: 60
+
+  # How long the shrink animation takes (in seconds)
+  shrink-duration-seconds: 300
+
+  # How much the border shrinks, as a percentage of its original size
+  shrink-size-percent: 20.0
+
+  # The border will never shrink below this size (in blocks)
+  shrink-minimum-size: 10.0
+
+# ======
+# Oxygen
+# ======
+
+oxygen:
+  # Maximum oxygen a player can hold
+  max: 300.0
+
+  # Oxygen drained per tick while outside a zone
+  drain-per-tick: 0.1
+
+  # Ticks at zero oxygen before a player is downed
+  depletion-down-ticks: 200
+
+# ============
+# Downed state
+# ============
+
+downed:
+  # Seconds a downed player has before they are eliminated
+  bleedout-seconds: 30
+
+  # Ticks a teammate must stand nearby to complete a revive
+  revive-ticks: 100
+
+  # Maximum distance (in blocks) a teammate can be to revive
+  revive-max-distance: 3.0
+
+  # How many ticks a revive intent is kept alive before being discarded
+  # Increase if revives feel unresponsive; decrease to tighten the interaction window
+  intent-ttl-ticks: 5
+
+# =====
+# Zones
+# =====
+
+zones:
+  # Capture progress gained per tick while a team occupies a zone
+  capture-rate-per-tick: 0.05
+
+  # Percentage of a zones oxygen drained per second when uncaptured
+  drain-percent-per-second: 0.8333
+
+  # Maximum multiplier applied to drain when multiple enemies contest a zone
+  max-drain-multiplier: 5
+
+  # Percentage of a zones oxygen refilled per second when held
+  refill-percent-per-second: 0.4167
+
+  # Flat oxygen restored to the capturing team when a zone is fully captured
+  capture-oxygen-restore: 50
+
+  # Score points awarded to the holding team per tick
+  holding-points-per-tick: 1
+
+# =======
+# Weapons
+# =======
+
 weapons:
   friendly-fire: false
   spawner:
@@ -21,5 +118,3 @@ weapons:
     spawn-interval-seconds: 45
     pickup-radius: 1.5
     pickup-cooldown-seconds: 3
-
-# TODO

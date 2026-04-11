@@ -9,6 +9,8 @@ public record MatchConfig(
     int countdownSeconds,
     int instantDeathSecondsRemaining,
     boolean globalFriendlyFire,
+    int killReward,
+    int captainKillBonus,
 
     // Sub configs
     MatchBorderConfig border,
@@ -21,6 +23,8 @@ public record MatchConfig(
         10,
         120,
         false,
+        10,
+        5,
         MatchBorderConfig.EMPTY,
         OxygenConfig.EMPTY,
         DownedConfig.EMPTY,

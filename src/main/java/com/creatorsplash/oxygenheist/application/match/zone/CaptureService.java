@@ -55,22 +55,28 @@ public class CaptureService {
         int captureOxygenRestore = config.captureOxygenRestore();
 
         if (presence.isEmpty(zone)) return null;
-
         if (presence.isContested(zone)) return null;
 
         String teamId = presence.getSingleTeam(zone).orElseThrow();
 
+        // Owner is standing in their own zone - award holding points and stop
+        if (zone.hasOwner() && teamId.equals(zone.getOwnerTeamId())) {
+            session.addTeamScore(teamId, config.holdingPointsPerTick());
+            return null;
+        }
+
+        // Enemy team is contesting an owned zone - regress
         if (zone.hasOwner() && !teamId.equals(zone.getOwnerTeamId())) {
             zone.regressCapture(teamId, capturePerTick);
             return null;
         }
 
+        // Neutral or re-capturing team progresses
         zone.progressCapture(teamId, capturePerTick);
 
         if (zone.isFullyCaptured()) {
             zone.completeCapture();
             oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
-            session.addTeamScore(teamId, 1);
             return new CaptureEvent(teamId, zone, captureOxygenRestore);
         }
 

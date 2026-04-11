@@ -4,17 +4,22 @@ import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.listener.WeaponListener;
+import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.world.ArenaSetup;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -32,6 +37,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public final class WeaponDropService implements MatchLifecycle, Listener {
 
+    private static final Color PICKUP_PARTICLE_COLOR = Color.fromRGB(0, 255, 220);
+
     private final Server server;
     private final GlobalConfigService globals;
     private final ArenaConfigService arenaConfigService;
@@ -40,13 +47,20 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
     private final Scheduler scheduler;
     private final LogCenter log;
 
-    private final Set<UUID> activeItems = new HashSet<>();
+    /** item UUID -> label TextDisplay UUID */
+    private final Map<UUID, UUID> activeItems = new HashMap<>();
+    private final Map<UUID, Double> particleOffsets = new HashMap<>();
     private final Random random = new Random();
+
     private Scheduler.Task spawnTask;
+    private Scheduler.Task particleTask;
 
     @EventHandler
     public void onPickup(EntityPickupItemEvent event) {
-        activeItems.remove(event.getItem().getUniqueId());
+        UUID itemId = event.getItem().getUniqueId();
+        removeLabel(itemId);
+        activeItems.remove(itemId);
+        particleOffsets.remove(itemId);
     }
 
     /* Lifecycle */
@@ -60,13 +74,16 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
             cfg.spawnIntervalSeconds() * 20L,
             cfg.spawnIntervalSeconds() * 20L
         );
+        particleTask = scheduler.runRepeating(this::tickParticles, 1L, 4L);
     }
 
     @Override
     public void onMatchEnd() {
         if (spawnTask != null) { spawnTask.cancel(); spawnTask = null; }
+        if (particleTask != null) { particleTask.cancel(); particleTask = null; }
         removeAllItems();
         activeItems.clear();
+        particleOffsets.clear();
     }
 
     /* Spawning */
@@ -78,29 +95,58 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
 
         Location loc = findRandomLocation();
         if (loc == null) {
-            log.warn("WeaponDropManager: could not find a valid spawn location");
+            log.warn("WeaponDropService: could not find a valid spawn location");
             return;
         }
 
-        ItemStack item = weaponRegistry.random().createItemStack();
+        WeaponHandler handler = weaponRegistry.random();
+        ItemStack item = handler.createItemStack();
         if (item == null) return;
 
         Item dropped = loc.getWorld().dropItem(loc, item);
         dropped.setVelocity(new Vector(0.0, 0.0, 0.0));
         dropped.setPickupDelay(globals.get().weaponSpawner().pickupCooldownSeconds() * 20);
-        activeItems.add(dropped.getUniqueId());
+
+        TextDisplay label = spawnLabel(loc, WeaponUtils.formatDisplayName(handler.id()));
+
+        activeItems.put(dropped.getUniqueId(), label.getUniqueId());
+        particleOffsets.put(dropped.getUniqueId(), 0.0);
     }
 
-    private void removeAllItems() {
-        ArenaSetup arena = arenaConfigService.getArena().orElse(null);
-        if (arena == null) return;
+    private TextDisplay spawnLabel(Location loc, String displayName) {
+        return loc.getWorld().spawn(loc.clone().add(0, 1.4, 0), TextDisplay.class, d -> {
+            d.setBillboard(Display.Billboard.CENTER);
+            d.setShadowed(true);
+            d.setDefaultBackground(false);
+            d.setViewRange(12f);
+            d.text(MM.msg("<aqua><bold>" + displayName + "</bold></aqua>\n<gray>⬆ Pick up"));
+        });
+    }
 
-        World world = server.getWorld(arena.worldName());
+    /* Particles */
+
+    private void tickParticles() {
+        World world = resolveWorld();
         if (world == null) return;
 
-        for (UUID id : activeItems) {
-            Entity entity = world.getEntity(id);
-            if (entity != null) entity.remove();
+        Particle.DustOptions dust = new Particle.DustOptions(PICKUP_PARTICLE_COLOR, 1.0f);
+
+        for (UUID itemId : activeItems.keySet()) {
+            Entity entity = world.getEntity(itemId);
+            if (entity == null || !entity.isValid()) continue;
+
+            double offset = particleOffsets.merge(itemId, 0.12, Double::sum) % (Math.PI * 2);
+            particleOffsets.put(itemId, offset);
+
+            Location center = entity.getLocation();
+            for (int i = 0; i < 8; i++) {
+                double angle = offset + (Math.PI * 2 * i / 8);
+                ParticleUtils.spawn(
+                    Particle.DUST,
+                    center.clone().add(Math.cos(angle) * 0.7, 0.1, Math.sin(angle) * 0.7),
+                    1, 0, 0, 0, 0, dust, (MatchSession) null
+                );
+            }
         }
     }
 
@@ -126,8 +172,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
             if (!loc.clone().subtract(0, 1, 0).getBlock().getType().isSolid()) continue;
             if (!loc.getBlock().getType().isAir()) continue;
 
-            // Keep away from existing drops
-            boolean tooClose = activeItems.stream()
+            boolean tooClose = activeItems.keySet().stream()
                 .map(world::getEntity)
                 .filter(Objects::nonNull)
                 .anyMatch(e -> e.getLocation().distanceSquared(loc) < 100);
@@ -136,6 +181,36 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
         }
 
         return null;
+    }
+
+    /* Cleanup */
+
+    private void removeAllItems() {
+        World world = resolveWorld();
+        if (world == null) return;
+
+        for (UUID itemId : activeItems.keySet()) {
+            Entity entity = world.getEntity(itemId);
+            if (entity != null) entity.remove();
+            removeLabel(itemId);
+        }
+    }
+
+    private void removeLabel(UUID itemId) {
+        World world = resolveWorld();
+        if (world == null) return;
+
+        UUID labelId = activeItems.get(itemId);
+        if (labelId == null) return;
+
+        Entity label = world.getEntity(labelId);
+        if (label != null) label.remove();
+    }
+
+    private World resolveWorld() {
+        return arenaConfigService.getArena()
+            .map(a -> server.getWorld(a.worldName()))
+            .orElse(null);
     }
 
 }

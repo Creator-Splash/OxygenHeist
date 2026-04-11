@@ -99,7 +99,9 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.eliminated-subtitle-instant", "<gray>You've been eliminated!"),
             times(c, "player.eliminated", 0, 60, 20),
             SoundConfig.sound(c, "player.eliminated-sound"),
-            s(c, "player.eliminated-broadcast", "<dark_red><bold><player> <gray>has been eliminated!")
+            s(c, "player.eliminated-broadcast", "<dark_red><bold><player> <gray>has been eliminated!"),
+            s(c, "player.kill-reward-attacker",  "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"),
+            s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts <reset><gray>captain kill bonus!")
         );
     }
 

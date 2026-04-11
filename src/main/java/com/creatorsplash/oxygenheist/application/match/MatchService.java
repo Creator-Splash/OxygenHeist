@@ -22,8 +22,13 @@ import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -41,6 +46,7 @@ public final class MatchService {
     private LogCenter log;
 
     private final GlobalConfigService globals;
+    private final MessageConfigService messages;
     private final MatchConfigService matchConfigService;
     private final MatchSnapshotProvider snapshotProvider;
     private final MatchDisplayService displayService;
@@ -223,11 +229,8 @@ public final class MatchService {
         @Nullable UUID attackerId = session.getPlayer(victimId)
             .map(PlayerMatchState::getLastAttacker)
             .orElse(null);
-
-        Set<UUID> teammates = getTeammates(victimId);
-
-        // TODO better for teammates
-        displayService.onPlayerDowned(victimId, attackerId, teammates);
+        
+        displayService.onPlayerDowned(victimId, attackerId, getTeammates(victimId));
     }
 
     /**
@@ -237,24 +240,52 @@ public final class MatchService {
      * @param reason reason for elimination
      */
     public void eliminatePlayer(UUID playerId, String reason) {
-        if (session == null) {
-            throw new IllegalStateException("Match not created");
-        }
+        if (session == null) throw new IllegalStateException("Match not created");
 
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
-
         player.eliminate();
 
         reviveService.cancelRevivesInvolving(playerId);
+        awardKillReward(playerId, player.getLastAttacker());
+        checkWinCondition();
 
-        boolean wasInstantDeath = session.isInstantDeath();
-        displayService.onPlayerEliminated(playerId, wasInstantDeath);
-
+        displayService.onPlayerEliminated(playerId, session.isInstantDeath());
         gameBridge.onPlayerEliminated(playerId, reason);
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
+    }
 
-        checkWinCondition();
+    private void awardKillReward(UUID victimId, @Nullable UUID attackerId) {
+        if (attackerId == null) return;
+
+        String attackerTeamId = session.getPlayerTeam(attackerId);
+        if (attackerTeamId != null) {
+            Player attacker = Bukkit.getPlayer(attackerId);
+            String victimName = Bukkit.getOfflinePlayer(victimId).getName();
+            String finalName = victimName == null ? "Unknown" : victimName;
+
+            MessageConfig.PlayerMessages msg = messages.get().player();
+
+            int reward = session.config().killReward();
+            session.addTeamScore(attackerTeamId, reward);
+            if (attacker != null) {
+                attacker.sendMessage(MM.msg(msg.killRewardAttacker(),
+                    Map.of("points", String.valueOf(reward), "player", finalName)));
+            }
+
+            String victimTeamId = session.getPlayerTeam(victimId);
+            if (victimTeamId != null) {
+                Team victimTeam = teamService.getTeam(victimTeamId);
+                if (victimTeam != null && victimTeam.isCaptain(victimId)) {
+                    int bonus = session.config().captainKillBonus();
+                    session.addTeamScore(attackerTeamId, bonus);
+                    if (attacker != null) {
+                        attacker.sendMessage(MM.msg(msg.captainKillAttacker(),
+                            Map.of("points", String.valueOf(bonus), "player", finalName)));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -351,7 +382,7 @@ public final class MatchService {
                 }
 
                 if (session.isTimeExpired()) {
-                    endMatch("");
+                    endMatch(resolveWinnerByScore());
                 }
             }
 
@@ -482,6 +513,18 @@ public final class MatchService {
         } else if (aliveTeams.isEmpty()) {
             endMatch("");
         }
+    }
+
+    private String resolveWinnerByScore() {
+        if (session == null) return "";
+        return session.getTeamScores().entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .filter(e -> e.getValue() > 0)
+            .map(e -> {
+                Team t = teamService.getTeam(e.getKey());
+                return t != null ? t.getName() : e.getKey();
+            })
+            .orElse("");
     }
 
 }

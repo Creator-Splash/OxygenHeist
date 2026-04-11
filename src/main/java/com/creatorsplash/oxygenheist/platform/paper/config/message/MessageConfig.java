@@ -118,7 +118,13 @@ public record MessageConfig(
         TitleTimes eliminatedTimes,
         SoundConfig eliminatedSound,
         /* Broadcast on elimination. Placeholder: <player> */
-        String eliminatedBroadcast
+        String eliminatedBroadcast,
+
+        // Kills
+        /* Chat message sent to attacker on kill reward. Placeholders: <points>, <player> */
+        String killRewardAttacker,
+        /* Chat message sent to attacker on captain kill bonus. Placeholders: <points>, <player> */
+        String captainKillAttacker
     ) {}
 
     /**
