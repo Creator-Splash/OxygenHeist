@@ -105,7 +105,11 @@ public record PlatformModule(
 
     private void registerPlaceholders() {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new OxygenHeistPlaceholderExpansion(gameplay.snapshotProvider()).register();
+            new OxygenHeistPlaceholderExpansion(
+                plugin,
+                gameplay.teamService(),
+                gameplay.snapshotProvider()
+            ).register();
         }
     }
 

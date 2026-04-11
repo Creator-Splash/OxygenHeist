@@ -57,4 +57,8 @@ public record MatchSnapshot(
 
     public @Nullable TeamSnapshot getTeam(String teamId) { return teams.get(teamId); }
 
+    public int getTeamScoreOrZero(String teamId) {
+        return teams.containsKey(teamId) ? teams.get(teamId).score() : 0;
+    }
+
 }

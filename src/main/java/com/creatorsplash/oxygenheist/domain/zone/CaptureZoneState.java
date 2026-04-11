@@ -155,6 +155,7 @@ public class CaptureZoneState {
         return new ZoneSnapshot(
             getId(),
             getOwnerTeamId(),
+            getCapturingTeamId(),
             getCaptureProgress(),
             teamOxygen
         );

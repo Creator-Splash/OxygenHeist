@@ -8,6 +8,7 @@ import java.util.Map;
 public record ZoneSnapshot(
    String id,
    String ownerTeamId,
+   String capturingTeamId,
    double captureProgress,
    Map<String, Double> teamOxygen
 ) {}
