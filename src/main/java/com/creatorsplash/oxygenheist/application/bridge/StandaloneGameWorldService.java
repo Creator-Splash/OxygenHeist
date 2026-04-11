@@ -11,4 +11,9 @@ public class StandaloneGameWorldService implements GameWorldService {
 
     @Override
     public void onMatchEnded() {}
+
+    @Override
+    public void reset() {
+
+    }
 }

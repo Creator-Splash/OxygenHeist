@@ -1,7 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.message;
 
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
 
 import java.time.Duration;
@@ -84,7 +83,8 @@ public record MessageConfig(
         String title,
         /* Countdown subtitle */
         String subtitle,
-        TitleTimes titleTimes
+        TitleTimes titleTimes,
+        SoundConfig tickSound
     ) {}
 
     /**
@@ -124,7 +124,9 @@ public record MessageConfig(
         /* Chat message sent to attacker on kill reward. Placeholders: <points>, <player> */
         String killRewardAttacker,
         /* Chat message sent to attacker on captain kill bonus. Placeholders: <points>, <player> */
-        String captainKillAttacker
+        String captainKillAttacker,
+        /* Sent to attacker when they hit a teammate with FF disabled */
+        String friendlyFireDenied
     ) {}
 
     /**
@@ -136,7 +138,10 @@ public record MessageConfig(
         /* Broadcast on capture. Placeholders: <team>, <zone> */
         String captured,
         /* Sent to capturing team members. Placeholders: <amount>, <zone> */
-        String oxygenRestored
+        String oxygenRestored,
+        SoundConfig captureSound,
+        SoundConfig contestedSound,
+        SoundConfig capturingSound
     ) {}
 
     /**
@@ -150,7 +155,8 @@ public record MessageConfig(
         /* Per-player downed bar. Placeholder: <time> (seconds remaining) */
         String downedBar,
         /* Per-player reviving bar. Placeholder: <progress> (0–100) */
-        String revivingBar
+        String revivingBar,
+        String waitingBar
     ) {}
 
 }

@@ -5,7 +5,6 @@ import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchBorderConfig;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -49,7 +48,7 @@ public final class PaperGameWorldService implements GameWorldService {
         border.setCenter(arena.centerX(), arena.centerZ());
         border.setSize(arena.initialSize());
         border.setWarningDistance(5);
-        border.setWarningTimeTicks(15);
+        border.setWarningTime(0);
         border.setDamageAmount(0.2);
         border.setDamageBuffer(5.0);
 
@@ -68,11 +67,11 @@ public final class PaperGameWorldService implements GameWorldService {
         targetSize = Math.max(targetSize, borderConfig.minimumSize());
         long durationSeconds = borderConfig.shrinkDurationSeconds();
 
-        world.getWorldBorder().changeSize(targetSize, durationSeconds * 20);
+        world.getWorldBorder().setSize(targetSize, durationSeconds);
 
         log.debug("border", "Border shrink started: <white>" + (int) arena.initialSize()
-                + "</white> -> <white>" + (int) targetSize
-                + "</white> over <white>" + durationSeconds + "s</white>");
+            + "</white> -> <white>" + (int) targetSize
+            + "</white> over <white>" + durationSeconds + "s</white>");
     }
 
     @Override
@@ -87,7 +86,16 @@ public final class PaperGameWorldService implements GameWorldService {
         border.setDamageAmount(0.0);
         border.setDamageBuffer(5.0);
         border.setWarningDistance(5);
-        border.setWarningTimeTicks(15);
+        border.setWarningTime(0);
+    }
+
+    @Override
+    public void reset() {
+        World world = resolveWorld();
+        if (world == null) return;
+
+        WorldBorder border = world.getWorldBorder();
+        border.reset();
     }
 
     /* Internals */

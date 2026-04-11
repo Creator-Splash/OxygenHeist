@@ -22,13 +22,8 @@ import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.MatchLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
-import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
-import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
-import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -46,7 +41,6 @@ public final class MatchService {
     private LogCenter log;
 
     private final GlobalConfigService globals;
-    private final MessageConfigService messages;
     private final MatchConfigService matchConfigService;
     private final MatchSnapshotProvider snapshotProvider;
     private final MatchDisplayService displayService;
@@ -172,6 +166,13 @@ public final class MatchService {
         log.info("Match ended with winner " + winner);
     }
 
+    /**
+     * Ends the current match, resolving the winner by team score
+     */
+    public void endMatch() {
+        endMatch(resolveWinnerByScore());
+    }
+
     /* == Player == */
 
     public boolean isPlayerInActiveMatch(UUID playerId) {
@@ -226,11 +227,18 @@ public final class MatchService {
 
         downedService.downPlayer(session, victimId);
 
+        playerService.onPlayerDowned(victimId);
+
         @Nullable UUID attackerId = session.getPlayer(victimId)
             .map(PlayerMatchState::getLastAttacker)
             .orElse(null);
 
         displayService.onPlayerDowned(victimId, attackerId, getTeammates(victimId));
+    }
+
+    private void onReviveComplete(UUID downedId, UUID reviverId) {
+        playerService.onPlayerRevived(downedId);
+        displayService.onPlayerRevived(downedId, reviverId);
     }
 
     /**
@@ -240,13 +248,14 @@ public final class MatchService {
      * @param reason reason for elimination
      */
     public void eliminatePlayer(UUID playerId, String reason) {
-        if (session == null) throw new IllegalStateException("Match not created");
+        if (session == null || !session.isPlaying()) return;
 
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
         player.eliminate();
 
         reviveService.cancelRevivesInvolving(playerId);
         awardKillReward(playerId, player.getLastAttacker());
+        playerService.onPlayerEliminated(playerId);
         checkWinCondition();
 
         displayService.onPlayerEliminated(playerId, session.isInstantDeath());
@@ -257,56 +266,22 @@ public final class MatchService {
 
     private void awardKillReward(UUID victimId, @Nullable UUID attackerId) {
         if (attackerId == null) return;
-
         String attackerTeamId = session.getPlayerTeam(attackerId);
-        if (attackerTeamId != null) {
-            Player attacker = Bukkit.getPlayer(attackerId);
-            String victimName = Bukkit.getOfflinePlayer(victimId).getName();
-            String finalName = victimName == null ? "Unknown" : victimName;
+        if (attackerTeamId == null) return;
 
-            MessageConfig.PlayerMessages msg = messages.get().player();
+        int reward = session.config().killReward();
+        session.addTeamScore(attackerTeamId, reward);
+        displayService.onKillReward(attackerId, victimId, reward);
 
-            int reward = session.config().killReward();
-            session.addTeamScore(attackerTeamId, reward);
-            if (attacker != null) {
-                attacker.sendMessage(MM.msg(msg.killRewardAttacker(),
-                    Map.of("points", String.valueOf(reward), "player", finalName)));
-            }
-
-            String victimTeamId = session.getPlayerTeam(victimId);
-            if (victimTeamId != null) {
-                Team victimTeam = teamService.getTeam(victimTeamId);
-                if (victimTeam != null && victimTeam.isCaptain(victimId)) {
-                    int bonus = session.config().captainKillBonus();
-                    session.addTeamScore(attackerTeamId, bonus);
-                    if (attacker != null) {
-                        attacker.sendMessage(MM.msg(msg.captainKillAttacker(),
-                            Map.of("points", String.valueOf(bonus), "player", finalName)));
-                    }
-                }
+        String victimTeamId = session.getPlayerTeam(victimId);
+        if (victimTeamId != null) {
+            Team victimTeam = teamService.getTeam(victimTeamId);
+            if (victimTeam != null && victimTeam.isCaptain(victimId)) {
+                int bonus = session.config().captainKillBonus();
+                session.addTeamScore(attackerTeamId, bonus);
+                displayService.onCaptainKillBonus(attackerId, victimId, bonus);
             }
         }
-    }
-
-    /**
-     * Awards points to a player
-     *
-     * @param playerId the players UUID
-     * @param amount points to award
-     * @param reason reason for the points
-     */
-    public void awardPoints(UUID playerId, int amount, String reason) {
-        if (session == null) {
-            throw new IllegalStateException("Match not created");
-        }
-
-        PlayerMatchState player = session.getOrCreatePlayer(playerId);
-        player.addScore(amount);
-
-        gameBridge.awardPoints(playerId, amount, reason);
-
-        log.debug("player", "Points awarded to "
-            + playerId + " Points: " + amount + " Reason: " + reason);
     }
 
     /**
@@ -415,7 +390,7 @@ public final class MatchService {
 
         session.getPlayers().forEach(player -> {
             String team = session.getPlayerTeam(player.getPlayerId());
-            log.info(
+            log.debug("oxygen",
                 "Player=" + player.getPlayerId() +
                 " Team=" + team +
                 " 02=" + player.getOxygen() +
@@ -436,16 +411,24 @@ public final class MatchService {
         zoneOxygenService.tick(session, presence);
 
         for (CaptureService.CaptureEvent event : captureService.tick(session, presence)) {
-            Team team = teamService.getTeam(event.teamId());
-            if (team != null) {
-                displayService.onZoneCaptured(
-                    event.teamId(),
-                    team.getName(),
-                    event.zone().getDisplayName(),
-                    event.oxygenRestored(),
-                    new HashSet<>(team.getMembers())
-                );
+            switch (event.type()) {
+                case CAPTURED -> {
+                    Team team = teamService.getTeam(event.teamId());
+                    if (team != null) {
+                        displayService.onZoneCaptured(
+                            event.teamId(),
+                            team.getName(),
+                            event.zone().getDisplayName(),
+                            event.oxygenRestored(),
+                            new HashSet<>(team.getMembers())
+                        );
+                    }
+                }
+                case CONTESTED -> displayService.onZoneContested(event.zone().getId());
+                case CAPTURING -> displayService.onZoneCapturing(event.zone().getId(), event.teamId());
             }
+
+
         }
 
         playerOxygenService.tickDrain(session, this::downPlayer);
@@ -458,7 +441,7 @@ public final class MatchService {
         reviveService.tick(
             session,
             playerPositionProvider,
-            displayService::onPlayerRevived
+            this::onReviveComplete
         );
     }
 

@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -14,7 +15,13 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.UUID;
 
 /**
  * Paper implementation of {@link GamePlayerService}
@@ -26,6 +33,7 @@ import org.bukkit.entity.Player;
 public final class PaperGamePlayerService implements GamePlayerService {
 
     private final Server server;
+    private final Scheduler scheduler;
     private final TeamService teamService;
     private final LogCenter log;
 
@@ -65,7 +73,8 @@ public final class PaperGamePlayerService implements GamePlayerService {
             player.getInventory().clear();
             player.clearActivePotionEffects();
             player.setRemainingAir(player.getMaximumAir());
-            TeamUtils.applyArmor(player, team);
+
+            scheduler.runLater(() -> TeamUtils.applyArmor(player, team), 1L);
         }
 
         log.info("Players prepared for match start");
@@ -89,6 +98,49 @@ public final class PaperGamePlayerService implements GamePlayerService {
         }
 
         log.info("Players cleaned up after match end");
+    }
+
+    /* Gameplay */
+
+    @Override
+    public void onPlayerDowned(UUID playerId) {
+        Player player = server.getPlayer(playerId);
+        if (player == null) return;
+
+        player.setHealth(maxHealth(player));
+        player.setSneaking(true);
+
+        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
+        if (speed != null) speed.setBaseValue(0.0);
+
+        player.addPotionEffect(new PotionEffect(
+                PotionEffectType.BLINDNESS, 20, 0, false, false));
+    }
+
+    @Override
+    public void onPlayerRevived(UUID playerId) {
+        Player player = server.getPlayer(playerId);
+        if (player == null) return;
+
+        player.setSneaking(false);
+
+        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
+        if (speed != null) speed.setBaseValue(speed.getDefaultValue());
+
+        player.setHealth(maxHealth(player) * 0.5);
+    }
+
+    @Override
+    public void onPlayerEliminated(UUID playerId) {
+        Player player = server.getPlayer(playerId);
+        if (player == null) return;
+
+        player.setSneaking(false);
+
+        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
+        if (speed != null) speed.setBaseValue(speed.getDefaultValue());
+
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
     private double maxHealth(Player player) {

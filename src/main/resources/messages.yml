@@ -50,6 +50,11 @@ countdown:
   title-fade-in: 0
   title-stay: 25
   title-fade-out: 5
+  tick-sound:
+    sound: "ui.button.click"
+    source: "master"
+    volume: 1.0
+    pitch: 1.2
 
 # Player Events
 
@@ -99,6 +104,7 @@ player:
   eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
   kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"
   captain-kill-attacker: "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"
+  friendly-fire-denied: "<red>That's your teammate!"
 
 # Zone Events
 
@@ -107,6 +113,21 @@ zone:
   captured: "<green><bold><team> <gray>captured <yellow><zone><gray>!"
   # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
   oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
+  capture-sound:
+    sound: "block.beacon.activate"
+    source: "master"
+    volume: 1.0
+    pitch: 1.2
+  contested-sound:
+    sound: "block.note_block.bass"
+    source: "master"
+    volume: 0.6
+    pitch: 0.8
+  capturing-sound:
+    sound: "block.note_block.pling"
+    source: "master"
+    volume: 0.5
+    pitch: 1.5
 
 # UI Elements
 
@@ -119,3 +140,4 @@ ui:
   downed-bar: "<red><bold>DOWNED <reset><gray>- <yellow><time>s"
   # Per-player boss bar shown while being revived. Placeholder: <progress> (0–100)
   reviving-bar: "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"
+  waiting-bar: "<yellow>Waiting to be assigned to a team"

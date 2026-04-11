@@ -72,8 +72,7 @@ public final class TeamConfigService {
 
         plugin.getLogger().info("Loaded " + teams.size() + " team(s) from " + FILE_NAME);
 
-        // TODO
-        return new TeamService(teams, friendlyFire, maxTeamSize, "");
+        return new TeamService(teams, friendlyFire, maxTeamSize);
     }
 
     /**

@@ -12,18 +12,22 @@ public final class PaperAirBarController {
 
     private final ConcurrentHashMap<UUID, Boolean> trackedPlayers = new ConcurrentHashMap<>();
 
+    public void init(Player player) {
+        player.setRemainingAir(0);
+    }
+
     /**
      * Update a players air based on oxygen values
      */
     public void update(Player player, double oxygen, double maxOxygen) {
-        if (player == null) return;
+        if (player == null || maxOxygen <= 0) return;
 
         trackedPlayers.put(player.getUniqueId(), true);
 
         int maxAir = player.getMaximumAir();
 
         int air = (int) (oxygen / maxOxygen * maxAir);
-        air = Math.clamp(air, 0, maxAir);
+        air = Math.clamp(air, 0, maxAir - 1);
 
         player.setRemainingAir(air);
     }

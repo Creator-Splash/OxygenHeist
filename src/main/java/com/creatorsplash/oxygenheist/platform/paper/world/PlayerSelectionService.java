@@ -35,6 +35,9 @@ public final class PlayerSelectionService implements Listener {
 
     private final Map<UUID, Location> firstPoints = new HashMap<>();
     private final Map<UUID, Location> secondPoints = new HashMap<>();
+    private final Map<UUID, Long> lastInteract = new HashMap<>();
+
+    private static final long DEBOUNCE_MS = 100;
 
     /* Event */
 
@@ -46,6 +49,10 @@ public final class PlayerSelectionService implements Listener {
         if (event.getClickedBlock() == null) return;
         if (!isWand(player.getInventory().getItemInMainHand())) return;
         if (!player.hasPermission("com.creatorsplash.oxygenheist.selection")) return;
+
+        long now = System.currentTimeMillis();
+        if (now - lastInteract.getOrDefault(playerId, 0L) < DEBOUNCE_MS) return;
+        lastInteract.put(playerId, now);
 
         if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
             event.setCancelled(true);
@@ -138,6 +145,7 @@ public final class PlayerSelectionService implements Listener {
     public void clear() {
         firstPoints.clear();
         secondPoints.clear();
+        lastInteract.clear();
     }
 
     /* Wand */

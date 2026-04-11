@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
+import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.platform.paper.util.CommandUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
@@ -24,6 +25,7 @@ import java.util.List;
 public final class DebugCommands implements CommandHandler {
 
     private final MatchService matchService;
+    private final GamePlayerService playerService;
     private final WeaponRegistry weaponRegistry;
 
     @Command("down <player> [ticks]")
@@ -40,6 +42,15 @@ public final class DebugCommands implements CommandHandler {
             sender.sendRichMessage("<yellow>Downed " + target.getName());
             target.sendRichMessage("<yellow>You have been downed for <white>" + ticks + "</white> ticks");
         }, () -> sender.sendRichMessage("<red>No active game session"));
+    }
+
+    @Command("test-down <player>")
+    @CommandDescription("Test down a player")
+    public void testDown(
+        CommandSender sender,
+        @Argument("player") Player target
+    ) {
+        playerService.onPlayerDowned(target.getUniqueId());
     }
 
     @Command("revive <player>")

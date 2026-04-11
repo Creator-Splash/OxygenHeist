@@ -55,7 +55,9 @@ public class CaptureService {
         int captureOxygenRestore = config.captureOxygenRestore();
 
         if (presence.isEmpty(zone)) return null;
-        if (presence.isContested(zone)) return null;
+        if (presence.isContested(zone)) {
+            return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
+        }
 
         String teamId = presence.getSingleTeam(zone).orElseThrow();
 
@@ -77,10 +79,10 @@ public class CaptureService {
         if (zone.isFullyCaptured()) {
             zone.completeCapture();
             oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
-            return new CaptureEvent(teamId, zone, captureOxygenRestore);
+            return new CaptureEvent(CaptureEvent.Type.CAPTURED, teamId, zone, captureOxygenRestore);
         }
 
-        return null;
+        return new CaptureEvent(CaptureEvent.Type.CAPTURING, teamId, zone, 0);
     }
 
     /**
@@ -90,6 +92,13 @@ public class CaptureService {
      * @param zone the zone that was captured
      * @param oxygenRestored the amount of oxygen restored to the capturing team
      */
-    public record CaptureEvent(String teamId, CaptureZoneState zone, int oxygenRestored) {}
+    public record CaptureEvent(
+        Type type,
+        String teamId,
+        CaptureZoneState zone,
+        int oxygenRestored
+    ) {
+        public enum Type { CAPTURED, CONTESTED, CAPTURING }
+    }
 
 }

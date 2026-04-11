@@ -25,13 +25,11 @@ public class TeamService {
 
     @Getter private final boolean friendlyFireEnabled;
     @Getter private final int maxTeamSize;
-    @Getter private final String waitingBarMessage;
 
     public TeamService(
         List<Team> teams,
         boolean friendlyFireEnabled,
-        int maxTeamSize,
-        String waitingBarMessage
+        int maxTeamSize
     ) {
         for (Team team : teams) {
             this.teams.put(team.getId(), team);
@@ -41,7 +39,6 @@ public class TeamService {
         }
         this.friendlyFireEnabled = friendlyFireEnabled;
         this.maxTeamSize = maxTeamSize;
-        this.waitingBarMessage = waitingBarMessage;
     }
 
     /* Queries */

@@ -29,6 +29,13 @@ public interface MatchDisplayService {
     void onMatchEnd(String winner);
 
     /**
+     * Called when a zone is contested by a multiple teams
+     */
+    void onZoneContested(String zoneId);
+
+    default void onZoneCapturing(String zoneId, String teamId) {}
+
+    /**
      * Called when a zone is captured by a team
      *
      * @param teamId the id of the team that captured the zone
@@ -73,6 +80,17 @@ public interface MatchDisplayService {
      * @param wasInstantDeath true if eliminated directly without bleedout
      */
     void onPlayerEliminated(UUID playerId, boolean wasInstantDeath);
+
+    /**
+     * Called when a kill reward is awarded to a player
+     * <p>Implementations should notify the attacker</p>
+     */
+    void onKillReward(UUID attackerId, UUID victimId, int points);
+
+    /**
+     * Called when a captain kill bonus is awarded
+     */
+    void onCaptainKillBonus(UUID attackerId, UUID victimId, int bonus);
 
     default void showBarsToNewPlayer(UUID playerId) {}
 

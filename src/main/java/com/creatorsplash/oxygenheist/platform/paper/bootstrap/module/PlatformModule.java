@@ -66,7 +66,13 @@ public record PlatformModule(
                 gameplay.matchService(),
                 gameplay.actionService()
             ),
-            new TeamListener(gameplay.scheduler(), gameplay.teamService(), gameplay.matchService()),
+            new TeamListener(
+                gameplay.scheduler(),
+                gameplay.teamService(),
+                gameplay.matchService(),
+                configs.messageConfig(),
+                display.lobbyDisplayService()
+            ),
             new MatchJoinListener(gameplay.matchService(), display.displayService()),
             new AirChangeListener(display.airBarController())
         );
@@ -83,7 +89,11 @@ public record PlatformModule(
             configs.arenaConfig(),
             gameplay.teamService()
         ));
-        registrar.registerAnnotated(new DebugCommands(gameplay.matchService(), weapons.weaponRegistry()));
+        registrar.registerAnnotated(new DebugCommands(
+            gameplay.matchService(),
+            gameplay.gamePlayerService(),
+            weapons.weaponRegistry()
+        ));
         registrar.registerAnnotated(new SetupCommands(
             plugin.getLogCenter(),
             gameplay.selectionService(),
@@ -99,7 +109,8 @@ public record PlatformModule(
         registrar.registerAnnotated(new TeamCommands(
             plugin,
             gameplay.teamService(),
-            gameplay.configs().teamConfig()
+            gameplay.configs().teamConfig(),
+            display.lobbyDisplayService()
         ));
     }
 

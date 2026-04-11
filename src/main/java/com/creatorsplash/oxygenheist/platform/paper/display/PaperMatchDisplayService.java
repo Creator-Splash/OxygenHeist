@@ -40,6 +40,9 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
     private final PaperAirBarController airBarController;
     private final MessageConfigService messages;
 
+    private final Map<String, Long> lastContestedSound = new HashMap<>();
+    private final Map<String, Long> lastCapturingSound = new HashMap<>();
+
     /* State */
 
     /** Boss bar state - null when no match is active */
@@ -132,8 +135,10 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
             times.toAdventure()
         );
 
+        MessageConfig.CountdownMessages cd = msg().countdown();
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.showTitle(countdownTitle);
+            playSound(player, cd.tickSound());
         }
     }
 
@@ -234,6 +239,7 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.showBossBar(timerBar);
+            airBarController.init(player);
         }
     }
 
@@ -287,6 +293,29 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
     }
 
     @Override
+    public void onZoneContested(String zoneId) {
+        long now = System.currentTimeMillis();
+        if (now - lastContestedSound.getOrDefault(zoneId, 0L) < 1000) return;
+        lastContestedSound.put(zoneId, now);
+
+        // Play to all online players
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            playSound(player, msg().zone().contestedSound());
+        }
+    }
+
+    @Override
+    public void onZoneCapturing(String zoneId, String teamId) {
+        long now = System.currentTimeMillis();
+        if (now - lastCapturingSound.getOrDefault(zoneId, 0L) < 1000) return;
+        lastCapturingSound.put(zoneId, now);
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            playSound(player, msg().zone().capturingSound());
+        }
+    }
+
+    @Override
     public void onZoneCaptured(
         String teamId,
         String teamName,
@@ -307,6 +336,10 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
             if (member != null && member.isOnline()) {
                 member.sendMessage(oxygenMsg);
             }
+        }
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            playSound(player, msg().zone().captureSound());
         }
     }
 
@@ -421,6 +454,24 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
     }
 
     @Override
+    public void onKillReward(UUID attackerId, UUID victimId, int points) {
+        Player attacker = plugin.getServer().getPlayer(attackerId);
+        if (attacker == null) return;
+        String victimName = resolveOfflineName(victimId);
+        attacker.sendMessage(MM.msg(msg().player().killRewardAttacker(),
+            Map.of("points", String.valueOf(points), "player", victimName)));
+    }
+
+    @Override
+    public void onCaptainKillBonus(UUID attackerId, UUID victimId, int bonus) {
+        Player attacker = plugin.getServer().getPlayer(attackerId);
+        if (attacker == null) return;
+        String victimName = resolveOfflineName(victimId);
+        attacker.sendMessage(MM.msg(msg().player().captainKillAttacker(),
+            Map.of("points", String.valueOf(bonus), "player", victimName)));
+    }
+
+    @Override
     public void onPlayerRemoved(UUID playerId) {
         Player player = plugin.getServer().getPlayer(playerId);
 
@@ -481,13 +532,18 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
     }
 
     private void playSound(Player player, SoundConfig sound) {
-        sound.playTo(player);
+        if (sound != null) sound.playTo(player);
     }
 
     private static String formatTime(int totalSeconds) {
         int mins = Math.max(0, totalSeconds) / 60;
         int secs = Math.max(0, totalSeconds) % 60;
         return String.format("%02d:%02d", mins, secs);
+    }
+
+    private String resolveOfflineName(UUID playerId) {
+        String name = plugin.getServer().getOfflinePlayer(playerId).getName();
+        return name != null ? name : "Unknown";
     }
 
 }

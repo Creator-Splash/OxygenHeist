@@ -47,8 +47,8 @@ public final class GameCommands implements CommandHandler {
             return;
         }
 
-        matchService.endMatch("manual");
-        Bukkit.getServer().sendRichMessage("<red><bold>Oxygen Heist</bold> <gray>- match ended by admin.");
+        matchService.endMatch();
+        Bukkit.getServer().sendRichMessage("<red><bold>Oxygen Heist</bold> <gray>- match ended by admin");
     }
 
     private List<String> validatePreStart() {

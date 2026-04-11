@@ -4,6 +4,9 @@ import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayService;
+import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
@@ -21,8 +24,9 @@ public final class TeamListener implements Listener {
     private final Scheduler scheduler;
     private final TeamService teamService;
     private final MatchService matchService;
+    private final MessageConfigService messages;
 
-    // TODO
+    private final LobbyDisplayService lobbyDisplayService;
 
     /**
      * Runs at LOW priority so friendly fire cancellation happens before
@@ -42,7 +46,7 @@ public final class TeamListener implements Listener {
 
         if (teamService.areTeammates(victim.getUniqueId(), attacker.getUniqueId())) {
             event.setCancelled(true);
-            attacker.sendRichMessage("<red>That's your teammate!");
+            attacker.sendMessage(MM.msg(messages.get().player().friendlyFireDenied()));
         }
     }
 
@@ -55,23 +59,22 @@ public final class TeamListener implements Listener {
 
         if (team != null) {
             TeamUtils.applyArmor(player, team);
-            //hideWaitingBar(player);
+            lobbyDisplayService.hideWaitingBar(player);
         } else {
             enforceSpectator(player);
-            //showWaitingBar(player);
+            lobbyDisplayService.showWaitingBar(player);
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        //hideWaitingBar(event.getPlayer());
-        // display?
         Player player = event.getPlayer();
         matchService.getSession().ifPresent(session -> {
             if (session.getPlayer(player.getUniqueId()).isPresent()) {
                 matchService.removePlayer(player.getUniqueId());
             }
         });
+        lobbyDisplayService.hideWaitingBar(event.getPlayer());
     }
 
     /* Helpers */
@@ -83,13 +86,13 @@ public final class TeamListener implements Listener {
     private void enforceSpectator(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
 
+        // Retry a few times to handle join-timing races where the client reverts the gamemode
         for (int i = 1; i <= 3; i++) {
-//            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//                if (player.isOnline() && !teamService.isOnTeam(player.getUniqueId())) {
-//                    player.setGameMode(GameMode.SPECTATOR);
-//                }
-//            }, i * 5L);
-            //TODO SCHEDULER
+            scheduler.runLater(() -> {
+                if (player.isOnline() && teamService.getPlayerTeam(player.getUniqueId()) == null) {
+                    player.setGameMode(GameMode.SPECTATOR);
+                }
+            }, i * 5L);
         }
     }
 

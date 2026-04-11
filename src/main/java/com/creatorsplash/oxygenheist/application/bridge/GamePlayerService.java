@@ -2,6 +2,8 @@ package com.creatorsplash.oxygenheist.application.bridge;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 
+import java.util.UUID;
+
 /**
  * Handles player-facing state changes at match lifecycle boundaries
  *
@@ -31,4 +33,22 @@ public interface GamePlayerService {
      * @param session the match session that just ended
      */
     void cleanupAfterMatch(MatchSession session);
+
+    /* Gameplay */
+
+    /**
+     * Applies physical downed effects to a player - slowness, sneaking
+     */
+    void onPlayerDowned(UUID playerId);
+
+    /**
+     * Removes downed effects and partially restores health on revive
+     */
+    void onPlayerRevived(UUID playerId);
+
+    /**
+     * Removes downed effects and sets spectator mode on elimination
+     */
+    void onPlayerEliminated(UUID playerId);
+
 }

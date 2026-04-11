@@ -43,6 +43,8 @@ public final class GameplayModule implements Module {
     private PlayerSelectionService selectionService;
     private ZoneSelectionService zoneSelectionService;
     private PlayerActionService actionService;
+    private GamePlayerService gamePlayerService;
+    private GameWorldService worldService;
     private CombatService combatService;
     private DownedService downedService;
     private ReviveService reviveService;
@@ -66,12 +68,12 @@ public final class GameplayModule implements Module {
 
         this.scheduler = new PaperSchedulerAdapter(plugin);
         GameBridge bridge = new StandaloneGameBridge();
-        GameWorldService worldService = new PaperGameWorldService(
+        this.worldService = new PaperGameWorldService(
             plugin.getServer(), configs.arenaConfig(), plugin.getLogCenter()
         );
 
-        GamePlayerService playerService =
-            new PaperGamePlayerService(plugin().getServer(), teamService, plugin.getLogCenter());
+        this.gamePlayerService =
+            new PaperGamePlayerService(plugin().getServer(), scheduler, teamService, plugin.getLogCenter());
 
         this.snapshotProvider = new MatchSnapshotProvider();
 
@@ -82,11 +84,10 @@ public final class GameplayModule implements Module {
 
         this.matchService = new MatchService(
             configs.globals(),
-            configs.messageConfig(),
             configs.matchConfig(),
             snapshotProvider,
             display().displayService(),
-            playerService,
+            gamePlayerService,
             worldService,
             scheduler,
             bridge,
@@ -122,6 +123,7 @@ public final class GameplayModule implements Module {
 
     @Override
     public void disable() {
+        worldService.reset();
         selectionService.clear();
         matchService.getScheduler().onDisable();
     }

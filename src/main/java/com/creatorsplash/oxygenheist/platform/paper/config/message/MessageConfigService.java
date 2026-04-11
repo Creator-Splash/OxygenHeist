@@ -72,7 +72,8 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "countdown.bossbar", "<yellow><bold>Game starting in <time> seconds"),
             s(c, "countdown.title", "<gold><bold><time>"),
             s(c, "countdown.subtitle", "<gray>Game starting soon!"),
-            times(c, "countdown", 0, 25, 5)
+            times(c, "countdown", 0, 25, 5),
+            SoundConfig.sound(c, "countdown.tick-sound")
         );
     }
 
@@ -101,14 +102,18 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             SoundConfig.sound(c, "player.eliminated-sound"),
             s(c, "player.eliminated-broadcast", "<dark_red><bold><player> <gray>has been eliminated!"),
             s(c, "player.kill-reward-attacker",  "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"),
-            s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts <reset><gray>captain kill bonus!")
+            s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"),
+            s(c, "player.friendly-fire-denied", "<red>That's your teammate!")
         );
     }
 
     private static MessageConfig.ZoneMessages parseZone(YamlConfiguration c) {
         return new MessageConfig.ZoneMessages(
             s(c, "zone.captured", "<green><bold><team> <gray>captured <yellow><zone><gray>!"),
-            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>")
+            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"),
+            SoundConfig.sound(c, "zone.capture-sound"),
+            SoundConfig.sound(c, "zone.contested-sound"),
+            SoundConfig.sound(c, "zone.capturing-sound")
         );
     }
 
@@ -117,7 +122,8 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "ui.timer-bar-playing", "<yellow><bold><time>"),
             s(c, "ui.timer-bar-idle", "<gold><bold>No game in progress"),
             s(c, "ui.downed-bar", "<red><bold>DOWNED <reset><gray>- <yellow><time>s"),
-            s(c, "ui.reviving-bar", "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%")
+            s(c, "ui.reviving-bar", "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"),
+            s(c, "ui.waiting-bar", "<yellow>Waiting to be assigned to a team")
         );
     }
 

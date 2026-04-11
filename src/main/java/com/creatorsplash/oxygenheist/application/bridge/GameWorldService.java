@@ -22,4 +22,6 @@ public interface GameWorldService {
      */
     void onMatchEnded();
 
+    void reset();
+
 }
