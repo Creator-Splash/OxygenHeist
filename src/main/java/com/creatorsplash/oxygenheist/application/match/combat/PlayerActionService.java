@@ -63,10 +63,7 @@ public class PlayerActionService {
      * @return true if the player is alive, or not part of the match
      */
     public boolean canBeDamaged(@NotNull UUID playerId) {
-        PlayerMatchState state = getState(playerId);
-        if (state == null) return true;
-
-        return state.isAlive();
+        return canAttack(playerId);
     }
 
     /**

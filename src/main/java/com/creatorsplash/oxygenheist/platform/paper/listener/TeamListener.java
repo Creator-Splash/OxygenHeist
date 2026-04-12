@@ -5,7 +5,7 @@ import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
-import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayService;
+import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayManager;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public final class TeamListener implements Listener {
     private final MatchService matchService;
     private final MessageConfigService messages;
 
-    private final LobbyDisplayService lobbyDisplayService;
+    private final LobbyDisplayManager lobbyDisplayManager;
 
     /**
      * Runs at LOW priority so friendly fire cancellation happens before
@@ -59,10 +59,10 @@ public final class TeamListener implements Listener {
 
         if (team != null) {
             TeamUtils.applyArmor(player, team);
-            lobbyDisplayService.hideWaitingBar(player);
+            lobbyDisplayManager.hideWaitingBar(player);
         } else {
             enforceSpectator(player);
-            lobbyDisplayService.showWaitingBar(player);
+            lobbyDisplayManager.showWaitingBar(player);
         }
     }
 
@@ -74,7 +74,7 @@ public final class TeamListener implements Listener {
                 matchService.removePlayer(player.getUniqueId());
             }
         });
-        lobbyDisplayService.hideWaitingBar(event.getPlayer());
+        lobbyDisplayManager.hideWaitingBar(event.getPlayer());
     }
 
     /* Helpers */

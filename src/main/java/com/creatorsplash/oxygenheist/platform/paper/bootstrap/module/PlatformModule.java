@@ -71,7 +71,7 @@ public record PlatformModule(
                 gameplay.teamService(),
                 gameplay.matchService(),
                 configs.messageConfig(),
-                display.lobbyDisplayService()
+                display.lobbyDisplayManager()
             ),
             new MatchJoinListener(gameplay.matchService(), display.displayService()),
             new AirChangeListener(display.airBarController())
@@ -110,7 +110,7 @@ public record PlatformModule(
             plugin,
             gameplay.teamService(),
             gameplay.configs().teamConfig(),
-            display.lobbyDisplayService()
+            display.lobbyDisplayManager()
         ));
     }
 

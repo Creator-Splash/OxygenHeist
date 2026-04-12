@@ -58,7 +58,7 @@ public class PlayerMatchState {
      *
      * @param amount the amount of oxygen to restore
      */
-    public void restoreOxygen(int amount) {
+    public void restoreOxygen(double amount) {
         this.oxygen = Math.min(this.maxOxygen, this.oxygen + amount);
     }
 

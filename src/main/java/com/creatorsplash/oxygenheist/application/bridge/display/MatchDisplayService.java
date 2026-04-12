@@ -71,6 +71,8 @@ public interface MatchDisplayService {
         Set<UUID> teammateIds
     );
 
+    default void onReviveProgress(UUID targetId, UUID reviverId) {}
+
     /** Called when a downed player is successfully revived */
     void onPlayerRevived(UUID downedId, UUID reviverId);
 

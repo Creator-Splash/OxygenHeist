@@ -18,6 +18,7 @@ import org.incendo.cloud.context.CommandContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 @Command("oxygenheist|oh debug")
 @Permission("com.creatorsplash.oxygenheist.debug")
@@ -28,29 +29,15 @@ public final class DebugCommands implements CommandHandler {
     private final GamePlayerService playerService;
     private final WeaponRegistry weaponRegistry;
 
-    @Command("down <player> [ticks]")
+    @Command("down <player>")
     @CommandDescription("Force down a player")
     public void down(
         CommandSender sender,
-        @Argument("player") Player target,
-        @Argument("ticks") Integer rawTicks
-    ) {
-        int ticks = rawTicks == null ? 200 : rawTicks;
-
-        matchService.getSession().ifPresentOrElse(session -> {
-            session.getOrCreatePlayer(target.getUniqueId()).down(ticks);
-            sender.sendRichMessage("<yellow>Downed " + target.getName());
-            target.sendRichMessage("<yellow>You have been downed for <white>" + ticks + "</white> ticks");
-        }, () -> sender.sendRichMessage("<red>No active game session"));
-    }
-
-    @Command("test-down <player>")
-    @CommandDescription("Test down a player")
-    public void testDown(
-        CommandSender sender,
         @Argument("player") Player target
     ) {
-        playerService.onPlayerDowned(target.getUniqueId());
+        matchService.getSession().ifPresentOrElse(ignored ->
+            matchService.downPlayer(target.getUniqueId()),
+                () -> sender.sendRichMessage("<red>No active game session"));
     }
 
     @Command("revive <player>")
@@ -59,11 +46,21 @@ public final class DebugCommands implements CommandHandler {
         CommandSender sender,
         @Argument("player") Player target
     ) {
-        matchService.getSession().ifPresentOrElse(session -> {
-            session.getOrCreatePlayer(target.getUniqueId()).revive();
-            target.sendRichMessage("<green>You have been revived");
-            sender.sendRichMessage("<aqua>You have revived " + target.getName());
-        }, () -> sender.sendRichMessage("<red>No active game session"));
+        UUID reviverId = sender instanceof Player reviver
+            ? reviver.getUniqueId() : UUID.randomUUID();
+
+        matchService.getSession().ifPresentOrElse(ignored ->
+            matchService.completeRevive(target.getUniqueId(), reviverId),
+                () -> sender.sendRichMessage("<red>No active game session"));
+    }
+
+    @Command("down-effect <player>")
+    @CommandDescription("Test down a player")
+    public void testDownEffect(
+        CommandSender sender,
+        @Argument("player") Player target
+    ) {
+        playerService.onPlayerDowned(target.getUniqueId());
     }
 
     @Command("weapon give <weapon> [player]")

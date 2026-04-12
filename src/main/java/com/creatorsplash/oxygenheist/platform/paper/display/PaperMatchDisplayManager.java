@@ -5,15 +5,18 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
+import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,10 +37,11 @@ import java.util.*;
  * </p>
  */
 @RequiredArgsConstructor
-public final class PaperMatchDisplayService implements MatchDisplayService {
+public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     private final OxygenHeistPlugin plugin;
     private final PaperAirBarController airBarController;
+    private final MatchConfigService matchConfig;
     private final MessageConfigService messages;
 
     private final Map<String, Long> lastContestedSound = new HashMap<>();
@@ -109,9 +113,6 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
     }
 
     private void renderCountdown(MatchSnapshot snapshot) {
-        // Only fire once per second
-        if (snapshot.remainingTicks() % 20 != 0) return;
-
         int secondsLeft = snapshot.remainingSeconds();
         String timeStr = String.valueOf(secondsLeft);
 
@@ -229,9 +230,10 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
         lastState = null;
 
         // Create and show the timer/countdown boss bar to all online players
+        int countdown = matchConfig.get().countdownSeconds();
         timerBar = BossBar.bossBar(
             MM.msg(msg().countdown().bossBar(), Map.of("time",
-            String.valueOf(Integer.MAX_VALUE))), // will be updated on first render tick
+            String.valueOf(countdown))),
             1f,
             BossBar.Color.YELLOW,
             BossBar.Overlay.PROGRESS
@@ -393,6 +395,18 @@ public final class PaperMatchDisplayService implements MatchDisplayService {
                     Map.of("player", victimName)));
             }
         }
+    }
+
+    @Override
+    public void onReviveProgress(UUID targetId, UUID reviverId) {
+        Player target = plugin.getServer().getPlayer(targetId);
+        if (target == null) return;
+        ParticleUtils.spawn(
+            Particle.HEART,
+            target.getLocation().add(0, 1.5, 0),
+            1, 0.3, 0.1, 0.3,
+            0,  (MatchSnapshot) null
+        );
     }
 
     @Override

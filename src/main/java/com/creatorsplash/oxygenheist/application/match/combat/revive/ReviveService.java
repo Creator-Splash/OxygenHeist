@@ -99,6 +99,7 @@ public class ReviveService implements MatchLifecycle {
     public void tick(
         MatchSession session,
         PlayerPositionProvider locationProvider,
+        BiConsumer<UUID, UUID> onReviveProgress,
         BiConsumer<UUID, UUID> onReviveComplete
     ) {
         DownedConfig config = session.config().downed();
@@ -123,7 +124,9 @@ public class ReviveService implements MatchLifecycle {
                 continue;
             }
 
+
             revive.increment();
+            onReviveProgress.accept(revive.getTargetId(), revive.getReviverId());
 
             if (revive.getProgress() >= config.reviveTicks()) {
                 target.revive();

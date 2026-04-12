@@ -33,6 +33,8 @@ import java.util.*;
  *
  * <p>Items are real {@link Item} entities - players pick them up naturally
  * and {@link WeaponListener} handles them once in-hand</p>
+ *
+ * TODO BIG CHANGES - ITEM DISPLAY - and other things t odo
  */
 @RequiredArgsConstructor
 public final class WeaponDropService implements MatchLifecycle, Listener {

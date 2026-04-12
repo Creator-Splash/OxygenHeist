@@ -110,11 +110,11 @@ public final class PaperGamePlayerService implements GamePlayerService {
         player.setHealth(maxHealth(player));
         player.setSneaking(true);
 
-        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
-        if (speed != null) speed.setBaseValue(0.0);
+        player.addPotionEffect(new PotionEffect(
+            PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 3, false, false));
 
         player.addPotionEffect(new PotionEffect(
-                PotionEffectType.BLINDNESS, 20, 0, false, false));
+            PotionEffectType.BLINDNESS, 20, 0, false, false));
     }
 
     @Override
@@ -123,10 +123,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
         if (player == null) return;
 
         player.setSneaking(false);
-
-        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
-        if (speed != null) speed.setBaseValue(speed.getDefaultValue());
-
+        player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.setHealth(maxHealth(player) * 0.5);
     }
 
@@ -136,10 +133,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
         if (player == null) return;
 
         player.setSneaking(false);
-
-        AttributeInstance speed = player.getAttribute(Attribute.MOVEMENT_SPEED);
-        if (speed != null) speed.setBaseValue(speed.getDefaultValue());
-
+        player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.setGameMode(GameMode.SPECTATOR);
     }
 

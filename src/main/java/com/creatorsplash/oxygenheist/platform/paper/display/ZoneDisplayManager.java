@@ -66,6 +66,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 d.setDefaultBackground(false);
                 d.setViewRange(24f);
                 d.text(buildText(def.id(), def.displayName(), 0.0));
+                d.setPersistent(false);
             });
 
             displays.put(def.id(), td);

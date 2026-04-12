@@ -17,7 +17,7 @@ import java.util.UUID;
  * or when they leave</p>
  */
 @RequiredArgsConstructor
-public final class LobbyDisplayService {
+public final class LobbyDisplayManager {
 
     private final MessageConfigService messageConfigService;
 

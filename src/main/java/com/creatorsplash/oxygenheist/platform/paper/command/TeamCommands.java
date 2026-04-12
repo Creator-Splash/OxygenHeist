@@ -4,7 +4,7 @@ import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
 import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
-import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayService;
+import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayManager;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -30,7 +30,7 @@ public final class TeamCommands implements CommandHandler {
     private final JavaPlugin plugin;
     private final TeamService teamService;
     private final TeamConfigService teamConfigService;
-    private final LobbyDisplayService lobbyDisplayService;
+    private final LobbyDisplayManager lobbyDisplayManager;
 
     @Command("add <player> <team>")
     @CommandDescription("Add a player to a team")
@@ -52,7 +52,7 @@ public final class TeamCommands implements CommandHandler {
         }
 
         TeamUtils.applyArmor(player, team);
-        lobbyDisplayService.hideWaitingBar(player);
+        lobbyDisplayManager.hideWaitingBar(player);
 
         if (player.getGameMode() == GameMode.SPECTATOR) {
             player.setGameMode(GameMode.ADVENTURE);
@@ -78,7 +78,7 @@ public final class TeamCommands implements CommandHandler {
         }
 
         TeamUtils.removeArmor(player);
-        lobbyDisplayService.showWaitingBar(player);
+        lobbyDisplayManager.showWaitingBar(player);
 
         player.setGameMode(GameMode.SPECTATOR);
 

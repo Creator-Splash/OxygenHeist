@@ -52,7 +52,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             fileConfig.getInt("downed.bleedout-seconds", 30),
             fileConfig.getInt("downed.revive-ticks", 100),
             fileConfig.getDouble("downed.revive-max-distance", 3.0),
-            fileConfig.getLong("downed.intent-ttl-ticks", 5)
+            fileConfig.getLong("downed.intent-ttl-ticks", 5),
+            (float) fileConfig.getDouble("downed.label-view-range", 16),
+            fileConfig.getDouble("downed.label-height-offset", 2.0)
         );
 
         MatchZoneConfig zones = new MatchZoneConfig(

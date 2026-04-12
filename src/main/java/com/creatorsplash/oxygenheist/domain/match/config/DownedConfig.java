@@ -8,8 +8,15 @@ public record DownedConfig(
     int reviveTicks,
 
     double reviveMaxDistance,
-    long reviveIntentTtlTicks
+    long reviveIntentTtlTicks,
+
+    float labelViewRange,
+    double labelHeightOffset
 ) {
     public static final DownedConfig EMPTY =
-        new DownedConfig(30, 60, 3.0, 5L);
+        new DownedConfig(
+            30, 60,
+            3.0, 40L,
+                16F, 2.0
+        );
 }

@@ -81,7 +81,10 @@ downed:
 
   # How many ticks a revive intent is kept alive before being discarded
   # Increase if revives feel unresponsive; decrease to tighten the interaction window
-  intent-ttl-ticks: 5
+  intent-ttl-ticks: 40
+
+  label-view-range: 16.0
+  label-height-offset: 2.0
 
 # =====
 # Zones

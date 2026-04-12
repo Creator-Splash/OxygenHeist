@@ -236,7 +236,10 @@ public final class MatchService {
         displayService.onPlayerDowned(victimId, attackerId, getTeammates(victimId));
     }
 
-    private void onReviveComplete(UUID downedId, UUID reviverId) {
+    public void completeRevive(UUID downedId, UUID reviverId) {
+        session.getPlayer(downedId).ifPresent(p ->
+            p.restoreOxygen(session.config().oxygen().max()));
+
         playerService.onPlayerRevived(downedId);
         displayService.onPlayerRevived(downedId, reviverId);
     }
@@ -254,12 +257,13 @@ public final class MatchService {
         player.eliminate();
 
         reviveService.cancelRevivesInvolving(playerId);
-        awardKillReward(playerId, player.getLastAttacker());
-        playerService.onPlayerEliminated(playerId);
-        checkWinCondition();
-
         displayService.onPlayerEliminated(playerId, session.isInstantDeath());
+        playerService.onPlayerEliminated(playerId);
+
+        awardKillReward(playerId, player.getLastAttacker());
         gameBridge.onPlayerEliminated(playerId, reason);
+
+        checkWinCondition();
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
     }
@@ -441,7 +445,8 @@ public final class MatchService {
         reviveService.tick(
             session,
             playerPositionProvider,
-            this::onReviveComplete
+            displayService::onReviveProgress,
+            this::completeRevive
         );
     }
 

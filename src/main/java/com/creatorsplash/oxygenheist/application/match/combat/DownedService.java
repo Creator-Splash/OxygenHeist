@@ -35,7 +35,7 @@ public class DownedService implements MatchLifecycle {
 
         if (!player.isAlive() || player.isDowned()) return;
 
-        player.down(session.config().downed().bleedoutSeconds());
+        player.down(session.config().downed().bleedoutSeconds()  * 20);
     }
 
     /**
