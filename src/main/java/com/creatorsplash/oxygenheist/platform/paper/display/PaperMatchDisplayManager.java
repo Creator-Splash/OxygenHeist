@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.display;
 
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
+import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Paper implementation for MatchDisplayService
@@ -57,6 +59,8 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     /** Tracks state from the previous render tick for transition detection */
     private @Nullable MatchState lastState = null;
+
+    private final AtomicBoolean gameStarted = new AtomicBoolean(false);
 
     /** Time warnings (in seconds remaining) that have already fired this match */
     private final Set<Integer> firedTimeWarnings = new HashSet<>();
@@ -127,6 +131,9 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
                 Map.of("time", timeStr)));
             timerBar.progress(progress);
         }
+
+        // Update timer bar every second
+        if (snapshot.remainingTicks() % 20 != 0) return;
 
         // Show countdown title to all players
         MessageConfig.TitleTimes times = msg().countdown().titleTimes();
@@ -225,7 +232,9 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     /* Lifecycle */
 
     @Override
-    public void onMatchStarted() {
+    public void onMatchStart() {
+        if (!gameStarted.compareAndSet(false, true)) return;
+
         firedTimeWarnings.clear();
         lastState = null;
 
@@ -243,6 +252,11 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
             player.showBossBar(timerBar);
             airBarController.init(player);
         }
+    }
+
+    @Override
+    public void readGameTick(MatchSnapshot snapshot) {
+        render(snapshot);
     }
 
     @Override
@@ -268,6 +282,8 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
         }
 
         clearAll();
+
+        gameStarted.set(false);
     }
 
     @Override

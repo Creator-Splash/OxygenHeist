@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 
 import java.util.UUID;
 
@@ -47,5 +48,12 @@ public interface MatchLifecycle {
      * @param session the match session relevant to this match lifecycle
      */
     default void onGameTick(MatchSession session) {}
+
+    /**
+     * Called every match tick
+     *
+     * @param session the match snapshot relevant to this match lifecycle
+     */
+    default void readGameTick(MatchSnapshot session) {}
 
 }

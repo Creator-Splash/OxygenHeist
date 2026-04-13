@@ -49,6 +49,9 @@ public record PlatformModule(
 
         matchService.registerLifecycle(gameplay.reviveService());
         matchService.registerLifecycle(gameplay.downedService());
+
+        matchService.registerLifecycle(display.matchDisplayManager());
+        matchService.registerLifecycle(display.downedDisplayManager());
     }
 
     private void registerListeners() {
@@ -73,7 +76,7 @@ public record PlatformModule(
                 configs.messageConfig(),
                 display.lobbyDisplayManager()
             ),
-            new MatchJoinListener(gameplay.matchService(), display.displayService()),
+            new MatchJoinListener(gameplay.matchService(), display.matchDisplayManager()),
             new AirChangeListener(display.airBarController())
         );
 

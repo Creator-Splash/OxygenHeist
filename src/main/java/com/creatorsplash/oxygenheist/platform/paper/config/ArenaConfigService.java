@@ -5,11 +5,13 @@ import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.world.ArenaSetup;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -57,6 +59,16 @@ public final class ArenaConfigService {
 
         loadArena(config);
         loadZones(config);
+    }
+
+    /**
+     * Resolves the configured arena world, or null if the arena is unconfigured
+     * or the world is not loaded
+     */
+    public @Nullable World resolveWorld() {
+        return arena
+            .map(a -> Bukkit.getWorld(a.worldName()))
+            .orElse(null);
     }
 
     private void loadArena(YamlConfiguration config) {

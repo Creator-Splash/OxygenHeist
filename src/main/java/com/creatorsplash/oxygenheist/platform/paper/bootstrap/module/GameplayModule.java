@@ -86,7 +86,7 @@ public final class GameplayModule implements Module {
             configs.globals(),
             configs.matchConfig(),
             snapshotProvider,
-            display().displayService(),
+            display().matchDisplayManager(),
             gamePlayerService,
             worldService,
             scheduler,

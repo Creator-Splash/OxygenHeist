@@ -134,7 +134,7 @@ public final class MatchService {
 
         gameBridge.onGameStart();
         worldService.onMatchStarted(session.config());
-        displayService.onMatchStarted();
+        displayService.onMatchStart();
 
         log.info("Match started");
     }
@@ -237,8 +237,12 @@ public final class MatchService {
     }
 
     public void completeRevive(UUID downedId, UUID reviverId) {
-        session.getPlayer(downedId).ifPresent(p ->
-            p.restoreOxygen(session.config().oxygen().max()));
+        if (session == null) return;
+
+        session.getPlayer(downedId).ifPresent(p -> {
+            p.revive();
+            p.restoreOxygen(session.config().oxygen().max());
+        });
 
         playerService.onPlayerRevived(downedId);
         displayService.onPlayerRevived(downedId, reviverId);
@@ -337,6 +341,9 @@ public final class MatchService {
         // External systems tick against current state first
         externalLifecycles.forEach(l -> l.onGameTick(session));
 
+        // Start display immediately
+        displayService.onMatchStart();
+
         switch (session.state()) {
             case SETUP -> {
                 if (session.isTimeExpired()) {
@@ -384,9 +391,8 @@ public final class MatchService {
 
         snapshotProvider.update(snapshot);
 
-        /* UI */
-
-        displayService.render(snapshot);
+        // Trigger post tick updates
+        externalLifecycles.forEach(l -> l.readGameTick(snapshot));
 
         /* Debug */
 

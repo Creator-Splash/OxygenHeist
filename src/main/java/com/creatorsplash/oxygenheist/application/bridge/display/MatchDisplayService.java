@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.application.bridge.display;
 
+import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
  *
  * <p>Consumes match snapshots and determines what should be rendered</p>
  */
-public interface MatchDisplayService {
+public interface MatchDisplayService extends MatchLifecycle {
 
     /**
      * Called every tick after a new snapshot is produced
@@ -19,12 +20,7 @@ public interface MatchDisplayService {
     void render(MatchSnapshot snapshot);
 
     /**
-     * Called when match starts
-     */
-    void onMatchStarted();
-
-    /**
-     * Called when match ends
+     * Called when match ends for the specific winner team
      */
     void onMatchEnd(String winner);
 
