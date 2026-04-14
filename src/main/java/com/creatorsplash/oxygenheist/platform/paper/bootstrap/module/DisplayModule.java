@@ -36,7 +36,8 @@ public final class DisplayModule implements Module {
 
         this.lobbyDisplayManager = new LobbyDisplayManager(configs.messageConfig());
 
-        this.downedDisplayManager = new DownedDisplayManager(plugin.getServer(), configs.arenaConfig());
+        this.downedDisplayManager = new DownedDisplayManager(
+            plugin.getServer(), configs.arenaConfig(), configs.messageConfig());
 
         return this;
     }

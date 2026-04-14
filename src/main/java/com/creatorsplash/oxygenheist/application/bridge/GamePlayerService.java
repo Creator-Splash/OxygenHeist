@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.bridge;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -49,6 +50,6 @@ public interface GamePlayerService {
     /**
      * Removes downed effects and sets spectator mode on elimination
      */
-    void onPlayerEliminated(UUID playerId);
+    void onPlayerEliminated(UUID playerId, @Nullable UUID spectateTargetId);
 
 }

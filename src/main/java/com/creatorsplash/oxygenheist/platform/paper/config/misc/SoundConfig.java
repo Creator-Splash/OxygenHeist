@@ -1,6 +1,9 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.misc;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -28,12 +31,49 @@ public record SoundConfig(String key, Sound.Source source, float volume, float p
     public void playTo(Player player) {
         player.playSound(
             Sound.sound(
-                net.kyori.adventure.key.Key.key(key),
+                Key.key(key),
                 source,
                 volume,
                 pitch
             )
         );
+    }
+
+    /**
+     * Plays to a set of players at their respective locations
+     */
+    public void playTo(Iterable<? extends Player> players) {
+        Sound sound = Sound.sound(
+            Key.key(key),
+            source, volume, pitch
+        );
+        for (Player player : players) {
+            player.playSound(sound);
+        }
+    }
+
+    /**
+     * Plays at a specific world location - heard by nearby players based on volume
+     */
+    public void playAt(Location location) {
+        Sound sound = Sound.sound(
+            Key.key(key),
+            source, volume, pitch
+        );
+        location.getWorld().playSound(sound, location.getX(), location.getY(), location.getZ());
+    }
+
+    /**
+     * Plays to all online players regardless of location - for global announcements
+     */
+    public void playGlobal() {
+        Sound sound = Sound.sound(
+            Key.key(key),
+            source, volume, pitch
+        );
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.playSound(sound);
+        }
     }
 
     /* Load Helpers */

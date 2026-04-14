@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.display.placeholder;
 
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
+import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
@@ -72,6 +73,8 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
                     switch (params) {
                         case "player_oxygen":
                             return Double.toString(playerSnapshot.oxygen());
+                        case "player_score":
+                            return Integer.toString(playerSnapshot.score());
                         case "player_is_downed":
                             return Boolean.toString(playerSnapshot.downed());
                         case "player_is_dead":
@@ -131,6 +134,16 @@ public final class OxygenHeistPlaceholderExpansion extends PlaceholderExpansion 
                     return team != null ? team.getName() : z.capturingTeamId();
                 }
                 return "None";
+            }
+            if (params.contains("_oxygen_")) {
+                String[] parts = params.substring(5).split("_oxygen_", 2);
+                if (parts.length == 2) {
+                    ZoneSnapshot z = snapshot.getZone(parts[0]);
+                    if (z != null) {
+                        return String.valueOf(z.teamOxygen().getOrDefault(parts[1], 100.0));
+                    }
+                }
+                return "100";
             }
         }
 

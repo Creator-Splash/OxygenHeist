@@ -1,11 +1,12 @@
 package com.creatorsplash.oxygenheist.platform.paper.display;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
-import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.config.DownedConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -30,6 +31,7 @@ public final class DownedDisplayManager implements MatchLifecycle {
 
     private final Server server;
     private final ArenaConfigService arenaConfigService;
+    private final MessageConfigService messages;
 
     /** downed player UUID -> label TextDisplay UUID */
     private final Map<UUID, UUID> labels = new HashMap<>();
@@ -155,9 +157,9 @@ public final class DownedDisplayManager implements MatchLifecycle {
         filled = Math.clamp(filled, 0, 10);
 
         return MM.msg(
-            "<red>⚠ DOWNED\n" +
-            "<red>" + "▪".repeat(filled) +
-            "<dark_red>" + "▫".repeat(10 - filled) +
+            "<red>" + sym().downedWarning() + " DOWNED\n" +
+            "<red>" + sym().smallBarFilled().repeat(filled) +
+            "<dark_red>" + sym().smallBarEmpty().repeat(10 - filled) +
             " <white>" + secondsLeft + "s"
         );
     }
@@ -166,9 +168,9 @@ public final class DownedDisplayManager implements MatchLifecycle {
         int filled = (int) Math.round(percent / 100.0 * 10);
         filled = Math.clamp(filled, 0, 10);
         return MM.msg(
-            "<green>⬆ REVIVING\n" +
-            "<green>" + "▪".repeat(filled) +
-            "<dark_gray>" + "▫".repeat(10 - filled) +
+            "<green>" + sym().reviving() + " REVIVING\n" +
+            "<green>" + sym().smallBarFilled().repeat(filled) +
+            "<dark_gray>" + sym().smallBarEmpty().repeat(10 - filled) +
             " <white>" + percent + "%"
         );
     }
@@ -193,5 +195,9 @@ public final class DownedDisplayManager implements MatchLifecycle {
             );
         }
     }
+
+    /* Helpers */
+
+    private MessageConfig.UiSymbols sym() { return messages.get().symbols(); }
 
 }

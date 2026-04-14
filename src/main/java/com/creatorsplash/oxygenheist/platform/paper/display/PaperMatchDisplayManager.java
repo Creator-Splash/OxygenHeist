@@ -471,6 +471,10 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
                 p.eliminatedTimes().toAdventure()
             ));
             playSound(player, p.eliminatedSound());
+
+            if (p.eliminatedWorldSound() != null) {
+                p.eliminatedWorldSound().playAt(player.getLocation());
+            }
         }
 
         // Broadcast to server

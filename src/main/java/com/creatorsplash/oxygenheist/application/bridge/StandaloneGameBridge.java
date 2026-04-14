@@ -18,9 +18,20 @@ public class StandaloneGameBridge implements GameBridge {
     public void onPlayerEliminated(UUID playerId, String reason) { /* no op */ }
 
     @Override
-    public void awardPoints(UUID playerId, int points, String reason) { /* no op */ }
+    public void awardPlayerPoints(UUID playerId, int points, ScoreReason reason) {
+        /* no op */
+    }
 
     @Override
-    public void onGameEnd(Map<UUID, Integer> finalScores, String winner) { /* no op */ }
+    public void awardTeamPoints(String teamId, int points, ScoreReason reason) {
+        /* no op */
+    }
+
+    @Override
+    public void onGameEnd(
+        Map<UUID, Integer> finalPlayerScores,
+        Map<String, Integer> finalTeamScores,
+        String winner
+    ) { /* no op */ }
 
 }

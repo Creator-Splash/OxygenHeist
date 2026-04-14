@@ -157,9 +157,10 @@ public final class MatchService {
         }
 
         playerService.cleanupAfterMatch(session);
-        gameBridge.onGameEnd(scores, winner);
         worldService.onMatchEnded();
         displayService.onMatchEnd(winner);
+
+        gameBridge.onGameEnd(scores, session.getTeamScores(), winner);
 
         session = null;
 
@@ -262,7 +263,7 @@ public final class MatchService {
 
         reviveService.cancelRevivesInvolving(playerId);
         displayService.onPlayerEliminated(playerId, session.isInstantDeath());
-        playerService.onPlayerEliminated(playerId);
+        playerService.onPlayerEliminated(playerId, resolveSpectateTarget(playerId));
 
         awardKillReward(playerId, player.getLastAttacker());
         gameBridge.onPlayerEliminated(playerId, reason);
@@ -272,6 +273,22 @@ public final class MatchService {
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
     }
 
+    private @Nullable UUID resolveSpectateTarget(UUID eliminatedId) {
+        if (session == null) return null;
+
+        String teamId = session.getPlayerTeam(eliminatedId);
+        if (teamId == null) return null;
+
+        // Find a living, non-downed teammate
+        return session.getPlayers().stream()
+            .filter(p -> !p.getPlayerId().equals(eliminatedId))
+            .filter(p -> p.isAlive() && !p.isDowned())
+            .map(PlayerMatchState::getPlayerId)
+            .filter(playerId -> teamId.equals(session.getPlayerTeam(playerId)))
+            .findFirst()
+            .orElse(null);
+    }
+
     private void awardKillReward(UUID victimId, @Nullable UUID attackerId) {
         if (attackerId == null) return;
         String attackerTeamId = session.getPlayerTeam(attackerId);
@@ -279,6 +296,11 @@ public final class MatchService {
 
         int reward = session.config().killReward();
         session.addTeamScore(attackerTeamId, reward);
+        session.getPlayer(attackerId).ifPresent(p -> p.addScore(reward));
+
+        gameBridge.awardPlayerPoints(attackerId, reward, GameBridge.ScoreReason.KILL);
+        gameBridge.awardTeamPoints(attackerTeamId, reward, GameBridge.ScoreReason.KILL);
+
         displayService.onKillReward(attackerId, victimId, reward);
 
         String victimTeamId = session.getPlayerTeam(victimId);
@@ -287,6 +309,11 @@ public final class MatchService {
             if (victimTeam != null && victimTeam.isCaptain(victimId)) {
                 int bonus = session.config().captainKillBonus();
                 session.addTeamScore(attackerTeamId, bonus);
+                session.getPlayer(attackerId).ifPresent(p -> p.addScore(bonus));
+
+                gameBridge.awardPlayerPoints(attackerId, reward, GameBridge.ScoreReason.CAPTAIN_KILL);
+                gameBridge.awardTeamPoints(attackerTeamId, reward, GameBridge.ScoreReason.CAPTAIN_KILL);
+
                 displayService.onCaptainKillBonus(attackerId, victimId, bonus);
             }
         }
@@ -356,6 +383,7 @@ public final class MatchService {
 
             case PLAYING -> {
                 handleGameTick();
+                if (session == null) return;
 
                 if (session.shouldEnterInstantDeath()) {
                     session.enterInstantDeath();
@@ -437,8 +465,6 @@ public final class MatchService {
                 case CONTESTED -> displayService.onZoneContested(event.zone().getId());
                 case CAPTURING -> displayService.onZoneCapturing(event.zone().getId(), event.teamId());
             }
-
-
         }
 
         playerOxygenService.tickDrain(session, this::downPlayer);

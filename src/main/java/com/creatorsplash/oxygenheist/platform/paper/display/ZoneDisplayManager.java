@@ -10,6 +10,8 @@ import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
+import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
@@ -23,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manages per-zone Text Display holograms and particle rings during a match.
+ * Manages per-zone Text Display holograms and particle rings during a match
  *
  * <p>One TextDisplay entity per zone shows the zone name, owning team,
  * and capture progress. A repeating task drives both display updates
@@ -35,6 +37,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     private final Server server;
     private final TeamService teamService;
     private final ArenaConfigService arenaConfigService;
+    private final MessageConfigService messages;
     private final MatchSnapshotProvider snapshotProvider;
     private final Scheduler scheduler;
     private final LogCenter log;
@@ -65,7 +68,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 d.setShadowed(true);
                 d.setDefaultBackground(false);
                 d.setViewRange(24f);
-                d.text(buildText(def.id(), def.displayName(), 0.0));
+                d.text(buildText(def.displayName(), def.toRuntimeState().toSnapshot()));
                 d.setPersistent(false);
             });
 
@@ -99,7 +102,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
 
             TextDisplay td = displays.get(def.id());
             if (td != null && td.isValid()) {
-                td.text(buildText(def.displayName(), zs.ownerTeamId(), zs.captureProgress()));
+                td.text(buildText(def.displayName(), zs));
             }
 
             Location center = centerOf(def);
@@ -115,9 +118,9 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     /* Internals */
 
     private void spawnParticleRing(
-            Location center, double radius,
-            String ownerTeamId, double captureProgress,
-            double angleOffset, MatchSnapshot snapshot
+        Location center, double radius,
+        String ownerTeamId, double captureProgress,
+        double angleOffset, MatchSnapshot snapshot
     ) {
         Color color = ownerTeamId != null
             ? TeamUtils.colorTagToRgb(teamColorTag(ownerTeamId))
@@ -150,30 +153,68 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         }
     }
 
-    private Component buildText(String displayName, String ownerTeamId, double captureProgress) {
+    private Component buildText(String displayName, ZoneSnapshot zs) {
         String nameLine = "<white><bold>" + displayName + "</bold></white>";
 
-        String statusLine;
-        if (ownerTeamId != null) {
-            Team team = teamService.getTeam(ownerTeamId);
-            String color = team != null ? team.getColor() : "white";
-            String name  = team != null ? team.getName()  : ownerTeamId;
-            statusLine = "<" + color + ">▶ " + name + "</" + color + ">";
-        } else {
-            statusLine = "<gray>◆ Neutral</gray>";
-        }
+        boolean hasOwner = zs.ownerTeamId() != null;
+        boolean hasCapturing = zs.capturingTeamId() != null;
 
-        String progressLine = buildProgressBar(captureProgress, ownerTeamId);
+        if (zs.contested()) return buildContestedText(nameLine, zs);
+        if (hasOwner) return buildOwnedText(nameLine, zs);
+        if (hasCapturing) return buildCapturingText(nameLine, zs);
+        return buildNeutralText(nameLine);
+    }
+
+    private Component buildOwnedText(String nameLine, ZoneSnapshot zs) {
+        Team team = teamService.getTeam(zs.ownerTeamId());
+        String color = team != null ? team.getColor() : "white";
+        String name  = team != null ? team.getName()  : zs.ownerTeamId();
+
+        double zoneOxygen = zs.teamOxygen().getOrDefault(zs.ownerTeamId(), 100.0);
+        String oxygenColor = zoneOxygen > 50 ? "aqua" : zoneOxygen > 20 ? "yellow" : "red";
+
+        String statusLine = "<" + color + ">" + sym().zoneOwned() + " " + name + "</" + color + ">"
+            + " <" + oxygenColor + ">" + sym().zoneOxygen() + " " + (int) zoneOxygen + "%</" + oxygenColor + ">";
+        String progressLine = buildProgressBar(zoneOxygen, color);
 
         return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
     }
 
-    private String buildProgressBar(double progress, String ownerTeamId) {
+    private Component buildContestedText(String nameLine, ZoneSnapshot zs) {
+        String holdingTeamId = zs.ownerTeamId() != null ? zs.ownerTeamId() : zs.capturingTeamId();
+        Team holding = holdingTeamId != null ? teamService.getTeam(holdingTeamId) : null;
+        String color = holding != null ? holding.getColor() : "gray";
+        String name = holding != null ? holding.getName()  : "Neutral";
+
+        String statusLine = "<" + color + ">" + name + "</" + color + ">"
+            + " <red>- " + sym().zoneContested() + " CONTESTED</red>";
+        String progressLine = buildProgressBar(zs.captureProgress(), color);
+
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+    }
+
+    private Component buildCapturingText(String nameLine, ZoneSnapshot zs) {
+        Team team = teamService.getTeam(zs.capturingTeamId());
+        String color = team != null ? team.getColor() : "white";
+        String name  = team != null ? team.getName()  : zs.capturingTeamId();
+
+        String statusLine = "<" + color + ">" + sym().zoneCapturing() + " " + name + " capturing</" + color + ">";
+        String progressLine = buildProgressBar(zs.captureProgress(), color);
+
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+    }
+
+    private Component buildNeutralText(String nameLine) {
+        String statusLine = "<gray>" + sym().zoneNeutral() + " Neutral</gray>";
+        String progressLine = buildProgressBar(0, "gray");
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+    }
+
+    private String buildProgressBar(double progress, String color) {
         int filled = (int) Math.round((progress / 100.0) * 20);
-        String color = ownerTeamId != null ? teamColorTag(ownerTeamId) : "gray";
-        return "<" + color + ">" + "█".repeat(filled) + "</" + color + ">"
-                + "<dark_gray>" + "░".repeat(20 - filled) + "</dark_gray>"
-                + " <white>" + (int) progress + "%</white>";
+        return "<" + color + ">" + sym().barFilled().repeat(filled) + "</" + color + ">"
+            + "<dark_gray>" + sym().barEmpty().repeat(20 - filled) + "</dark_gray>"
+            + " <white>" + (int) progress + "%</white>";
     }
 
     /* Helpers */
@@ -205,5 +246,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         Team team = teamService.getTeam(teamId);
         return team != null ? team.getColor() : "white";
     }
+
+    private MessageConfig.UiSymbols sym() { return messages.get().symbols(); }
 
 }

@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.domain.match;
 
+import com.creatorsplash.oxygenheist.application.match.zone.ZonePresence;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerSnapshot;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
@@ -69,8 +70,7 @@ public final class MatchSession {
     public boolean shouldStartBorderShrink() {
         return state == MatchState.PLAYING
             && !borderShrinkStarted
-            && getRemainingSeconds()
-                <= (config.durationSeconds() - config.border().shrinkDelaySeconds());
+            && getRemainingSeconds() <= config.border().shrinkDelaySeconds();
     }
 
     public void markBorderShrinkStarted() {
@@ -196,6 +196,26 @@ public final class MatchSession {
             if (teamId != null) alive.add(teamId);
         }
         return alive;
+    }
+
+    public void addTeamScoreAndPlayerScore(
+        String teamId,
+        int amount,
+        ZonePresence presence,
+        CaptureZoneState zone
+    ) {
+        addTeamScore(teamId, amount);
+        Map<String, Integer> counts = presence.getTeamCounts(zone);
+        int playerCount = counts.getOrDefault(teamId, 1);
+        int perPlayer = Math.max(1, amount / playerCount);
+
+        for (PlayerMatchState player : getPlayers()) {
+            if (teamId.equals(getPlayerTeam(player.getPlayerId()))) {
+                if (presence.getTeamCounts(zone).containsKey(teamId)) {
+                    player.addScore(perPlayer);
+                }
+            }
+        }
     }
 
     /* == Timing == */

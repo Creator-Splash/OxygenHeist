@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.config.message;
 
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,7 +47,8 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             parseCountdown(c),
             parsePlayer(c),
             parseZone(c),
-            parseUi(c)
+            parseUi(c),
+            parseSymbols(c)
         );
     }
 
@@ -100,7 +102,9 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.eliminated-subtitle-instant", "<gray>You've been eliminated!"),
             times(c, "player.eliminated", 0, 60, 20),
             SoundConfig.sound(c, "player.eliminated-sound"),
-            s(c, "player.eliminated-broadcast", "<dark_red><bold><player> <gray>has been eliminated!"),
+                SoundConfig.sound(c, "player.eliminated-world-sound"),
+            s(c, "player.eliminated-broadcast", "<dark" +
+                    "_red><bold><player> <gray>has been eliminated!"),
             s(c, "player.kill-reward-attacker",  "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"),
             s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"),
             s(c, "player.friendly-fire-denied", "<red>That's your teammate!")
@@ -127,10 +131,27 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
         );
     }
 
+    private static MessageConfig.UiSymbols parseSymbols(YamlConfiguration c) {
+        return new MessageConfig.UiSymbols(
+            s(c, "symbols.bar-filled", "█"),
+            s(c, "symbols.bar-empty", "░"),
+            s(c, "symbols.zone-owned", "▶"),
+            s(c, "symbols.zone-neutral", "◆"),
+            s(c, "symbols.zone-capturing", "⚡"),
+            s(c, "symbols.zone-contested", "⚔"),
+            s(c, "symbols.zone-oxygen", "⬡"),
+            s(c, "symbols.downed-warning", "⚠"),
+            s(c, "symbols.reviving", "⬆"),
+            s(c, "symbols.small-bar-filled", "▪"),
+            s(c, "symbols.small-bar-empty", "▫"),
+            s(c, "symbols.pickup-prompt", "⬆")
+        );
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────────────
 
     /** Reads a string from config, falling back to {@code def} if absent or null */
-    private static String s(YamlConfiguration c, String path, String def) {
+    private static String s(ConfigurationSection c, String path, String def) {
         String val = c.getString(path);
         return val != null ? val : def;
     }
@@ -139,7 +160,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
      * Reads TitleTimes from {@code <prefix>-title-fade-in}, {@code -stay}, {@code -fade-out}
      */
     private static MessageConfig.TitleTimes times(
-        YamlConfiguration c,
+        ConfigurationSection c,
         String prefix,
         int defaultFadeIn,
         int defaultStay,

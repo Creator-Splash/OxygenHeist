@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.application.match.zone;
 
 import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.config.MatchZoneConfig;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import lombok.RequiredArgsConstructor;
 
@@ -51,35 +52,79 @@ public class CaptureService {
     ) {
         var config = session.config().zones();
 
-        double capturePerTick = config.captureRatePerTick();
-        int captureOxygenRestore = config.captureOxygenRestore();
-
-        if (presence.isEmpty(zone)) return null;
         if (presence.isContested(zone)) {
+            zone.setContested(true);
             return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
         }
 
+        zone.setContested(false);
+
+        if (presence.isEmpty(zone)) {
+            return handleEmpty(zone, config);
+        }
+
+        zone.clearRestoreCooldown();
+
         String teamId = presence.getSingleTeam(zone).orElseThrow();
 
-        // Owner is standing in their own zone - award holding points and stop
-        if (zone.hasOwner() && teamId.equals(zone.getOwnerTeamId())) {
+        if (zone.hasOwner()) {
+            return handleOwnedZone(zone, teamId, session, config);
+        }
+
+        return handleUnownedZone(zone, teamId, session, config);
+    }
+
+    private CaptureEvent handleEmpty(CaptureZoneState zone, MatchZoneConfig config) {
+        if (!zone.hasOwner() && zone.getCaptureProgress() > 0) {
+            zone.regressCapture(config.regressRatePerTick());
+        } else if (zone.hasOwner() && zone.getCaptureProgress() < 100.0) {
+            if (!zone.isRestoreCooldownActive()) {
+                zone.startRestoreCooldown(config.restoreCooldownSeconds() * 20);
+            }
+            zone.tickRestoreCooldown();
+            if (zone.isRestoreCooldownComplete()) {
+                zone.progressCapture(zone.getOwnerTeamId(), config.restoreRatePerTick());
+                if (zone.getCaptureProgress() >= 100.0) {
+                    zone.clearRestoreCooldown();
+                }
+            }
+        }
+        return null;
+    }
+
+    private CaptureEvent handleOwnedZone(
+        CaptureZoneState zone,
+        String teamId,
+        MatchSession session,
+        MatchZoneConfig config
+    ) {
+        if (teamId.equals(zone.getOwnerTeamId())) {
             session.addTeamScore(teamId, config.holdingPointsPerTick());
+        } else {
+            zone.regressCapture(config.regressRatePerTick());
+        }
+        return null;
+    }
+
+    private CaptureEvent handleUnownedZone(
+        CaptureZoneState zone,
+        String teamId,
+        MatchSession session,
+        MatchZoneConfig config
+    ) {
+        // Different team entered - regress the current capturer's progress
+        if (zone.getCapturingTeamId() != null && !zone.getCapturingTeamId().equals(teamId)) {
+            zone.regressCapture(config.regressRatePerTick());
             return null;
         }
 
-        // Enemy team is contesting an owned zone - regress
-        if (zone.hasOwner() && !teamId.equals(zone.getOwnerTeamId())) {
-            zone.regressCapture(teamId, capturePerTick);
-            return null;
-        }
-
-        // Neutral or re-capturing team progresses
-        zone.progressCapture(teamId, capturePerTick);
+        // Same team or fresh neutral zone - progress
+        zone.progressCapture(teamId, config.captureRatePerTick());
 
         if (zone.isFullyCaptured()) {
             zone.completeCapture();
-            oxygenService.restoreTeamOxygen(session, teamId, captureOxygenRestore);
-            return new CaptureEvent(CaptureEvent.Type.CAPTURED, teamId, zone, captureOxygenRestore);
+            oxygenService.restoreTeamOxygen(session, teamId, config.captureOxygenRestore());
+            return new CaptureEvent(CaptureEvent.Type.CAPTURED, teamId, zone, config.captureOxygenRestore());
         }
 
         return new CaptureEvent(CaptureEvent.Type.CAPTURING, teamId, zone, 0);

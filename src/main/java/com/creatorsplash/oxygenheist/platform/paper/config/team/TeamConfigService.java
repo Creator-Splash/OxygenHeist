@@ -1,8 +1,10 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.team;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,9 +19,12 @@ import java.util.UUID;
 /**
  * Loads and saves team configuration from {@code teams.yml}
  */
+@RequiredArgsConstructor
 public final class TeamConfigService {
 
     private static final String FILE_NAME = "teams.yml";
+
+    private final LogCenter log;
 
     public TeamService load(JavaPlugin plugin) {
         plugin.saveResource(FILE_NAME, false);
@@ -50,7 +55,7 @@ public final class TeamConfigService {
                     try {
                         team.addMember(UUID.fromString(uuidStr));
                     } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning(
+                        log.warn(
                             "Invalid member UUID in team '" + teamId + "': " + uuidStr);
                     }
                 }
@@ -60,17 +65,17 @@ public final class TeamConfigService {
                     try {
                         team.setCaptain(UUID.fromString(captainStr));
                     } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning(
+                        log.warn(
                             "Invalid captain UUID in team '" + teamId + "': " + captainStr);
                     }
                 }
 
                 teams.add(team);
-                plugin.getLogger().info("Loaded team: %s (id=%s)".formatted(name, teamId));
+                log.info("Loaded team: %s (id=%s)".formatted(name, teamId));
             }
         }
 
-        plugin.getLogger().info("Loaded " + teams.size() + " team(s) from " + FILE_NAME);
+        log.info("Loaded " + teams.size() + " team(s) from " + FILE_NAME);
 
         return new TeamService(teams, friendlyFire, maxTeamSize);
     }
@@ -111,7 +116,7 @@ public final class TeamConfigService {
         try {
             config.save(file);
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save " + FILE_NAME + ": " + e.getMessage());
+            log.warn("Failed to save " + FILE_NAME + ": " + e.getMessage());
         }
     }
 

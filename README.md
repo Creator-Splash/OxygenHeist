@@ -7,18 +7,27 @@ zones and drain each others oxygen supply. The last team with oxygen remaining w
 
 ## Gameplay Overview
 
-Players are divided into teams and dropped into an arena. Scattered across the map
-are capture zones - holding a zone drains oxygen from every opposing team. When a
-team's oxygen hits zero it begins refilling, but while it refills that team cannot
-sustain its players. Players who run out of personal oxygen are downed and must be
-revived by a teammate before they bleed out and are eliminated.
+Players are divided into teams and dropped into an arena. Scattered across
+the map are capture zones. When your team holds a zone, your players standing
+on it are protected from oxygen drain- but the act of holding consumes that
+zone's oxygen supply. When a zone's oxygen hits zero, it begins refilling and
+can no longer protect your players.
+
+Capturing a zone restores oxygen to your whole team immediately. The strategic
+tension is between using zones as safe areas (burning their oxygen) and
+capturing new zones to restore your team's personal oxygen.
+
+Players who run out of personal oxygen are downed and must be revived by a
+teammate before they bleed out and are eliminated. The last team standing wins,
+or the team with the most points when the timer expires.
 
 The arena border shrinks as the match progresses, forcing teams into closer
-confrontation. A variety of custom weapons with unique mechanics are available as
-pickups throughout the map.
+confrontation. A variety of custom weapons with unique mechanics are available
+as pickups throughout the map.
 
 **Core loop:**
-- Capture zones to drain enemy oxygen
+- Capture zones to restore your team's oxygen
+- Hold zones to protect players from personal oxygen drain
 - Down and eliminate enemy players
 - Revive downed teammates before they bleed out
 - Survive the shrinking border
@@ -159,12 +168,13 @@ Replace `<id>` with the team's ID as defined in `teams.yml`
 
 Replace `<id>` with the zone's ID as defined in your arena config
 
-| Placeholder | Description |
-|---|---|
-| `%oxygenheist_zone_count%` | Number of active zones |
-| `%oxygenheist_zone_<id>_progress%` | Capture progress of the zone (0–100) |
-| `%oxygenheist_zone_<id>_owner%` | Name of the team that owns the zone, or `Neutral` |
-| `%oxygenheist_zone_<id>_capturing%` | Name of the team currently capturing the zone, or `None` |
+| Placeholder | Description                                                                                     |
+|---|-------------------------------------------------------------------------------------------------|
+| `%oxygenheist_zone_count%` | Number of active zones                                                                          |
+| `%oxygenheist_zone_<id>_progress%` | Capture progress of the zone (0–100)                                                            |
+| `%oxygenheist_zone_<id>_owner%` | Name of the team that owns the zone, or `Neutral`                                               |
+| `%oxygenheist_zone_<id>_capturing%` | Name of the team currently capturing the zone, or `None`                                        |
+| `%oxygenheist_zone_<id>_oxygen_<teamId>%` | Zone oxygen percentage for a specific team (0-100). e.g, `%oxygenheist_zone_center_oxygen_red%` |
 
 ---
 
@@ -173,9 +183,9 @@ Replace `<id>` with the zone's ID as defined in your arena config
 OxygenHeist is built on a layered architecture with a strict separation of concerns
 
 ```
-domain/          Pure Java game rules and state — no Bukkit dependency
-application/     Orchestration services — coordinates domain objects
-platform/paper/  Bukkit/Paper implementations — listeners, commands, display
+domain/          Pure Java game rules and state - no Bukkit dependency
+application/     Orchestration services - coordinates domain objects
+platform/paper/  Bukkit/Paper implementations - listeners, commands, display
 ```
 
 The domain and application layers have no knowledge of PaperMC. This keeps

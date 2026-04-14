@@ -22,7 +22,8 @@ public record MessageConfig(
     CountdownMessages countdown,
     PlayerMessages player,
     ZoneMessages zone,
-    UiMessages ui
+    UiMessages ui,
+    UiSymbols symbols
 ) {
 
     /* Value Types */
@@ -117,6 +118,7 @@ public record MessageConfig(
         String eliminatedSubtitleInstant,
         TitleTimes eliminatedTimes,
         SoundConfig eliminatedSound,
+        SoundConfig eliminatedWorldSound,
         /* Broadcast on elimination. Placeholder: <player> */
         String eliminatedBroadcast,
 
@@ -157,6 +159,28 @@ public record MessageConfig(
         /* Per-player reviving bar. Placeholder: <progress> (0–100) */
         String revivingBar,
         String waitingBar
+    ) {}
+
+    /**
+     * Unicode/custom font characters used throughout the UI
+     */
+    public record UiSymbols(
+        // Progress bars
+        String barFilled,
+        String barEmpty,
+        // Zone status
+        String zoneOwned,
+        String zoneNeutral,
+        String zoneCapturing,
+        String zoneContested,
+        String zoneOxygen,
+        // Downed / revive
+        String downedWarning,
+        String reviving,
+        String smallBarFilled,
+        String smallBarEmpty,
+        // Pickup
+        String pickupPrompt
     ) {}
 
 }

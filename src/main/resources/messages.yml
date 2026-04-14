@@ -100,6 +100,11 @@ player:
     sound: "entity.wither.death"
     volume: 0.5
     pitch: 1.0
+  eliminated-world-sound:
+    sound: "entity.lightning_bolt.thunder"
+    source: "player"
+    volume: 0.4
+    pitch: 0.8
   # Broadcast to all players when a player is eliminated. Placeholder: <player>
   eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
   kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"
@@ -141,3 +146,16 @@ ui:
   # Per-player boss bar shown while being revived. Placeholder: <progress> (0–100)
   reviving-bar: "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"
   waiting-bar: "<yellow>Waiting to be assigned to a team"
+
+  symbols:
+    bar-filled: "█"
+    bar-empty: "░"
+    zone-owned: "▶"
+    zone-neutral: "◆"
+    zone-capturing: "⚡"
+    zone-oxygen: "⬡"
+    downed-warning: "⚠"
+    reviving: "⬆"
+    small-bar-filled: "▪"
+    small-bar-empty: "▫"
+    pickup-prompt: "⬆"

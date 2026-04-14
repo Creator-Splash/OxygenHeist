@@ -9,6 +9,7 @@ public record ZoneSnapshot(
    String id,
    String ownerTeamId,
    String capturingTeamId,
+   boolean contested,
    double captureProgress,
    Map<String, Double> teamOxygen
 ) {}

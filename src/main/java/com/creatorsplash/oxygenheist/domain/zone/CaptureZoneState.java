@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,12 @@ public class CaptureZoneState {
     private String ownerTeamId;
     private String capturingTeamId;
 
+    @Setter
+    private boolean contested;
+
     private double captureProgress = 0.0;
+
+    private int restoreCooldownTicks = -1;
 
     private final Map<String, ZoneTeamOxygenState> zoneOxygen = new HashMap<>();
 
@@ -99,13 +105,12 @@ public class CaptureZoneState {
     /**
      * Regresses capture due to an opposing team
      */
-    public void regressCapture(String teamId, double amount) {
-        this.capturingTeamId = teamId;
-
+    public void regressCapture(double amount) {
         if (this.captureProgress > 0) {
             this.captureProgress = Math.max(0.0, this.captureProgress - amount);
         } else {
             this.ownerTeamId = null;
+            this.capturingTeamId = null;
             this.captureProgress = 0.0;
         }
     }
@@ -141,6 +146,23 @@ public class CaptureZoneState {
         return definition.contains(new FullPosition(world, x, y, z, 0F, 0F));
     }
 
+    /* == Restoration == */
+
+    public void tickRestoreCooldown() {
+        if (restoreCooldownTicks > 0) restoreCooldownTicks--;
+    }
+
+    public boolean isRestoreCooldownActive() { return restoreCooldownTicks >= 0; }
+    public boolean isRestoreCooldownComplete() { return restoreCooldownTicks == 0; }
+
+    public void startRestoreCooldown(int ticks) {
+        if (restoreCooldownTicks < 0) restoreCooldownTicks = ticks;
+    }
+
+    public void clearRestoreCooldown() {
+        this.restoreCooldownTicks = -1;
+    }
+
     /* == Snapshot == */
 
     /**
@@ -156,6 +178,7 @@ public class CaptureZoneState {
             getId(),
             getOwnerTeamId(),
             getCapturingTeamId(),
+            isContested(),
             getCaptureProgress(),
             teamOxygen
         );

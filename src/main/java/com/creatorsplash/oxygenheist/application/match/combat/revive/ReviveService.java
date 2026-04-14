@@ -76,7 +76,6 @@ public class ReviveService implements MatchLifecycle {
         activeRevives.remove(targetId);
     }
 
-    // TODO call for player leaving
     /**
      * Cancels all revive sessions involving the given player, either as reviver or target
      */
@@ -102,6 +101,8 @@ public class ReviveService implements MatchLifecycle {
         BiConsumer<UUID, UUID> onReviveProgress,
         BiConsumer<UUID, UUID> onReviveComplete
     ) {
+        if (session == null || locationProvider == null) return;
+
         DownedConfig config = session.config().downed();
 
         currentTick++;

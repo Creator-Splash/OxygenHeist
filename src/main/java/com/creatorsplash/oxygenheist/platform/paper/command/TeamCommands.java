@@ -41,13 +41,13 @@ public final class TeamCommands implements CommandHandler {
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
-            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist.");
+            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist");
             return;
         }
 
         if (!teamService.addPlayerToTeam(player.getUniqueId(), teamId)) {
             sender.sendRichMessage("<red>" + player.getName()
-                + " is already on a team or the team is full.");
+                + " is already on a team or the team is full");
             return;
         }
 
@@ -73,7 +73,7 @@ public final class TeamCommands implements CommandHandler {
         @Argument("player") Player player
     ) {
         if (!teamService.removePlayerFromTeam(player.getUniqueId())) {
-            sender.sendRichMessage("<red>" + player.getName() + " is not on any team.");
+            sender.sendRichMessage("<red>" + player.getName() + " is not on any team");
             return;
         }
 
@@ -84,8 +84,8 @@ public final class TeamCommands implements CommandHandler {
 
         teamConfigService.save(plugin, teamService);
 
-        player.sendRichMessage("<yellow>You have been removed from your team.");
-        sender.sendRichMessage("<green>Removed " + player.getName() + " from their team.");
+        player.sendRichMessage("<yellow>You have been removed from your team");
+        sender.sendRichMessage("<green>Removed " + player.getName() + " from their team");
     }
 
     @Command("setbase <team>")
@@ -96,7 +96,7 @@ public final class TeamCommands implements CommandHandler {
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
-            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist.");
+            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist");
             return;
         }
 
@@ -125,8 +125,8 @@ public final class TeamCommands implements CommandHandler {
         @Argument(value = "team", suggestions = "teams") String teamId
     ) {
         if (!teamService.setCaptain(teamId, player.getUniqueId())) {
-            sender.sendRichMessage("<red>Could not set captain — team '"
-                    + teamId + "' may not exist or is full.");
+            sender.sendRichMessage("<red>Could not set captain - team '"
+                    + teamId + "' may not exist or is full");
             return;
         }
 
@@ -134,7 +134,6 @@ public final class TeamCommands implements CommandHandler {
         // team null check
 
         TeamUtils.applyArmor(player, team);
-        //teamListener.hideWaitingBar(player);
 
         teamConfigService.save(plugin, teamService);
 
@@ -145,7 +144,7 @@ public final class TeamCommands implements CommandHandler {
     }
 
     @Command("color <team> <color>")
-    @CommandDescription("Change a team's armor color (MiniMessage color tag)")
+    @CommandDescription("Change a teams armor color (MiniMessage color tag)")
     public void color(
         CommandSender sender,
         @Argument(value = "team", suggestions = "teams") String teamId,
@@ -153,7 +152,7 @@ public final class TeamCommands implements CommandHandler {
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
-            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist.");
+            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist");
             return;
         }
 
@@ -178,7 +177,7 @@ public final class TeamCommands implements CommandHandler {
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
-            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist.");
+            sender.sendRichMessage("<red>Team '" + teamId + "' does not exist");
             return;
         }
 
@@ -211,7 +210,7 @@ public final class TeamCommands implements CommandHandler {
     @CommandDescription("List all teams")
     public void list(CommandSender sender) {
         if (teamService.getAllTeams().isEmpty()) {
-            sender.sendRichMessage("<gray>No teams configured.");
+            sender.sendRichMessage("<gray>No teams configured");
             return;
         }
 

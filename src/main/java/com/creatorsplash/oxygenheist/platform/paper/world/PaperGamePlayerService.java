@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -128,14 +129,23 @@ public final class PaperGamePlayerService implements GamePlayerService {
     }
 
     @Override
-    public void onPlayerEliminated(UUID playerId) {
+    public void onPlayerEliminated(UUID playerId, @Nullable UUID spectateTargetId) {
         Player player = server.getPlayer(playerId);
         if (player == null) return;
 
         player.setSneaking(false);
         player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.setGameMode(GameMode.SPECTATOR);
+
+        if (spectateTargetId != null) {
+            Player target = server.getPlayer(spectateTargetId);
+            if (target != null && target.isOnline()) {
+                player.setSpectatorTarget(target);
+            }
+        }
     }
+
+    /* Helpers */
 
     private double maxHealth(Player player) {
         var attr = player.getAttribute(Attribute.MAX_HEALTH);

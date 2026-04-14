@@ -5,6 +5,9 @@ package com.creatorsplash.oxygenheist.domain.match.config;
  */
 public record MatchZoneConfig(
     double captureRatePerTick,
+    double regressRatePerTick,
+    double restoreRatePerTick,
+    int restoreCooldownSeconds,
 
     double drainPercentPerSecond,
     int maxDrainMultiplier,
@@ -17,6 +20,9 @@ public record MatchZoneConfig(
 ) {
     public static final MatchZoneConfig EMPTY = new MatchZoneConfig(
         0.05,
+        0.1,
+        0.075,
+        5,
         100.0 / 120.0,
         5,
         (100.0 / 120.0) * 0.5,

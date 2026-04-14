@@ -94,6 +94,15 @@ zones:
   # Capture progress gained per tick while a team occupies a zone
   capture-rate-per-tick: 0.05
 
+  # Capture progress regressed per tick when capture flips
+  regress-rate-per-tick: 0.1
+
+  # Capture progress restored per tick when contest is defended
+  restore-rate-per-tick: 0.075
+
+  # Cooldown before restoring capture progress
+  restore-cooldown-seconds: 3
+
   # Percentage of a zones oxygen drained per second when uncaptured
   drain-percent-per-second: 0.8333
 

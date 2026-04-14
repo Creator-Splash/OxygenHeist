@@ -59,6 +59,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
 
         MatchZoneConfig zones = new MatchZoneConfig(
             fileConfig.getDouble("zones.capture-rate-per-tick", 0.05),
+            fileConfig.getDouble("zones.regress-rate-per-tick", 0.1),
+            fileConfig.getDouble("zones.restore-rate-per-tick", 0.075),
+            fileConfig.getInt("zones.restore-cooldown-seconds", 5),
             fileConfig.getDouble("zones.drain-percent-per-second", 100.0 / 120.0),
             fileConfig.getInt("zones.max-drain-multiplier", 5),
             fileConfig.getDouble("zones.refill-percent-per-second", (100.0 / 120.0) * 0.5),
