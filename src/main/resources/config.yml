@@ -125,8 +125,13 @@ zones:
 weapons:
   friendly-fire: false
   spawner:
-    initial-count: 3
-    max-active: 8
-    spawn-interval-seconds: 45
+    max-per-player: 2
+    initial-count: 12
+    minimum-on-field: 6
+    maximum-on-field: 16
+    surface-scan-step: 3
+    min-spawn-y: 0          # set to trench floor Y
+    max-spawn-y: 320        # set to trench ceiling Y
     pickup-radius: 1.5
     pickup-cooldown-seconds: 3
+    allowed-surface-blocks: [ ]

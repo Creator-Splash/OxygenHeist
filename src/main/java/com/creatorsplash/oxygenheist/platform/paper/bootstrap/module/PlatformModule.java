@@ -96,12 +96,14 @@ public record PlatformModule(
         registrar.registerAnnotated(new DebugCommands(
             gameplay.matchService(),
             gameplay.gamePlayerService(),
-            weapons.weaponRegistry()
+            weapons.weaponRegistry(),
+            weapons.dropService()
         ));
         registrar.registerAnnotated(new SetupCommands(
             plugin.getLogCenter(),
             gameplay.selectionService(),
             gameplay.zoneSelectionService(),
+            configs.globals(),
             configs.arenaConfig()
         ));
         registrar.registerAnnotated(new ReloadCommands(

@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.config;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.domain.match.config.ExclusionZone;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.world.ArenaSetup;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public final class ArenaConfigService {
 
     private static final String ARENA = "arena";
     private static final String ZONES = "zones";
+    private static final String WEAPON_EXCLUSIONS = "weapon-exclusions";
 
     private static final String DISPLAY_NAME = "display.name";
     private static final String WORLD = "world";
@@ -41,6 +43,7 @@ public final class ArenaConfigService {
     @Getter
     private volatile Optional<ArenaSetup> arena = Optional.empty();
     private final Map<String, ZoneDefinition> zones = new LinkedHashMap<>();
+    private final Map<String, ExclusionZone> exclusionZones = new LinkedHashMap<>();
 
     /* == Load == */
 
@@ -59,6 +62,7 @@ public final class ArenaConfigService {
 
         loadArena(config);
         loadZones(config);
+        loadExclusionZones(config);
     }
 
     /**
@@ -245,6 +249,70 @@ public final class ArenaConfigService {
      */
     public boolean hasZones() {
         return !zones.isEmpty();
+    }
+
+    /* == Weapon Exclusion Zones == */
+
+    private void loadExclusionZones(YamlConfiguration config) {
+        ConfigurationSection section = config.getConfigurationSection(WEAPON_EXCLUSIONS);
+        if (section == null) return;
+
+        for (String id : section.getKeys(false)) {
+            ConfigurationSection zs = section.getConfigurationSection(id);
+            if (zs == null) continue;
+
+            String world = zs.getString(WORLD);
+            if (world == null || world.isBlank()) {
+                log.warn("Exclusion zone '<white>" + id + "</white>' missing world - skipped");
+                continue;
+            }
+
+            exclusionZones.put(id, new ExclusionZone(
+                id,
+                world,
+                zs.getDouble("min-x"),
+                zs.getDouble("min-z"),
+                zs.getDouble("max-x"),
+                zs.getDouble("max-z")
+            ));
+        }
+
+        log.info("Loaded " + exclusionZones.size() + " weapon exclusion zone(s)");
+    }
+
+    @Blocking
+    public void saveExclusionZone(ExclusionZone zone) {
+        YamlConfiguration config = loadOrEmpty();
+        String path = WEAPON_EXCLUSIONS + "." + zone.id();
+
+        config.set(path(path, WORLD), zone.world());
+        config.set(path + ".min-x", zone.minX());
+        config.set(path + ".min-z", zone.minZ());
+        config.set(path + ".max-x", zone.maxX());
+        config.set(path + ".max-z", zone.maxZ());
+
+        persist(config);
+        exclusionZones.put(zone.id(), zone);
+
+        log.info("Exclusion zone saved: <white>" + zone.id() + "</white>");
+    }
+
+    @Blocking
+    public boolean removeExclusionZone(String id) {
+        if (!exclusionZones.containsKey(id)) return false;
+
+        YamlConfiguration config = loadOrEmpty();
+        config.set(WEAPON_EXCLUSIONS + "." + id, null);
+
+        persist(config);
+        exclusionZones.remove(id);
+
+        log.info("Exclusion zone removed: <white>" + id + "</white>");
+        return true;
+    }
+
+    public List<ExclusionZone> getExclusionZones() {
+        return List.copyOf(exclusionZones.values());
     }
 
     /* Helpers */

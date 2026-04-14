@@ -128,7 +128,11 @@ public record MessageConfig(
         /* Chat message sent to attacker on captain kill bonus. Placeholders: <points>, <player> */
         String captainKillAttacker,
         /* Sent to attacker when they hit a teammate with FF disabled */
-        String friendlyFireDenied
+        String friendlyFireDenied,
+
+        // Player <-> Weapon interactions
+        String weaponInventoryFull,
+        SoundConfig weaponInventoryFullSound
     ) {}
 
     /**

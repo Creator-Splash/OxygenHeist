@@ -2,7 +2,6 @@ package com.creatorsplash.oxygenheist.platform.paper.bootstrap.module;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.Module;
-import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
@@ -60,8 +59,8 @@ public final class WeaponModule implements Module {
             plugin.getServer(),
             configs.globals(),
             configs.arenaConfig(),
+            configs.messageConfig(),
             weaponRegistry,
-            gameplay.matchService(),
             gameplay.scheduler(),
             plugin.getLogCenter()
         );

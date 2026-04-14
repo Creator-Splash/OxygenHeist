@@ -20,6 +20,8 @@ public interface MatchLifecycle {
      */
     default void onMatchStart() {}
 
+    default void onCountdownStart() {}
+
     /**
      * Called when the current match ends
      *

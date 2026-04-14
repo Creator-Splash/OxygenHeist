@@ -39,7 +39,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
         this.config = parse(yml);
     }
 
-    /* Parser */
+    /* == Parser == */
 
     private static MessageConfig parse(YamlConfiguration c) {
         return new MessageConfig(
@@ -105,16 +105,22 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
                 SoundConfig.sound(c, "player.eliminated-world-sound"),
             s(c, "player.eliminated-broadcast", "<dark" +
                     "_red><bold><player> <gray>has been eliminated!"),
-            s(c, "player.kill-reward-attacker",  "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"),
-            s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"),
-            s(c, "player.friendly-fire-denied", "<red>That's your teammate!")
+            s(c, "player.kill-reward-attacker",  "<green><bold>+<points> pts <reset><gray>for eliminating" +
+                " <white><player>"),
+            s(c, "player.captain-kill-attacker", "<gold><bold>+<points> pts " +
+                "<reset><gray>captain kill bonus!"),
+            s(c, "player.friendly-fire-denied", "<red>That's your teammate!"),
+            s(c, "player.weapons.inventory-full", "<red>You're carrying the maximum number of weapons." +
+                " Drop one first!"),
+            SoundConfig.sound(c, "player.weapon.inventory-full-sound")
         );
     }
 
     private static MessageConfig.ZoneMessages parseZone(YamlConfiguration c) {
         return new MessageConfig.ZoneMessages(
             s(c, "zone.captured", "<green><bold><team> <gray>captured <yellow><zone><gray>!"),
-            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"),
+            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! " +
+                "<reset><gray>Your team captured <zone>"),
             SoundConfig.sound(c, "zone.capture-sound"),
             SoundConfig.sound(c, "zone.contested-sound"),
             SoundConfig.sound(c, "zone.capturing-sound")
@@ -148,7 +154,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
         );
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────
+    /* == Helpers == */
 
     /** Reads a string from config, falling back to {@code def} if absent or null */
     private static String s(ConfigurationSection c, String path, String def) {

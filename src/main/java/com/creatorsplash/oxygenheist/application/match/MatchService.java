@@ -130,6 +130,8 @@ public final class MatchService {
             }
         }
 
+        externalLifecycles.forEach(MatchLifecycle::onCountdownStart);
+
         startTasks();
 
         gameBridge.onGameStart();

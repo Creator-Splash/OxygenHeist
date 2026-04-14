@@ -111,6 +111,13 @@ player:
   captain-kill-attacker: "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"
   friendly-fire-denied: "<red>That's your teammate!"
 
+  weapons:
+    inventory-full: "<red>You're carrying the maximum number of weapons. Drop one first!"
+    inventory-full-sound:
+      sound: "block.dispenser.fail"
+      volume: 0.8
+      pitch: 1.2
+
 # Zone Events
 
 zone:

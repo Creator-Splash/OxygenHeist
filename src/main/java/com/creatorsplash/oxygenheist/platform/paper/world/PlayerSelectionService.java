@@ -207,12 +207,22 @@ public final class PlayerSelectionService implements Listener {
             ))
             .clickEvent(ClickEvent.suggestCommand("/oh zone set "));
 
+        Component exclusionCmd = Component.text("/oh weapon-exclusion add <name>")
+            .color(NamedTextColor.WHITE)
+            .decoration(TextDecoration.ITALIC, false)
+            .hoverEvent(HoverEvent.showText(
+                Component.text("Add a weapon spawn exclusion zone").color(NamedTextColor.GRAY)
+            ))
+            .clickEvent(ClickEvent.suggestCommand("/oh weapon-exclusion add "));
+
         Component message = Component.text("Both points set! ")
             .color(NamedTextColor.GRAY)
             .decoration(TextDecoration.ITALIC, false)
             .append(arenaCmd)
-            .append(Component.text(" or ").color(NamedTextColor.GRAY))
-            .append(zoneCmd);
+            .append(Component.text(" · ").color(NamedTextColor.DARK_GRAY))
+            .append(zoneCmd)
+            .append(Component.text(" · ").color(NamedTextColor.DARK_GRAY))
+            .append(exclusionCmd);
 
         player.sendMessage(message);
     }

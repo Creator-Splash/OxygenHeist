@@ -5,6 +5,7 @@ import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.platform.paper.util.CommandUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ public final class DebugCommands implements CommandHandler {
     private final MatchService matchService;
     private final GamePlayerService playerService;
     private final WeaponRegistry weaponRegistry;
+    private final WeaponDropService weaponDropService;
 
     @Command("down <player>")
     @CommandDescription("Force down a player")
@@ -86,6 +88,14 @@ public final class DebugCommands implements CommandHandler {
 
         target.getInventory().addItem(item);
         sender.sendRichMessage("<green>Given " + weaponId + " to " + target.getName());
+    }
+
+    @Command("weapon drop-cache")
+    @CommandDescription("Run the weapon drop surface cache builder")
+    public void runWeaponDropCacheBuilder(
+        CommandSender sender
+    ) {
+        weaponDropService.onCountdownStart();
     }
 
     @Suggestions("weapon-ids")

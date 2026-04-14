@@ -1,8 +1,11 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.domain.match.config.ExclusionZone;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ArenaSetup;
 import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
 import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
@@ -30,6 +33,7 @@ public final class SetupCommands implements CommandHandler {
     private final LogCenter log;
     private final PlayerSelectionService selectionService;
     private final ZoneSelectionService zoneSelectionService;
+    private final GlobalConfigService globals;
     private final ArenaConfigService arenaConfigService;
 
     /* Selection Wand */
@@ -251,6 +255,64 @@ public final class SetupCommands implements CommandHandler {
                 " <gray>'" + zone.displayName() + "'" +
                 " <dark_gray>@ " + zone.worldName()
             );
+        }
+    }
+
+    /* Weapon Setup */
+
+    @Command("weapon-exclusion add <id>")
+    @CommandDescription("Create a weapon spawn exclusion zone from your wand selection")
+    public void weaponExclusionAdd(
+        Player player,
+        @Argument("id") String id
+    ) {
+        UUID playerId = player.getUniqueId();
+        if (!selectionService.hasSelection(playerId)) {
+            player.sendRichMessage("<red>No selection found. Use <white>/oh wand</white> and click two points first");
+            return;
+        }
+
+        Location p1 = selectionService.getFirstPoint(playerId).orElseThrow();
+        Location p2 = selectionService.getSecondPoint(playerId).orElseThrow();
+
+        if (!p1.getWorld().equals(p2.getWorld())) {
+            player.sendRichMessage("<red>Both points must be in the same world");
+            return;
+        }
+
+        arenaConfigService.saveExclusionZone(new ExclusionZone(
+            id.toLowerCase(),
+            p1.getWorld().getName(),
+            Math.min(p1.getX(), p2.getX()), Math.min(p1.getZ(), p2.getZ()),
+            Math.max(p1.getX(), p2.getX()), Math.max(p1.getZ(), p2.getZ())
+        ));
+
+        selectionService.clearSelection(playerId);
+        player.sendRichMessage("<green>Exclusion zone '<white>" + id + "</white>' saved");
+    }
+
+    @Command("weapon-exclusion remove <id>")
+    @CommandDescription("Remove a weapon spawn exclusion zone")
+    public void weaponExclusionRemove(CommandSender sender, @Argument("id") String id) {
+        if (arenaConfigService.removeExclusionZone(id.toLowerCase())) {
+            sender.sendRichMessage("<green>Exclusion zone '<white>" + id + "</white>' removed");
+        } else {
+            sender.sendRichMessage("<red>No exclusion zone found with id '<white>" + id + "</white>'");
+        }
+    }
+
+    @Command("weapon-exclusion list")
+    @CommandDescription("List all weapon spawn exclusion zones")
+    public void weaponExclusionList(CommandSender sender) {
+        var zones = arenaConfigService.getExclusionZones();
+        if (zones.isEmpty()) {
+            sender.sendRichMessage("<gray>No exclusion zones configured");
+            return;
+        }
+        sender.sendRichMessage("<dark_gray>------- <white>Exclusion Zones <dark_gray>-------");
+        for (var z : zones) {
+            sender.sendRichMessage("<gray>" + z.id() + " <white>(" + z.world() + ") "
+                + (int)z.minX() + "," + (int)z.minZ() + " -> " + (int)z.maxX() + "," + (int)z.maxZ());
         }
     }
 
