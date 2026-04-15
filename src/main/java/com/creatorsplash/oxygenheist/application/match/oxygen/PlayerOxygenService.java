@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.domain.match.config.OxygenConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.ObjDoubleConsumer;
@@ -55,6 +56,30 @@ public class PlayerOxygenService {
     }
 
     /**
+     * Replenishes personal oxygen for a specific set of players
+     * <p>Only applies to active players. Oxygen is capped at max</p>
+     *
+     * @param session   the active match session
+     * @param playerIds the UUIDs of players to replenish
+     * @param amount    the amount to restore per player
+     */
+    public void replenishPlayersInZone(
+        MatchSession session,
+        Set<UUID> playerIds,
+        double amount
+    ) {
+        if (amount <= 0 || playerIds.isEmpty()) return;
+
+        for (UUID playerId : playerIds) {
+            session.getPlayer(playerId).ifPresent(player -> {
+                if (player.isActive()) {
+                    player.restoreOxygen(amount);
+                }
+            });
+        }
+    }
+
+    /**
      * Restores oxygen for all active players in a team
      *
      * @param session the active match session
@@ -64,10 +89,8 @@ public class PlayerOxygenService {
     public void restoreTeamOxygen(MatchSession session, String teamId, int amount) {
         for (PlayerMatchState player : session.getPlayers()) {
             if (!player.isActive()) continue;
-
             String playerTeam = session.getPlayerTeam(player.getPlayerId());
             if (!teamId.equals(playerTeam)) continue;
-
             player.restoreOxygen(amount);
         }
     }

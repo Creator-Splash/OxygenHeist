@@ -186,6 +186,7 @@ public record MessageConfig(
         String zoneCapturing,
         String zoneContested,
         String zoneOxygen,
+        String zoneRefilling,
         // Downed / revive
         String downedWarning,
         String reviving,

@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents the runtime state of a capture zone within a match
@@ -33,46 +35,10 @@ public class CaptureZoneState {
 
     private final Map<String, ZoneTeamOxygenState> zoneOxygen = new HashMap<>();
 
-//    /* Constructor */
-//
-//    public CaptureZoneState(
-//        String id, String worldName,
-//        Position3 min,
-//        Position3 max
-//    ) {
-//        this.id = id;
-//        this.worldName = worldName;
-//
-//        this.minX = Math.min(min.x(), max.x());
-//        this.minY = Math.min(min.y(), max.y());
-//        this.minZ = Math.min(min.z(), max.z());
-//
-//        this.maxX = Math.max(min.x(), max.x());
-//        this.maxY = Math.max(min.y(), max.y());
-//        this.maxZ = Math.max(min.z(), max.z());
-//    }
-
-    /**
-     * Creates a cuboid zone from a center point and radius
-     */
-//    public static CaptureZoneState fromCenterRadius(
-//        String id, String worldName,
-//        Position3 center,
-//        double radius
-//    ) {
-//        return new CaptureZoneState(
-//            id, worldName,
-//            new Position3(center.x() - radius, center.y() - radius, center.z() - radius),
-//            new Position3(center.x() + radius, center.y() + radius, center.z() + radius)
-//        );
-//    }
-
     /* == Identity == */
 
     public String getId() { return definition.id(); }
-
     public String getWorldName() { return definition.worldName(); }
-
     public String getDisplayName() { return definition.displayName(); }
 
     /* == Domain == */
@@ -130,6 +96,17 @@ public class CaptureZoneState {
         return this.captureProgress >= 100.0;
     }
 
+    /**
+     * Immediately strips ownership and resets capture state
+     * <p>Called when the owning teams zone oxygen fully depletes</p>
+     */
+    public void neutralize() {
+        this.ownerTeamId = null;
+        this.capturingTeamId = null;
+        this.captureProgress = 0.0;
+        this.contested = false;
+    }
+
     /* == Geometry == */
 
     /**
@@ -168,10 +145,15 @@ public class CaptureZoneState {
     /**
      * @return an immutable read-only snapshot of the state
      */
-    public ZoneSnapshot toSnapshot() {
+    public ZoneSnapshot toSnapshot(Set<String> presentTeamIds) {
         Map<String, Double> teamOxygen = new HashMap<>();
+        Set<String> refillingTeamIds = new HashSet<>();
+
         for (Map.Entry<String, ZoneTeamOxygenState> entry : getZoneOxygen().entrySet()) {
             teamOxygen.put(entry.getKey(), entry.getValue().getOxygenPercent());
+            if (entry.getValue().isRefilling()) {
+                refillingTeamIds.add(entry.getKey());
+            }
         }
 
         return new ZoneSnapshot(
@@ -180,8 +162,17 @@ public class CaptureZoneState {
             getCapturingTeamId(),
             isContested(),
             getCaptureProgress(),
-            teamOxygen
+            teamOxygen,
+            Set.copyOf(presentTeamIds),
+            Set.copyOf(refillingTeamIds)
         );
+    }
+
+    /**
+     * @return convenience snapshot load with no presence data
+     */
+    public ZoneSnapshot toSnapshot() {
+        return toSnapshot(Set.of());
     }
 
 }

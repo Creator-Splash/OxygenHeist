@@ -389,7 +389,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     public void onPlayerSuffocating(UUID playerId) {
         Player player = plugin.getServer().getPlayer(playerId);
         if (player == null) return;
-        playSound(player, msg().player().suffocationSound());
+        playSound(player, msg().player().suffocatingSound());
     }
 
     @Override

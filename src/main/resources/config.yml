@@ -124,6 +124,13 @@ zones:
   # Score points awarded to the holding team per tick
   holding-points-per-tick: 1
 
+  # Personal oxygen replenished per player per second while holding their owned zone
+  replenish-player-per-second: 2.0
+
+  # per_player  - each player receives a flat amount per tick
+  # drain_split - total drain that tick is split equally across present players
+  replenish-mode: per_player
+
 # =======
 # Weapons
 # =======

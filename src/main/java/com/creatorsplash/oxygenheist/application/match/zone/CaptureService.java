@@ -112,6 +112,9 @@ public class CaptureService {
         MatchSession session,
         MatchZoneConfig config
     ) {
+        // Block recapture until this teams zone oxygen has fully refilled
+        if (!zone.getOrCreateZoneOxygen(teamId).canRecapture()) return null;
+
         // Different team entered - regress the current capturer's progress
         if (zone.getCapturingTeamId() != null && !zone.getCapturingTeamId().equals(teamId)) {
             zone.regressCapture(config.regressRatePerTick());

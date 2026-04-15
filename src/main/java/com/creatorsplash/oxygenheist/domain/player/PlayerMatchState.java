@@ -18,6 +18,8 @@ public class PlayerMatchState {
 
     private final UUID playerId;
 
+    String teamId;
+
     private boolean alive = true;
     private boolean downed = false;
     private int bleedoutTicks = 0;
@@ -143,6 +145,7 @@ public class PlayerMatchState {
     public PlayerSnapshot toSnapshot(int reviveProgressPercent) {
         return new PlayerSnapshot(
             getPlayerId(),
+            getTeamId(),
             isAlive(),
             isDowned(),
             getOxygen(),

@@ -70,6 +70,8 @@ public final class MatchService {
 
     private long tickCounter = 0;
 
+    private ZonePresence lastPresence = null;
+
     private final List<MatchLifecycle> externalLifecycles = new ArrayList<>();
 
     /**
@@ -416,7 +418,8 @@ public final class MatchService {
         MatchSnapshot snapshot = session.createSnapshot(
             tickCounter,
             buildReviveProgressMap(),
-            teamSnapshots
+            teamSnapshots,
+            buildZonePresentTeams()
         );
 
         snapshotProvider.update(snapshot);
@@ -447,6 +450,7 @@ public final class MatchService {
     private void handleGameTick() {
         ZonePresence presence =
             zonePresenceService.compute(session);
+        this.lastPresence = presence;
 
         zoneOxygenService.tick(session, presence);
 
@@ -493,6 +497,23 @@ public final class MatchService {
 
     private void handleSnapshot(MatchSnapshot snapshot) {
         // TODO
+    }
+
+    /**
+     * Builds a map of zoneId -> set of team IDs physically present this tick,
+     * derived from the last computed ZonePresence
+     */
+    private Map<String, Set<String>> buildZonePresentTeams() {
+        if (lastPresence == null || session == null) return Map.of();
+
+        Map<String, Set<String>> map = new HashMap<>();
+        for (CaptureZoneState zone : session.getZones()) {
+            Map<String, Integer> teamCounts = lastPresence.getTeamCounts(zone);
+            if (!teamCounts.isEmpty()) {
+                map.put(zone.getId(), Set.copyOf(teamCounts.keySet()));
+            }
+        }
+        return map;
     }
 
     private Map<UUID, Integer> buildReviveProgressMap() {

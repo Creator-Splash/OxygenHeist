@@ -20,6 +20,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -156,13 +157,33 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     private Component buildText(String displayName, ZoneSnapshot zs) {
         String nameLine = "<white><bold>" + displayName + "</bold></white>";
 
-        boolean hasOwner = zs.ownerTeamId() != null;
-        boolean hasCapturing = zs.capturingTeamId() != null;
-
         if (zs.contested()) return buildContestedText(nameLine, zs);
-        if (hasOwner) return buildOwnedText(nameLine, zs);
-        if (hasCapturing) return buildCapturingText(nameLine, zs);
-        return buildNeutralText(nameLine);
+
+        boolean enemyRegressing = zs.ownerTeamId() != null
+            && zs.presentTeamIds().size() == 1
+            && !zs.presentTeamIds().contains(zs.ownerTeamId());
+        if (enemyRegressing) return buildUnderAttackText(nameLine, zs);
+
+        if (zs.ownerTeamId() != null) return buildOwnedText(nameLine, zs);
+        if (zs.capturingTeamId() != null) return buildCapturingText(nameLine, zs);
+        return buildNeutralText(nameLine, zs);
+    }
+
+    private Component buildUnderAttackText(String nameLine, ZoneSnapshot zs) {
+        Team owner = teamService.getTeam(zs.ownerTeamId());
+        String ownerColor = owner != null ? owner.getColor() : "white";
+        String ownerName  = owner != null ? owner.getName()  : zs.ownerTeamId();
+
+        String progressColor = zs.captureProgress() > 50 ? ownerColor
+            : zs.captureProgress() > 20 ? "yellow" : "red";
+
+        String statusLine = "<" + ownerColor + ">" + sym().zoneOwned() + " " + ownerName
+            + "</" + ownerColor + ">"
+            + " <red>" + sym().zoneCapturing() + " UNDER ATTACK</red>";
+        String progressLine = buildProgressBar(zs.captureProgress(), progressColor);
+
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine
+            + buildRefillingAppendix(zs, zs.ownerTeamId()));
     }
 
     private Component buildOwnedText(String nameLine, ZoneSnapshot zs) {
@@ -178,7 +199,8 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             + (int) zoneOxygen + "%</" + oxygenColor + ">";
         String progressLine = buildProgressBar(zoneOxygen, oxygenColor);
 
-        return MM.msg(nameLine + "\n" + statusLine + " " + oxygenLine + "\n" + progressLine);
+        return MM.msg(nameLine + "\n" + statusLine + " " + oxygenLine + "\n" + progressLine
+            + buildRefillingAppendix(zs, zs.ownerTeamId()));
     }
 
     private Component buildContestedText(String nameLine, ZoneSnapshot zs) {
@@ -195,10 +217,11 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             : color;
 
         String statusLine = "<" + color + ">" + name + "</" + color + ">"
-            + " <red>" + sym().zoneCapturing() + " CONTESTED</red>";
+                + " <red>" + sym().zoneCapturing() + " CONTESTED</red>";
         String progressLine = buildProgressBar(progress, progressColor);
 
-        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine
+                + buildRefillingAppendix(zs, zs.ownerTeamId()));
     }
 
     private Component buildCapturingText(String nameLine, ZoneSnapshot zs) {
@@ -209,13 +232,44 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         String statusLine = "<" + color + ">" + sym().zoneCapturing() + " " + name + " capturing</" + color + ">";
         String progressLine = buildProgressBar(zs.captureProgress(), color);
 
-        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine
+            + buildRefillingAppendix(zs, null));
     }
 
-    private Component buildNeutralText(String nameLine) {
+    private Component buildNeutralText(String nameLine, ZoneSnapshot zs) {
         String statusLine = "<gray>" + sym().zoneNeutral() + " Neutral</gray>";
-        String progressLine = buildProgressBar(0, "gray");
-        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+        return MM.msg(nameLine + "\n" + statusLine
+                + buildRefillingAppendix(zs, null));
+    }
+
+    /**
+     * Appends a refill progress line for each team currently in EVACUATING or REFILLING phase
+     *
+     * @param excludeTeamId team to skip - already shown as the zone owner above
+     */
+    private String buildRefillingAppendix(ZoneSnapshot zs, @Nullable String excludeTeamId) {
+        if (zs.refillingTeamIds().isEmpty()) return "";
+
+        StringBuilder appendix = new StringBuilder();
+        for (String teamId : zs.refillingTeamIds()) {
+            if (teamId.equals(excludeTeamId)) continue;
+
+            Team team = teamService.getTeam(teamId);
+            double oxygen = zs.teamOxygen().getOrDefault(teamId, 0.0);
+            String color = team != null ? team.getColor() : "gray";
+            String name  = team != null ? team.getName()  : teamId;
+
+            appendix.append("\n\n")
+                .append("<").append(color).append(">")
+                .append(sym().zoneOxygen()).append(" ")
+                .append(name).append(" ")
+                .append((int) oxygen).append("% ")
+                .append(sym().zoneRefilling())
+                .append("</").append(color).append(">")
+                .append("\n")
+                .append(buildProgressBar(oxygen, color));
+        }
+        return appendix.toString();
     }
 
     private String buildProgressBar(double progress, String color) {
@@ -235,9 +289,9 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 new Location(world, c.centerX(), c.centerY(), c.centerZ());
             case ZoneDefinition.Cuboid c ->
                 new Location(world,
-                    (c.minX() + c.maxX()) / 2.0,
-                    (c.minY() + c.maxY()) / 2.0,
-                    (c.minZ() + c.maxZ()) / 2.0);
+                (c.minX() + c.maxX()) / 2.0,
+                (c.minY() + c.maxY()) / 2.0,
+                (c.minZ() + c.maxZ()) / 2.0);
         };
     }
 

@@ -45,7 +45,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         OxygenConfig oxygen = new OxygenConfig(
             fileConfig.getDouble("oxygen.max", 300),
             fileConfig.getDouble("oxygen.drain-per-tick", 0.1),
-                fileConfig.getInt("oxygen.depletion-down-ticks", 200)
+            fileConfig.getInt("oxygen.depletion-down-ticks", 200),
+            fileConfig.getDouble("oxygen.suffocation-damage", 2.0),
+            fileConfig.getDouble("oxygen.low-oxygen-threshold", 0.2)
         );
 
         DownedConfig downed = new DownedConfig(
@@ -66,7 +68,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             fileConfig.getInt("zones.max-drain-multiplier", 5),
             fileConfig.getDouble("zones.refill-percent-per-second", (100.0 / 120.0) * 0.5),
             fileConfig.getInt("zones.capture-oxygen-restore", 50),
-            fileConfig.getInt("zones.holding-points-per-tick", 1)
+            fileConfig.getInt("zones.holding-points-per-tick", 1),
+            fileConfig.getDouble("zones.replenish-player-per-second", 2.0),
+            parseReplenishMode(fileConfig.getString("zones.replenish-mode", "per_player"))
         );
 
         MatchConfig newConfig = new MatchConfig(
@@ -84,6 +88,11 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
 
         this.config = newConfig;
         return newConfig;
+    }
+
+    private static MatchZoneConfig.ReplenishMode parseReplenishMode(String value) {
+        if ("drain_split".equalsIgnoreCase(value)) return MatchZoneConfig.ReplenishMode.DRAIN_SPLIT;
+        return MatchZoneConfig.ReplenishMode.PER_PLAYER;
     }
 
 }

@@ -153,6 +153,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "symbols.zone-capturing", "⚡"),
             s(c, "symbols.zone-contested", "⚔"),
             s(c, "symbols.zone-oxygen", "⬡"),
+            s(c, "symbols.zone-refilling", "↻"),
             s(c, "symbols.downed-warning", "⚠"),
             s(c, "symbols.reviving", "⬆"),
             s(c, "symbols.small-bar-filled", "▪"),

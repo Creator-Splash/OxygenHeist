@@ -68,6 +68,18 @@ public class ZonePresence {
     }
 
     /**
+     * Gets all team IDs present in a zone this tick
+     *
+     * @param zone the zone
+     * @return set of team IDs with at least one player present
+     */
+    public Set<String> getTeamsInZone(CaptureZoneState zone) {
+        Map<String, Set<UUID>> teamPlayers = zoneTeamPlayers.get(zone);
+        if (teamPlayers == null) return Set.of();
+        return Set.copyOf(teamPlayers.keySet());
+    }
+
+    /**
      * Checks whether a specific team is present in the zone
      */
     public boolean isTeamPresent(CaptureZoneState zone, String teamId) {

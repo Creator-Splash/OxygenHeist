@@ -1,5 +1,7 @@
 package com.creatorsplash.oxygenheist.domain.player;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.UUID;
 
 /**
@@ -7,6 +9,7 @@ import java.util.UUID;
  */
 public record PlayerSnapshot(
     UUID playerId,
+    @Nullable String teamId,
     boolean alive,
     boolean downed,
     double oxygen,

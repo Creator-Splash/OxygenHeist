@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.application.match.zone;
 
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
+import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneTeamOxygenState;
@@ -8,26 +9,24 @@ import com.creatorsplash.oxygenheist.domain.match.config.MatchZoneConfig;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Handles per-team oxygen pressure on capture zones during an active match
  *
- * <p>Responsible for:
- * <ul>
- *     <li>Tracking which teams are present on each zone</li>
- *     <li>Draining zone oxygen for present team</li>
- *     <li>Scaling drain by player count on the zone</li>
- *     <li>Switching teams into refil mode at 0%</li>
- *     <li>Refilling teams until their zone oxygen returns to 100%</li>
- * </ul>
+ * <p>Phase lifecycle:
+ * <ol>
+ *   <li>NORMAL - draining while owned and occupied; owner players are replenished</li>
+ *   <li>EVACUATING - hit 0%; zone neutralized; waiting for team to leave</li>
+ *   <li>REFILLING - team fully left; oxygen recovers passively</li>
+ *   <li>NORMAL - full again; team may recapture</li>
+ * </ol>
  * </p>
  */
 @RequiredArgsConstructor
 public class ZoneOxygenService {
 
     private final MatchDisplayService displayService;
+    private final PlayerOxygenService playerOxygenService;
 
     /**
      * Processes zone oxygen for all zones in the match
@@ -35,23 +34,12 @@ public class ZoneOxygenService {
      * @param session the active match session
      */
     public void tick(MatchSession session, ZonePresence presence) {
-        MatchZoneConfig matchZoneConfig = session.config().zones();
+        MatchZoneConfig config = session.config().zones();
 
         for (CaptureZoneState zone : session.getZones()) {
             Map<String, Integer> teamCounts = presence.getTeamCounts(zone);
-
-            processPresentTeams(
-                matchZoneConfig,
-                zone,
-                teamCounts,
-                (teamId, z) -> displayService.onZoneOxygenDepleted(
-                    z.getId(),
-                    teamId,
-                    presence.getPlayersForTeam(z, teamId)
-                )
-            );
-
-            processAbsentRefillingTeams(matchZoneConfig, zone, teamCounts);
+            processPresentOwner(config, zone, teamCounts, presence, session);
+            processAbsentTeams(config, zone, teamCounts);
         }
     }
 
@@ -68,53 +56,89 @@ public class ZoneOxygenService {
 
     /* Internals */
 
-    private void processPresentTeams(
+    private void processPresentOwner(
         MatchZoneConfig config,
         CaptureZoneState zone,
         Map<String, Integer> teamCounts,
-        BiConsumer<String, CaptureZoneState> onOxygenDepleted
+        ZonePresence presence,
+        MatchSession session
     ) {
         double drainPerTick = config.drainPercentPerSecond() / 20.0;
-        double refillPerTick = config.refillPercentPerSecond() / 20.0;
         int maxMultiplier = config.maxDrainMultiplier();
 
         for (Map.Entry<String, Integer> entry : teamCounts.entrySet()) {
             String teamId = entry.getKey();
             int playerCount = entry.getValue();
 
-            // Only drain oxygen for the zone owner
+            // Zone oxygen only applies to the team that owns the zone
             if (!teamId.equals(zone.getOwnerTeamId())) continue;
 
             ZoneTeamOxygenState oxygenState = zone.getOrCreateZoneOxygen(teamId);
 
-            if (oxygenState.isRefilling()) {
-                oxygenState.refill(refillPerTick);
-                continue;
-            }
+            switch (oxygenState.getPhase()) {
+                case EVACUATING -> { /* Team still present after depletion - wait, do nothing */ }
+                // Team wandered back in during refill
+                case REFILLING -> oxygenState.refill(config.refillPercentPerSecond() / 20.0);
+                case NORMAL -> {
+                    int drainMultiplier = Math.clamp(playerCount, 1, maxMultiplier);
+                    double totalDrain = drainPerTick * drainMultiplier;
 
-            int drainMultiplier = Math.clamp(playerCount, 1, maxMultiplier);
+                    boolean justDepleted = oxygenState.drain(totalDrain);
 
-            if (oxygenState.drain(drainPerTick * drainMultiplier)) {
-                onOxygenDepleted.accept(teamId, zone);
+                    if (justDepleted) {
+                        zone.neutralize();
+                        displayService.onZoneOxygenDepleted(
+                            zone.getId(),
+                            teamId,
+                            presence.getPlayersForTeam(zone, teamId)
+                        );
+                    } else {
+                        // Replenish personal oxygen for present owner-team players
+                        Set<UUID> presentPlayers = presence.getPlayersForTeam(zone, teamId);
+                        if (!presentPlayers.isEmpty()) {
+                            double replenish = calculateReplenish(
+                                config, totalDrain, playerCount
+                            );
+                            playerOxygenService.replenishPlayersInZone(
+                                    session, presentPlayers, replenish
+                            );
+                        }
+                    }
+                }
             }
         }
     }
 
-    private void processAbsentRefillingTeams(
+    private void processAbsentTeams(
         MatchZoneConfig config,
         CaptureZoneState zone,
         Map<String, Integer> teamCounts
     ) {
-        double drainPerTick = config.drainPercentPerSecond() / 20.0;
+        double refillPerTick = config.refillPercentPerSecond() / 20.0;
 
         for (Map.Entry<String, ZoneTeamOxygenState> entry : zone.getZoneOxygen().entrySet()) {
             String teamId = entry.getKey();
             ZoneTeamOxygenState oxygenState = entry.getValue();
 
-            if (!teamCounts.containsKey(teamId) && oxygenState.isRefilling()) {
-                oxygenState.refill(drainPerTick);
+            if (teamCounts.containsKey(teamId)) continue;
+
+            switch (oxygenState.getPhase()) {
+                case EVACUATING -> {
+                    // Team just fully vacated - begin refill
+                    oxygenState.beginRefill();
+                    oxygenState.refill(refillPerTick);
+                }
+                case REFILLING -> oxygenState.refill(refillPerTick);
+                case NORMAL -> { /* nothing to do */ }
             }
         }
+    }
+
+    private double calculateReplenish(MatchZoneConfig config, double totalDrain, int playerCount) {
+        return switch (config.replenishMode()) {
+            case PER_PLAYER -> config.replenishPlayerPerSecond() / 20.0;
+            case DRAIN_SPLIT -> playerCount > 0 ? totalDrain / playerCount : 0;
+        };
     }
 
 }
