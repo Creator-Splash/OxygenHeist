@@ -1,6 +1,5 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon;
 
-import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.PDCKeys;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
@@ -8,12 +7,23 @@ import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Static helpers shared across all weapon handler implementations
  */
 @UtilityClass
 public class WeaponUtils {
+
+    /**
+     * @return true if the given item carries any weapon PDC tag
+     */
+    public boolean isAnyWeapon(@Nullable ItemStack item) {
+        if (item == null || item.isEmpty() || !item.hasItemMeta()) return false;
+        return item.getItemMeta()
+            .getPersistentDataContainer()
+            .has(PDCKeys.WEAPON_ID, PersistentDataType.STRING);
+    }
 
     /**
      * @return true if the given item carries our weapon PDC tag matching {@code id}

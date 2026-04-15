@@ -16,6 +16,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAd
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponHideService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
+import com.creatorsplash.oxygenheist.platform.paper.world.PaperGamePlayerService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -64,6 +65,10 @@ public final class WeaponModule implements Module {
             gameplay.scheduler(),
             plugin.getLogCenter()
         );
+
+        if (gameplay.gamePlayerService() instanceof PaperGamePlayerService gamePlayerService) {
+            gamePlayerService.setWeaponDropService(this.dropService);
+        }
 
         registerHandlers();
 

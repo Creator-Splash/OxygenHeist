@@ -2,7 +2,6 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
-import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
@@ -12,6 +11,7 @@ import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import com.creatorsplash.oxygenheist.platform.paper.listener.WeaponListener;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import com.creatorsplash.oxygenheist.platform.paper.util.PDCKeys;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
@@ -24,6 +24,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -131,6 +132,40 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
     }
 
     /* Spawning */
+
+    /**
+     * Drops a specific weapon item at the given location, registering it fully
+     * with the drop service - label, particles, pickup tracking, and respawn logic
+     *
+     * <p>Called when a player is eliminated and their carried weapons should
+     * be dropped at their death location with scatter</p>
+     *
+     * @param item the weapon ItemStack to drop
+     * @param location the drop location
+     */
+    public void dropWeaponFromPlayer(ItemStack item, Location location) {
+        if (item == null || item.isEmpty()) return;
+
+        // Respect maximum on field
+        if (activeItems.size() >= globals.get().weaponSpawner().maximumOnField()) return;
+
+        Item dropped = location.getWorld().dropItem(location, item);
+        dropped.setVelocity(new Vector(0, 0.1, 0));
+        dropped.setPickupDelay(globals.get().weaponSpawner().pickupCooldownSeconds() * 20);
+
+        String weaponId = item.getItemMeta()
+            .getPersistentDataContainer()
+            .get(PDCKeys.WEAPON_ID, PersistentDataType.STRING);
+
+        String displayName = weaponId != null
+            ? WeaponUtils.formatDisplayName(weaponId)
+            : "Weapon";
+
+        TextDisplay label = spawnLabel(location, displayName);
+
+        activeItems.put(dropped.getUniqueId(), label.getUniqueId());
+        particleOffsets.put(dropped.getUniqueId(), 0.0);
+    }
 
     private void spawnInitial() {
         var cfg = globals.get().weaponSpawner();

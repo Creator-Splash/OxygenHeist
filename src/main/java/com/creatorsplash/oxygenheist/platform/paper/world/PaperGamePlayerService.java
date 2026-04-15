@@ -9,7 +9,10 @@ import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -18,11 +21,14 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Paper implementation of {@link GamePlayerService}
@@ -37,6 +43,9 @@ public final class PaperGamePlayerService implements GamePlayerService {
     private final Scheduler scheduler;
     private final TeamService teamService;
     private final LogCenter log;
+
+    @Nullable @Setter
+    private WeaponDropService weaponDropService;
 
     @Override
     public void prepareForMatch(MatchSession session) {
@@ -137,6 +146,8 @@ public final class PaperGamePlayerService implements GamePlayerService {
         player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.setGameMode(GameMode.SPECTATOR);
 
+        dropWeaponsAtDeath(player);
+
         if (spectateTargetId != null) {
             Player target = server.getPlayer(spectateTargetId);
             if (target != null && target.isOnline()) {
@@ -153,6 +164,24 @@ public final class PaperGamePlayerService implements GamePlayerService {
     }
 
     /* Helpers */
+
+    private void dropWeaponsAtDeath(Player player) {
+        if (this.weaponDropService == null) return;
+
+        Location base = player.getLocation();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null || !WeaponUtils.isAnyWeapon(item)) continue;
+
+            // Scatter each weapon slightly so they don't stack
+            double ox = (ThreadLocalRandom.current().nextDouble() - 0.5) * 1.5;
+            double oz = (ThreadLocalRandom.current().nextDouble() - 0.5) * 1.5;
+            Location dropLoc = base.clone().add(ox, 0.1, oz);
+
+            weaponDropService.dropWeaponFromPlayer(item, dropLoc);
+            player.getInventory().remove(item);
+        }
+    }
 
     private double maxHealth(Player player) {
         var attr = player.getAttribute(Attribute.MAX_HEALTH);
