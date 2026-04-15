@@ -1,12 +1,15 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
+import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.CombatService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.UUID;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public final class CombatListener implements Listener {
 
+    private final MatchService matchService;
     private final CombatService combatService;
     private final PlayerActionService actionService;
 
@@ -47,6 +51,26 @@ public final class CombatListener implements Listener {
             event.setDamage(0);
             combatService.handleLethalDamage(victimId, attackerId);
         }
+    }
+
+    /**
+     * Catches ALL fatal damage to active match players from any source.
+     * Prevents vanilla death and redirects to the downed system
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFatalDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        UUID playerId = player.getUniqueId();
+
+        // Only intercept for active (alive, not downed) match players
+        if (!matchService.isPlayerInActiveMatch(playerId)) return;
+
+        if (player.getHealth() - event.getFinalDamage() > 0) return;
+
+        // Cancel the kill - redirect to downed system
+        event.setDamage(0);
+        event.setCancelled(true);
+        matchService.downPlayer(playerId);
     }
 
 }

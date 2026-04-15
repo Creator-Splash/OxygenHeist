@@ -151,6 +151,10 @@ public record MessageConfig(
         SoundConfig captureSound,
         SoundConfig contestedSound,
         SoundConfig capturingSound,
+        /* Zone hologram labels */
+        String labelZoneOxygen,
+        String labelCaptureProgress,
+        String labelRemainingHold,
         /* Sent to capturing team members. Placeholders: <amount>, <zone> */
         String oxygenRestored,
         String oxygenDepletedTitle,

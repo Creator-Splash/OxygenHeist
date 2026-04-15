@@ -38,7 +38,7 @@ public record PlatformModule(
         matchService.registerLifecycle(weapons().dropService());
 
         ZoneDisplayManager zoneDisplayManager = new ZoneDisplayManager(
-            plugin.getServer(),
+            plugin,
             gameplay.teamService(),
             configs.arenaConfig(),
             configs.messageConfig(),
@@ -59,7 +59,11 @@ public record PlatformModule(
         register(
             weapons().dropService(),
             gameplay().selectionService(),
-            new CombatListener(gameplay.combatService(), gameplay.actionService()),
+            new CombatListener(
+                gameplay.matchService(),
+                gameplay.combatService(),
+                gameplay.actionService()
+            ),
             new ReviveListener(gameplay.matchService(), gameplay.reviveService(), gameplay.actionService()),
             new PlayerRestrictionListener(gameplay.actionService()),
             new WeaponListener(

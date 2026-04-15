@@ -27,7 +27,7 @@ public interface MatchDisplayService extends MatchLifecycle {
     /**
      * Called when a zone is contested by a multiple teams
      */
-    void onZoneContested(String zoneId);
+    default void onZoneContested(String zoneId) {}
 
     default void onZoneCapturing(String zoneId, String teamId) {}
 

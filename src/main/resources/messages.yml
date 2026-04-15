@@ -152,6 +152,9 @@ zone:
     source: "master"
     volume: 0.5
     pitch: 1.5
+  label-zone-oxygen: "Zone Oxygen"
+  label-capture-progress: "Capture Progress"
+  label-remaining-hold: "Remaining Hold"
   # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
   oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
   oxygen-depleted-title: "<red><bold>ZONE DRAINED"

@@ -45,7 +45,6 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         OxygenConfig oxygen = new OxygenConfig(
             fileConfig.getDouble("oxygen.max", 300),
             fileConfig.getDouble("oxygen.drain-per-tick", 0.1),
-            fileConfig.getInt("oxygen.depletion-down-ticks", 200),
             fileConfig.getDouble("oxygen.suffocation-damage", 2.0),
             fileConfig.getDouble("oxygen.low-oxygen-threshold", 0.2)
         );

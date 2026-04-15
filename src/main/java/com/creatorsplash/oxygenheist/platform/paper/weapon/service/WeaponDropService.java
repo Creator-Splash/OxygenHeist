@@ -218,7 +218,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
                 ParticleUtils.spawn(
                     Particle.DUST,
                     center.clone().add(Math.cos(angle) * 0.7, 0.1, Math.sin(angle) * 0.7),
-                    1, 0, 0, 0, 0, dust, (MatchSession) null
+                    1, 0, 0, 0, 0.2, dust, (MatchSession) null
                 );
             }
         }

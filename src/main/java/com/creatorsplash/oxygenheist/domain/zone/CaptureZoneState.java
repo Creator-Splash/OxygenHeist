@@ -74,6 +74,10 @@ public class CaptureZoneState {
     public void regressCapture(double amount) {
         if (this.captureProgress > 0) {
             this.captureProgress = Math.max(0.0, this.captureProgress - amount);
+            // Complete regression
+            if (this.captureProgress <= 0.0) {
+                this.capturingTeamId = null;
+            }
         } else {
             this.ownerTeamId = null;
             this.capturingTeamId = null;

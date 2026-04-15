@@ -125,6 +125,9 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             SoundConfig.sound(c, "zone.capture-sound"),
             SoundConfig.sound(c, "zone.contested-sound"),
             SoundConfig.sound(c, "zone.capturing-sound"),
+            s(c, "zone.label-zone-oxygen", "Zone Oxygen"),
+            s(c, "zone.label-capture-progress", "Capture Progress"),
+            s(c, "zone.label-remaining-hold", "Remaining Hold"),
             s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! " +
                 "<reset><gray>Your team captured <zone>"),
             s(c, "zone.oxygen-depleted-title", "<red><bold>ZONE DRAINED"),

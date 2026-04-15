@@ -46,8 +46,6 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     private final MatchConfigService matchConfig;
     private final MessageConfigService messages;
 
-    private final Map<String, Long> lastContestedSound = new HashMap<>();
-    private final Map<String, Long> lastCapturingSound = new HashMap<>();
     private final Map<UUID, Long> lastLowOxygenSound = new HashMap<>();
 
     /* State */
@@ -313,32 +311,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
         firedTimeWarnings.clear();
         lastState = null;
 
-        lastCapturingSound.clear();
-        lastContestedSound.clear();
         lastLowOxygenSound.clear();
-    }
-
-    @Override
-    public void onZoneContested(String zoneId) {
-        long now = System.currentTimeMillis();
-        if (now - lastContestedSound.getOrDefault(zoneId, 0L) < 1000) return;
-        lastContestedSound.put(zoneId, now);
-
-        // Play to all online players
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            playSound(player, msg().zone().contestedSound());
-        }
-    }
-
-    @Override
-    public void onZoneCapturing(String zoneId, String teamId) {
-        long now = System.currentTimeMillis();
-        if (now - lastCapturingSound.getOrDefault(zoneId, 0L) < 1000) return;
-        lastCapturingSound.put(zoneId, now);
-
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            playSound(player, msg().zone().capturingSound());
-        }
     }
 
     @Override
@@ -362,10 +335,6 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
             if (member != null && member.isOnline()) {
                 member.sendMessage(oxygenMsg);
             }
-        }
-
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            playSound(player, msg().zone().captureSound());
         }
     }
 

@@ -62,9 +62,6 @@ oxygen:
   # Oxygen drained per tick while outside a zone
   drain-per-tick: 0.1
 
-  # Ticks at zero oxygen before a player is downed
-  depletion-down-ticks: 200
-
   # damage per tick at 0 oxygen
   suffocation-damage: 2.0
 
@@ -90,7 +87,7 @@ downed:
   intent-ttl-ticks: 40
 
   label-view-range: 16.0
-  label-height-offset: 2.0
+  label-height-offset: 0.75
 
 # =====
 # Zones
