@@ -108,6 +108,7 @@ public final class TeamConfigService {
                 config.set(basePath + ".z", base.z());
                 config.set(basePath + ".yaw", base.yaw());
                 config.set(basePath + ".pitch", base.pitch());
+                config.set(basePath + ".radius", base.radius());
             } else {
                 config.set(path + ".base", null);
             }
@@ -134,7 +135,8 @@ public final class TeamConfigService {
             section.getDouble("y"),
             section.getDouble("z"),
             (float) section.getDouble("yaw", 0.0),
-            (float) section.getDouble("pitch", 0.0)
+            (float) section.getDouble("pitch", 0.0),
+            section.getInt("radius", 15)
         );
     }
 

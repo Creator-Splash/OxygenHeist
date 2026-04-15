@@ -9,6 +9,7 @@ public record TeamBase(
     double y,
     double z,
     float yaw,
-    float pitch
+    float pitch,
+    int radius
 ) {
 }

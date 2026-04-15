@@ -134,10 +134,11 @@ public final class MatchService {
 
         externalLifecycles.forEach(MatchLifecycle::onCountdownStart);
 
+        playerService.prepareForCountdown(session);
+
         startTasks();
 
         gameBridge.onGameStart();
-        worldService.onMatchStarted(session.config());
         displayService.onMatchStart();
 
         log.info("Match started");

@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchBorderConfig;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
@@ -19,15 +20,18 @@ import org.jetbrains.annotations.Nullable;
 public final class PaperGameWorldService implements GameWorldService {
 
     private final Server server;
+    private final Scheduler scheduler;
     private final ArenaConfigService arenaConfigService;
     private final LogCenter log;
 
     public PaperGameWorldService(
         @NotNull final Server server,
+        @NotNull final Scheduler scheduler,
         @NotNull final ArenaConfigService arenaConfigService,
         @NotNull final LogCenter log
     ) {
         this.server = server;
+        this.scheduler = scheduler;
         this.arenaConfigService = arenaConfigService;
         this.log = log;
 
@@ -44,13 +48,15 @@ public final class PaperGameWorldService implements GameWorldService {
 
         ArenaSetup arena = arenaConfigService.getArena().orElseThrow();
 
-        WorldBorder border = world.getWorldBorder();
-        border.setCenter(arena.centerX(), arena.centerZ());
-        border.setSize(arena.initialSize());
-        border.setWarningDistance(5);
-        border.setWarningTime(0);
-        border.setDamageAmount(0.2);
-        border.setDamageBuffer(5.0);
+        scheduler.runLater(() -> {
+            WorldBorder border = world.getWorldBorder();
+            border.setCenter(arena.centerX(), arena.centerZ());
+            border.setSize(arena.initialSize());
+            border.setWarningDistance(5);
+            border.setWarningTime(0);
+            border.setDamageAmount(0.2);
+            border.setDamageBuffer(5.0);
+        }, 1L);
 
         log.info("Border applied: size=<white>" + (int) + arena.initialSize() + " </white>");
     }

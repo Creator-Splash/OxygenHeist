@@ -70,7 +70,7 @@ public final class GameplayModule implements Module {
         this.scheduler = new PaperSchedulerAdapter(plugin);
         GameBridge bridge = new StandaloneGameBridge();
         this.worldService = new PaperGameWorldService(
-            plugin.getServer(), configs.arenaConfig(), plugin.getLogCenter()
+            plugin.getServer(), scheduler, configs.arenaConfig(), plugin.getLogCenter()
         );
 
         this.gamePlayerService =

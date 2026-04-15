@@ -13,10 +13,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -48,43 +45,69 @@ public final class PaperGamePlayerService implements GamePlayerService {
     private WeaponDropService weaponDropService;
 
     @Override
+    public void prepareForCountdown(MatchSession session) {
+        for (PlayerMatchState playerState : session.getPlayers()) {
+            Player player = server.getPlayer(playerState.getPlayerId());
+            if (player == null) continue;
+
+            Team team = resolveTeam(session, playerState.getPlayerId());
+            if (team == null) {
+                log.error("Player " + player.getName() + " has no team!");
+                continue;
+            }
+
+            TeamBase base = team.getBase();
+            if (base == null) {
+                log.error("Team " + team.getName() + " has no base configured!");
+                continue;
+            }
+            Location loc = resolveBaseLoc(team);
+            if (loc == null) {
+                log.error("Team " + team.getName() + " could not resolve base location!");
+                continue;
+            }
+
+            player.teleport(loc);
+            setupPlayer(player, team, GameMode.ADVENTURE);
+
+            player.setWorldBorder(null);
+
+            scheduler.runLater(() -> {
+                WorldBorder border = server.createWorldBorder();
+                border.setCenter(base.x(), base.z());
+                border.setSize(base.radius() * 2.0);
+                border.setWarningDistance(2);
+                border.setWarningTime(0);
+                border.setDamageAmount(0.5);
+                border.setDamageBuffer(1.0);
+                player.setWorldBorder(border);
+            }, 1L);
+        }
+
+        log.info("Players prepared for countdown");
+    }
+
+    @Override
     public void prepareForMatch(MatchSession session) {
         for (PlayerMatchState playerState : session.getPlayers()) {
             Player player = server.getPlayer(playerState.getPlayerId());
             if (player == null) continue;
 
-            String teamId = session.getPlayerTeam(playerState.getPlayerId());
-            if (teamId == null) continue;
-
-            Team team = teamService.getTeam(teamId);
-            if (team == null || !team.hasBase()) {
-                log.warn("Team '" + teamId + "' has no base set - "
-                        + player.getName() + " was not teleported");
+            Team team = resolveTeam(session, playerState.getPlayerId());
+            if (team == null) {
+                log.error("Player " + player.getName() + " has no team!");
                 continue;
             }
 
-            TeamBase base = team.getBase();
-            World world = server.getWorld(base.world());
-            if (world == null) {
-                log.warn("Base world '" + base.world() + "' for team '" + teamId
-                    + "' is not loaded - " + player.getName() + " was not teleported");
+            Location loc = resolveBaseLoc(team);
+            if (loc == null) {
+                log.error("Team " + team.getName() + " could not resolve base location!");
                 continue;
             }
-
-            Location loc = new Location(
-                world, base.x(), base.y(), base.z(), base.yaw(), base.pitch()
-            );
 
             player.teleport(loc);
-            player.setGameMode(GameMode.SURVIVAL);
-            player.setHealth(maxHealth(player));
-            player.setFoodLevel(20);
-            player.setSaturation(20f);
-            player.getInventory().clear();
-            player.clearActivePotionEffects();
-            player.setRemainingAir(player.getMaximumAir());
-
-            scheduler.runLater(() -> TeamUtils.applyArmor(player, team), 1L);
+            setupPlayer(player, team, GameMode.SURVIVAL);
+            player.setWorldBorder(null);
         }
 
         log.info("Players prepared for match start");
@@ -164,6 +187,43 @@ public final class PaperGamePlayerService implements GamePlayerService {
     }
 
     /* Helpers */
+
+    private void setupPlayer(Player player, Team team, GameMode gameMode) {
+        player.setGameMode(gameMode);
+        player.setHealth(maxHealth(player));
+        player.setFoodLevel(20);
+        player.setSaturation(20f);
+        player.getInventory().clear();
+        player.clearActivePotionEffects();
+        player.setRemainingAir(player.getMaximumAir());
+        scheduler.runLater(() -> TeamUtils.applyArmor(player, team), 1L);
+    }
+
+    private @Nullable Team resolveTeam(MatchSession session, UUID playerId) {
+        String teamId = session.getPlayerTeam(playerId);
+        if (teamId == null) return null;
+
+        Team team = teamService.getTeam(teamId);
+        if (team == null || !team.hasBase()) {
+            log.warn("Team '" + teamId + "' has no base set - player skipped");
+            return null;
+        }
+        return team;
+    }
+
+    private @Nullable Location resolveBaseLoc(Team team) {
+        TeamBase base = team.getBase();
+        if (base == null) return null;
+
+        World world = server.getWorld(base.world());
+        if (world == null) {
+            log.warn("Base world '" + base.world() + "' for team '" + team.getId()
+                + "' is not loaded - player skipped");
+            return null;
+        }
+
+        return new Location(world, base.x(), base.y(), base.z(), base.yaw(), base.pitch());
+    }
 
     private void dropWeaponsAtDeath(Player player) {
         if (this.weaponDropService == null) return;

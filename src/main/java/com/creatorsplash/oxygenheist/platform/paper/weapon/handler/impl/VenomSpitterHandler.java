@@ -167,7 +167,7 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
             });
         }
 
-        config.sounds().fire().playTo(player);
+        config.sounds().fire().playFrom(player);
     }
 
     /* == Lifecycle == */

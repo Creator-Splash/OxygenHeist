@@ -67,17 +67,17 @@ public abstract class ReloadableWeaponHandler extends AbstractWeaponHandler {
 
     /** Called when a reload starts - override to add sounds or effects */
     protected void onReloadStart(Player player) {
-        config.sounds().reloadStart().playTo(player);
+        config.sounds().reloadStart().playFrom(player);
     }
 
     /** Called when a reload is canceled - override to add sounds or effects */
     protected void onReloadCancel(Player player) {
-        config.sounds().reloadCancel().playTo(player);
+        config.sounds().reloadCancel().playFrom(player);
     }
 
     /** Called when a reload completes - override to add sounds or effects */
     protected  void onReloadComplete(Player player) {
-        config.sounds().reloadComplete().playTo(player);
+        config.sounds().reloadComplete().playFrom(player);
     }
 
     /* == Default tick - reload animation + auto-complete == */

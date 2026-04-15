@@ -10,6 +10,15 @@ public record WeaponSoundSlot(List<SoundConfig> sounds) {
     public static final WeaponSoundSlot EMPTY = new WeaponSoundSlot(List.of());
 
     /**
+     *  Plays all sounds in this slot from the player location
+     *  <p>No-op if empty</p>
+     */
+    public void playFrom(Player player) {
+        if (isEmpty()) return;
+        sounds.forEach(s -> s.playAt(player.getLocation()));
+    }
+
+    /**
      *  Plays all sounds in this slot to the player
      *  <p>No-op if empty</p>
      */

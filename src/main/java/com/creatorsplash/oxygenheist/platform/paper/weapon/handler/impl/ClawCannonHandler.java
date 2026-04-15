@@ -99,7 +99,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             15, 0.3, 0.5, 0.3, 0.1, ctx.session());
 
         var meleeSound = config.sounds().get("melee");
-        if (!meleeSound.isEmpty()) meleeSound.playTo(player);
+        if (!meleeSound.isEmpty()) meleeSound.playFrom(player);
 
         player.sendActionBar(MM.msg("<gold><bold>CRITICAL HIT!"));
     }
@@ -118,7 +118,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
         inFlight.add(id);
 
-        if (!config.sounds().fire().isEmpty()) config.sounds().fire().playTo(player);
+        if (!config.sounds().fire().isEmpty()) config.sounds().fire().playFrom(player);
 
         ParticleUtils.spawn(Particle.EXPLOSION, player.getLocation(),
             3, 0.3, 0.3, 0.3, 0.1, session);
@@ -195,7 +195,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
             UUID shooterId = player.getUniqueId();
             double radius = config.combat().explosionRadius();
 
-            config.sounds().get("land").playTo(player);
+            config.sounds().get("land").playFrom(player);
 
             // AoE damage
             landLoc.getNearbyPlayers(radius, target ->

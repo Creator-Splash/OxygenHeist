@@ -25,6 +25,13 @@ public interface GamePlayerService {
     void prepareForMatch(MatchSession session);
 
     /**
+     * Prepares all session players for the countdown phase
+     *
+     * @param session the active match session
+     */
+    void prepareForCountdown(MatchSession session);
+
+    /**
      * Resets all session players after a match ends
      *
      * <p>Called in {@code endMatch()} before the session is nulled.

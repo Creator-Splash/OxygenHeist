@@ -12,12 +12,14 @@ import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.Area;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
 import org.incendo.cloud.context.CommandContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -88,11 +90,12 @@ public final class TeamCommands implements CommandHandler {
         sender.sendRichMessage("<green>Removed " + player.getName() + " from their team");
     }
 
-    @Command("setbase <team>")
+    @Command("setbase <team> [radius]")
     @CommandDescription("Set a team's spawn base to your current location")
     public void setbase(
-            Player sender,
-            @Argument(value = "team", suggestions = "teams") String teamId
+        Player sender,
+        @Argument(value = "team", suggestions = "teams") String teamId,
+        @Argument("radius") @Nullable Integer radius
     ) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
@@ -100,11 +103,14 @@ public final class TeamCommands implements CommandHandler {
             return;
         }
 
+        int finalRad = radius == null ? 15 : radius;
+
         var loc = sender.getLocation();
         TeamBase base = new TeamBase(
             loc.getWorld().getName(),
             loc.getX(), loc.getY(), loc.getZ(),
-            loc.getYaw(), loc.getPitch()
+            loc.getYaw(), loc.getPitch(),
+            finalRad
         );
 
         team.setBase(base);
@@ -112,9 +118,10 @@ public final class TeamCommands implements CommandHandler {
 
         sender.sendRichMessage("<green>Base set for team <"
             + team.getColor() + ">" + team.getName()
-            + " <gray>at <white>" + loc.getWorld().getName()
-            + " (" + (int) loc.getX() + ", " + (int) loc.getY()
-            + ", " + (int) loc.getZ() + ")");
+            + "<gray> at <white>" + loc.getWorld().getName()
+            + " (" + (int) loc.getX() + ", " + (int) loc.getY() + ", " + (int) loc.getZ() + ")"
+            + " <gray>- base radius <white>" + base.radius() + " blocks"
+            + " <dark_gray>(edit in teams.yml to change)");
     }
 
     @Command("captain <player> <team>")

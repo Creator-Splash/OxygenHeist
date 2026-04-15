@@ -85,7 +85,7 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     private void activate(Player player, ItemStack item, @Nullable MatchSession session) {
         var loc = player.getLocation();
 
-        if (!config.sounds().fire().isEmpty()) config.sounds().fire().playTo(player);
+        if (!config.sounds().fire().isEmpty()) config.sounds().fire().playFrom(player);
 
         ParticleUtils.spawn(Particle.CAMPFIRE_COSY_SMOKE, loc,
             1, 0.1, 0.1, 0.1, 0.01, session);
