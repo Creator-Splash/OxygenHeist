@@ -25,7 +25,7 @@ public final class DisplayModule implements Module {
     private PaperAirBarController airBarController;
 
     public DisplayModule build() {
-        this.airBarController = new PaperAirBarController();
+        this.airBarController = new PaperAirBarController(plugin.getLogCenter());
 
         this.matchDisplayManager = new PaperMatchDisplayManager(
             plugin,

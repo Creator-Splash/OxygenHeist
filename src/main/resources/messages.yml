@@ -12,16 +12,20 @@ match:
   # Broadcast to all players when the match begins
   start: "<green><bold>LET THE GAMES BEGIN!"
   start-subtitle: "<gray>May the best team win."
-  start-title-fade-in: 0
+  start-title-fade-in: 5
   start-title-stay: 40
   start-title-fade-out: 20
+  start-sound:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.0
   # Broadcast to all players when the match ends
   end: "<red><bold>GAME OVER!"
 
   # Broadcast to all players when a team wins. Placeholder: <team>
   team-wins: "<gold><bold><team> <green><bold>WINS!"
   team-wins-subtitle: "<gray>Congratulations!"
-  team-wins-title-fade-in: 0
+  team-wins-title-fade-in: 5
   team-wins-title-stay: 100
   team-wins-title-fade-out: 40
 
@@ -77,7 +81,7 @@ player:
   # Revived
   revived-title: "<green><bold>REVIVED!"
   revived-subtitle: "<gray>You're back in the fight!"
-  revived-title-fade-in: 0
+  revived-title-fade-in: 5
   revived-title-stay: 40
   revived-title-fade-out: 10
   revived-sound:
@@ -93,7 +97,7 @@ player:
   eliminated-subtitle-bleedout: "<gray>You've bled out!"
   # Subtitle shown when the player was eliminated instantly (instant death mode)
   eliminated-subtitle-instant: "<gray>You've been eliminated!"
-  eliminated-title-fade-in: 0
+  eliminated-title-fade-in: 5
   eliminated-title-stay: 60
   eliminated-title-fade-out: 20
   eliminated-sound:
@@ -123,8 +127,6 @@ player:
 zone:
   # Broadcast to all players when a team captures a zone. Placeholders: <team>, <zone>
   captured: "<green><bold><team> <gray>captured <yellow><zone><gray>!"
-  # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
-  oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
   capture-sound:
     sound: "block.beacon.activate"
     source: "master"
@@ -140,6 +142,13 @@ zone:
     source: "master"
     volume: 0.5
     pitch: 1.5
+  # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
+  oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
+  oxygen-depleted-title: "<red><bold>ZONE DRAINED"
+  oxygen-depleted-subtitle: "<gray>Your zone oxygen is depleted - no more protection!"
+  oxygen-depleted-fade-in: 10
+  oxygen-depleted-stay: 60
+  oxygen-depleted-fade-out: 20
 
 # UI Elements
 

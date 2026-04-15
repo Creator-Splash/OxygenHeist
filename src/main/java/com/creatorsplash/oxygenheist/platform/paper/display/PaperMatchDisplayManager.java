@@ -103,6 +103,9 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
         // Broadcast + title to all players
         broadcast(MM.msg(msg().match().start()));
+        if (msg().match().startSound() != null) {
+            msg().match().startSound().playGlobal();
+        }
 
         MessageConfig.MatchMessages m = msg().match();
         Title gameStartTitle = Title.title(
@@ -358,6 +361,20 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             playSound(player, msg().zone().captureSound());
+        }
+    }
+
+    @Override
+    public void onZoneOxygenDepleted(String zoneId, String teamId, Set<UUID> teamMembersInZone) {
+        MessageConfig.ZoneMessages z = msg().zone();
+        Title title = Title.title(
+            MM.msg(z.oxygenDepletedTitle()),
+            MM.msg(z.oxygenDepletedSubtitle()),
+            z.oxygenDepletedTimes().toAdventure()
+        );
+        for (UUID id : teamMembersInZone) {
+            Player p = plugin.getServer().getPlayer(id);
+            if (p != null) p.showTitle(title);
         }
     }
 

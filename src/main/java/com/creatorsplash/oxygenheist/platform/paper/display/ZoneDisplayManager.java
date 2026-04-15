@@ -173,22 +173,30 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         double zoneOxygen = zs.teamOxygen().getOrDefault(zs.ownerTeamId(), 100.0);
         String oxygenColor = zoneOxygen > 50 ? "aqua" : zoneOxygen > 20 ? "yellow" : "red";
 
-        String statusLine = "<" + color + ">" + sym().zoneOwned() + " " + name + "</" + color + ">"
-            + " <" + oxygenColor + ">" + sym().zoneOxygen() + " " + (int) zoneOxygen + "%</" + oxygenColor + ">";
-        String progressLine = buildProgressBar(zoneOxygen, color);
+        String statusLine = "<" + color + ">" + sym().zoneOwned() + " " + name + "</" + color + ">";
+        String oxygenLine = "<" + oxygenColor + ">" + sym().zoneOxygen() + " "
+            + (int) zoneOxygen + "%</" + oxygenColor + ">";
+        String progressLine = buildProgressBar(zoneOxygen, oxygenColor);
 
-        return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
+        return MM.msg(nameLine + "\n" + statusLine + " " + oxygenLine + "\n" + progressLine);
     }
 
     private Component buildContestedText(String nameLine, ZoneSnapshot zs) {
         String holdingTeamId = zs.ownerTeamId() != null ? zs.ownerTeamId() : zs.capturingTeamId();
         Team holding = holdingTeamId != null ? teamService.getTeam(holdingTeamId) : null;
         String color = holding != null ? holding.getColor() : "gray";
-        String name = holding != null ? holding.getName()  : "Neutral";
+        String name  = holding != null ? holding.getName()  : "Neutral";
+
+        double progress = zs.ownerTeamId() != null
+            ? zs.teamOxygen().getOrDefault(zs.ownerTeamId(), 100.0)
+            : zs.captureProgress();
+        String progressColor = zs.ownerTeamId() != null
+            ? (progress > 50 ? "aqua" : progress > 20 ? "yellow" : "red")
+            : color;
 
         String statusLine = "<" + color + ">" + name + "</" + color + ">"
-            + " <red>- " + sym().zoneContested() + " CONTESTED</red>";
-        String progressLine = buildProgressBar(zs.captureProgress(), color);
+            + " <red>" + sym().zoneCapturing() + " CONTESTED</red>";
+        String progressLine = buildProgressBar(progress, progressColor);
 
         return MM.msg(nameLine + "\n" + statusLine + "\n" + progressLine);
     }

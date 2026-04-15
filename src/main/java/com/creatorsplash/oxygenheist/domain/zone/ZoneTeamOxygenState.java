@@ -20,11 +20,13 @@ public class ZoneTeamOxygenState {
      *
      * @param amount the amount to drain
      */
-    public void drain(double amount) {
-        if (amount <= 0.0) return;
+    public boolean drain(double amount) {
+        if (amount <= 0.0) return false;
 
+        boolean wasOk = oxygenPercent > 0;
         this.oxygenPercent = Math.max(0.0, this.oxygenPercent - amount);
         if (this.oxygenPercent <= 0.0) this.refilling = true;
+        return wasOk && this.oxygenPercent <= 0.0;
     }
 
     /**

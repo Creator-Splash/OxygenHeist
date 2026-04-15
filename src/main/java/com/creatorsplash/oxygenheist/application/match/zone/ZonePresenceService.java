@@ -7,8 +7,7 @@ import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class ZonePresenceService {
@@ -16,29 +15,25 @@ public class ZonePresenceService {
     private final PlayerPositionProvider positionProvider;
 
     public ZonePresence compute(MatchSession session) {
-        // zone -> (team -> player count)
-        Map<CaptureZoneState, Map<String, Integer>> zoneTeamCounts = new HashMap<>();
+        Map<CaptureZoneState, Map<String, Set<UUID>>> zoneTeamPlayers = new HashMap<>();
 
-        // Player -> Zones
         for (PlayerMatchState player : session.getPlayers()) {
             if (!player.isActive()) continue;
-
             String teamId = session.getPlayerTeam(player.getPlayerId());
             if (teamId == null) continue;
-
             FullPosition position = positionProvider.getPosition(player.getPlayerId());
             if (position == null) continue;
 
-            // Check player against all zones
             for (CaptureZoneState zone : session.getZones()) {
                 if (!zone.isInside(position)) continue;
-
-                zoneTeamCounts.computeIfAbsent(zone, ignored -> new HashMap<>())
-                    .merge(teamId, 1, Integer::sum);
+                zoneTeamPlayers
+                    .computeIfAbsent(zone, ignored -> new HashMap<>())
+                    .computeIfAbsent(teamId, ignored -> new HashSet<>())
+                    .add(player.getPlayerId());
             }
         }
 
-        return new ZonePresence(zoneTeamCounts);
+        return new ZonePresence(zoneTeamPlayers);
     }
 
 }

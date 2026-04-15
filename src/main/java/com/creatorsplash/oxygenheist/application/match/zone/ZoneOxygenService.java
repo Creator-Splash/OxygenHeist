@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.application.match.zone;
 
+import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import com.creatorsplash.oxygenheist.domain.zone.ZoneTeamOxygenState;
@@ -7,6 +8,8 @@ import com.creatorsplash.oxygenheist.domain.match.config.MatchZoneConfig;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Handles per-team oxygen pressure on capture zones during an active match
@@ -24,7 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ZoneOxygenService {
 
-    private final ZonePresenceService presenceService;
+    private final MatchDisplayService displayService;
 
     /**
      * Processes zone oxygen for all zones in the match
@@ -37,7 +40,17 @@ public class ZoneOxygenService {
         for (CaptureZoneState zone : session.getZones()) {
             Map<String, Integer> teamCounts = presence.getTeamCounts(zone);
 
-            processPresentTeams(matchZoneConfig, zone, teamCounts);
+            processPresentTeams(
+                matchZoneConfig,
+                zone,
+                teamCounts,
+                (teamId, z) -> displayService.onZoneOxygenDepleted(
+                    z.getId(),
+                    teamId,
+                    presence.getPlayersForTeam(z, teamId)
+                )
+            );
+
             processAbsentRefillingTeams(matchZoneConfig, zone, teamCounts);
         }
     }
@@ -58,7 +71,8 @@ public class ZoneOxygenService {
     private void processPresentTeams(
         MatchZoneConfig config,
         CaptureZoneState zone,
-        Map<String, Integer> teamCounts
+        Map<String, Integer> teamCounts,
+        BiConsumer<String, CaptureZoneState> onOxygenDepleted
     ) {
         double drainPerTick = config.drainPercentPerSecond() / 20.0;
         double refillPerTick = config.refillPercentPerSecond() / 20.0;
@@ -68,6 +82,9 @@ public class ZoneOxygenService {
             String teamId = entry.getKey();
             int playerCount = entry.getValue();
 
+            // Only drain oxygen for the zone owner
+            if (!teamId.equals(zone.getOwnerTeamId())) continue;
+
             ZoneTeamOxygenState oxygenState = zone.getOrCreateZoneOxygen(teamId);
 
             if (oxygenState.isRefilling()) {
@@ -76,7 +93,10 @@ public class ZoneOxygenService {
             }
 
             int drainMultiplier = Math.clamp(playerCount, 1, maxMultiplier);
-            oxygenState.drain(drainPerTick * drainMultiplier);
+
+            if (oxygenState.drain(drainPerTick * drainMultiplier)) {
+                onOxygenDepleted.accept(teamId, zone);
+            }
         }
     }
 

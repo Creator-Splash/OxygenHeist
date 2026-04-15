@@ -45,6 +45,8 @@ public interface MatchDisplayService extends MatchLifecycle {
         int oxygenRestored, Set<UUID> teamMemberIds
     );
 
+    default void onZoneOxygenDepleted(String zoneId, String teamId, Set<UUID> teamMembersInZone) {}
+
     /** Called once when instant death mode activates */
     void onInstantDeathActivated();
 

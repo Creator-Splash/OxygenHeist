@@ -18,7 +18,7 @@ public final class AirChangeListener implements Listener {
 
         if (!airBarController.isTracked(player.getUniqueId())) return;
 
-        event.setCancelled(true);
+        event.setAmount(airBarController.getTargetAir(player.getUniqueId()));
     }
 
 }

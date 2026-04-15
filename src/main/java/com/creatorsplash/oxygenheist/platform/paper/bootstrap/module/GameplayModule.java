@@ -64,7 +64,7 @@ public final class GameplayModule implements Module {
         PlayerOxygenService playerOxygenService = new PlayerOxygenService(zoneService);
         CaptureService captureService = new CaptureService(playerOxygenService);
         ZonePresenceService zonePresenceService = new ZonePresenceService(positionProvider);
-        ZoneOxygenService zoneOxygenService = new ZoneOxygenService(zonePresenceService);
+        ZoneOxygenService zoneOxygenService = new ZoneOxygenService(display().matchDisplayManager());
 
         this.scheduler = new PaperSchedulerAdapter(plugin);
         GameBridge bridge = new StandaloneGameBridge();

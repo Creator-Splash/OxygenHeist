@@ -57,6 +57,7 @@ public record MessageConfig(
         String start,
         String startSubtitle,
         TitleTimes startTitleTimes,
+        SoundConfig startSound,
         /* Broadcast on match end */
         String end,
         /* Broadcast when a team wins. Placeholder: <team> */
@@ -143,11 +144,14 @@ public record MessageConfig(
     public record ZoneMessages(
         /* Broadcast on capture. Placeholders: <team>, <zone> */
         String captured,
-        /* Sent to capturing team members. Placeholders: <amount>, <zone> */
-        String oxygenRestored,
         SoundConfig captureSound,
         SoundConfig contestedSound,
-        SoundConfig capturingSound
+        SoundConfig capturingSound,
+        /* Sent to capturing team members. Placeholders: <amount>, <zone> */
+        String oxygenRestored,
+        String oxygenDepletedTitle,
+        String oxygenDepletedSubtitle,
+        TitleTimes oxygenDepletedTimes
     ) {}
 
     /**

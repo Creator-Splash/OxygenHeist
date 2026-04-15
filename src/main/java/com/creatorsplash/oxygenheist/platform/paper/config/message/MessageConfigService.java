@@ -57,6 +57,7 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "match.start", "<green><bold>LET THE GAMES BEGIN!"),
             s(c, "match.start-subtitle", "<gray>May the best team win"),
             times(c, "match.start", 0, 40, 20),
+            SoundConfig.sound(c, "match.start-sound"),
             s(c, "match.end", "<red><bold>GAME OVER!"),
             s(c, "match.team-wins", "<gold><bold><team> <green><bold>WINS!"),
             s(c, "match.team-wins-subtitle", "<gray>Congratulations!"),
@@ -119,11 +120,15 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
     private static MessageConfig.ZoneMessages parseZone(YamlConfiguration c) {
         return new MessageConfig.ZoneMessages(
             s(c, "zone.captured", "<green><bold><team> <gray>captured <yellow><zone><gray>!"),
-            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! " +
-                "<reset><gray>Your team captured <zone>"),
             SoundConfig.sound(c, "zone.capture-sound"),
             SoundConfig.sound(c, "zone.contested-sound"),
-            SoundConfig.sound(c, "zone.capturing-sound")
+            SoundConfig.sound(c, "zone.capturing-sound"),
+            s(c, "zone.oxygen-restored", "<aqua><bold>+<amount> Oxygen! " +
+                "<reset><gray>Your team captured <zone>"),
+            s(c, "zone.oxygen-depleted-title", "<red><bold>ZONE DRAINED"),
+            s(c, "zone.oxygen-depleted-subtitle",
+                "<gray>Your zone oxygen is depleted - no more protection!"),
+            times(c, "zone.oxygen-depleted-times", 0, 60, 20)
         );
     }
 
