@@ -2,11 +2,13 @@ package com.creatorsplash.oxygenheist.application.match.oxygen;
 
 import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.config.OxygenConfig;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.ObjDoubleConsumer;
 
 /**
  * Handles player oxygen logic during an active match
@@ -30,20 +32,24 @@ public class PlayerOxygenService {
      *
      * @param session the active match session
      */
-    public void tickDrain(MatchSession session, Consumer<UUID> onDepleted) {
-        double drainAmountPerTick = session.config().oxygen().drainPerTick();
+    public void tickDrain(
+        MatchSession session,
+        ObjDoubleConsumer<UUID> onSuffocating,
+        Consumer<UUID> onLowOxygen
+    ) {
+        OxygenConfig cfg = session.config().oxygen();
 
         for (PlayerMatchState player: session.getPlayers()) {
             if (!player.isActive()) continue;
-
             if (zoneService.isPlayerInOwnedZone(session, player.getPlayerId())) continue;
-
             if (player.getMaxOxygen() <= 0) continue;
 
-            player.drainOxygen(drainAmountPerTick);
+            player.drainOxygen(cfg.drainPerTick());
 
             if (player.isOxygenDepleted()) {
-                onDepleted.accept(player.getPlayerId());
+                onSuffocating.accept(player.getPlayerId(), cfg.suffocationDamage());
+            } else if (player.getOxygen() / player.getMaxOxygen() <= cfg.lowOxygenThreshold()) {
+                onLowOxygen.accept(player.getPlayerId());
             }
         }
     }

@@ -145,6 +145,13 @@ public final class PaperGamePlayerService implements GamePlayerService {
         }
     }
 
+    @Override
+    public void applySuffocationDamage(UUID playerId, double amount) {
+        Player player = server.getPlayer(playerId);
+        if (player == null) return;
+        player.damage(amount);
+    }
+
     /* Helpers */
 
     private double maxHealth(Player player) {

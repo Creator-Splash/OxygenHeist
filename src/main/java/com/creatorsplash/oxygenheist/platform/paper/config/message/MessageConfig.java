@@ -93,6 +93,10 @@ public record MessageConfig(
      * Titles, sounds, and chat messages for per-player combat events.
      */
     public record PlayerMessages(
+        // Damage
+        SoundConfig suffocatingSound,
+        SoundConfig lowOxygenSound,
+
         // Downed
         String downedTitle,
         String downedSubtitle,

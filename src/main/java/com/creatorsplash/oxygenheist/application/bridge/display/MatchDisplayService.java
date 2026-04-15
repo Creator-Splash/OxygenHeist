@@ -57,6 +57,10 @@ public interface MatchDisplayService extends MatchLifecycle {
 
     /* Player Hooks */
 
+    default void onPlayerSuffocating(UUID playerId) {}
+
+    default void onPlayerLowOxygen(UUID playerId) {}
+
     /**
      * Called when a player leaves or is removed from the match
      */

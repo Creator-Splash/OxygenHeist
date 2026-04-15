@@ -48,6 +48,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     private final Map<String, Long> lastContestedSound = new HashMap<>();
     private final Map<String, Long> lastCapturingSound = new HashMap<>();
+    private final Map<UUID, Long> lastLowOxygenSound = new HashMap<>();
 
     /* State */
 
@@ -311,6 +312,10 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
         airBarController.clearAll();
         firedTimeWarnings.clear();
         lastState = null;
+
+        lastCapturingSound.clear();
+        lastContestedSound.clear();
+        lastLowOxygenSound.clear();
     }
 
     @Override
@@ -379,6 +384,24 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     }
 
     /* Player Hooks */
+
+    @Override
+    public void onPlayerSuffocating(UUID playerId) {
+        Player player = plugin.getServer().getPlayer(playerId);
+        if (player == null) return;
+        playSound(player, msg().player().suffocationSound());
+    }
+
+    @Override
+    public void onPlayerLowOxygen(UUID playerId) {
+        long now = System.currentTimeMillis();
+        if (now - lastLowOxygenSound.getOrDefault(playerId, 0L) < 3000) return;
+        lastLowOxygenSound.put(playerId, now);
+
+        Player player = plugin.getServer().getPlayer(playerId);
+        if (player == null) return;
+        playSound(player, msg().player().lowOxygenSound());
+    }
 
     @Override
     public void onPlayerDowned(

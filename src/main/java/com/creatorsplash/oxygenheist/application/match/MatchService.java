@@ -469,7 +469,14 @@ public final class MatchService {
             }
         }
 
-        playerOxygenService.tickDrain(session, this::downPlayer);
+        playerOxygenService.tickDrain(
+            session,
+            (playerId, damage) -> {
+                playerService.applySuffocationDamage(playerId, damage);
+                displayService.onPlayerSuffocating(playerId);
+            },
+            displayService::onPlayerLowOxygen
+        );
 
         /* Player State */
 

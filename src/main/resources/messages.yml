@@ -63,6 +63,16 @@ countdown:
 # Player Events
 
 player:
+  suffocation-sound:
+    sound: "entity.player.hurt_drown"
+    source: "player"
+    volume: 0.5
+    pitch: 0.9
+  low-oxygen-sound:
+    sound: "entity.player.breath"
+    source: "player"
+    volume: 0.3
+    pitch: 1.5
   # Downed
   downed-title: "<red><bold>YOU'RE DOWN!"
   downed-subtitle: "<gray>Hold on! A teammate can revive you"

@@ -6,8 +6,12 @@ package com.creatorsplash.oxygenheist.domain.match.config;
 public record OxygenConfig(
     double max,
     double drainPerTick,
-    int depletionDownTicks
+    int depletionDownTicks,
+    double suffocationDamage,
+    double lowOxygenThreshold
 ) {
     public static final OxygenConfig EMPTY =
-        new OxygenConfig(300, 0.1, 200);
+        new OxygenConfig(300, 0.1,
+            200, 2.0,
+            0.2);
 }

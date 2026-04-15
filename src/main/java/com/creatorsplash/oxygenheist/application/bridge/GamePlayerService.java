@@ -52,4 +52,8 @@ public interface GamePlayerService {
      */
     void onPlayerEliminated(UUID playerId, @Nullable UUID spectateTargetId);
 
+    /* Gameplay */
+
+    void applySuffocationDamage(UUID playerId, double amount);
+
 }

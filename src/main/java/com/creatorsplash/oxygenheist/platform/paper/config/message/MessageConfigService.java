@@ -82,6 +82,8 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
 
     private static MessageConfig.PlayerMessages parsePlayer(YamlConfiguration c) {
         return new MessageConfig.PlayerMessages(
+            SoundConfig.sound(c, "player.suffocation-sound"),
+            SoundConfig.sound(c, "player.low-oxygen-sound"),
             // Downed
             s(c, "player.downed-title", "<red><bold>YOU'RE DOWN!"),
             s(c, "player.downed-subtitle", "<gray>Hold on! A teammate can revive you"),

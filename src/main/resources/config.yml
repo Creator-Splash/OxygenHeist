@@ -65,6 +65,12 @@ oxygen:
   # Ticks at zero oxygen before a player is downed
   depletion-down-ticks: 200
 
+  # damage per tick at 0 oxygen
+  suffocation-damage: 2.0
+
+  # % below to trigger "low oxygen effects"
+  low-oxygen-threshold: 0.2
+
 # ============
 # Downed state
 # ============
