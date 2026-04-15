@@ -22,7 +22,10 @@ public record MatchZoneConfig(
     ReplenishMode replenishMode,
 
     int recaptureCooldownSeconds,
-    double captureOxygenRestoreThreshold
+    double captureOxygenRestoreThreshold,
+
+    double displayMainHeight,   // height of main zone hologram above zone surface
+    double displayTeamHeight   // height of per-team holograms above zone surface
 ) {
 
     public enum ReplenishMode { PER_PLAYER, DRAIN_SPLIT }
@@ -40,6 +43,8 @@ public record MatchZoneConfig(
         2.0,
         ReplenishMode.PER_PLAYER,
         5,
-        80.0
+        80.0,
+        2.8,
+        4.2
     );
 }

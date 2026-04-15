@@ -45,9 +45,9 @@ public sealed interface ZoneDefinition {
         @Override
         public boolean contains(FullPosition pos) {
             return pos.world().equals(worldName)
-                && pos.x() >= minX && pos.x() <= maxX
-                && pos.y() >= minY && pos.y() <= maxY
-                && pos.z() >= minZ && pos.z() <= maxZ;
+                && pos.x() >= minX && pos.x() <= maxX + 1.0
+                && pos.y() >= minY && pos.y() <= maxY + 1.0
+                && pos.z() >= minZ && pos.z() <= maxZ + 1.0;
         }
     }
 

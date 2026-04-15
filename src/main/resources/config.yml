@@ -134,6 +134,9 @@ zones:
   # Minimum zone oxygen % a team must have refilled to before recapturing
   capture-oxygen-restore-threshold: 80.0
 
+  display-main-height: 2.8
+  display-team-height: 4.2
+
 # =======
 # Weapons
 # =======

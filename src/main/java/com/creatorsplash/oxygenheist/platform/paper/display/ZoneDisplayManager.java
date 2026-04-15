@@ -11,6 +11,7 @@ import com.creatorsplash.oxygenheist.domain.zone.ZoneSnapshot;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
@@ -38,6 +39,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     private final OxygenHeistPlugin plugin;
     private final TeamService teamService;
     private final ArenaConfigService arenaConfigService;
+    private final MatchConfigService matchConfigService;
     private final MessageConfigService messages;
     private final MatchSnapshotProvider snapshotProvider;
     private final Scheduler scheduler;
@@ -71,6 +73,8 @@ public final class ZoneDisplayManager implements MatchLifecycle {
 
     @Override
     public void onMatchStart() {
+        var zoneCfg = matchConfigService.get().zones();
+
         for (ZoneDefinition def : arenaConfigService.getZones()) {
             Location center = centerOf(def);
             if (center == null) {
@@ -79,8 +83,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 continue;
             }
 
-            // TODO CONFIG FOR HEIGHT
-            Location mainLoc = center.add(0, 2.6, 0); // float above ground
+            Location mainLoc = center.clone().add(0, zoneCfg.displayMainHeight(), 0);
 
             TextDisplay td = mainLoc.getWorld().spawn(mainLoc, TextDisplay.class, d -> {
                 d.setBillboard(Display.Billboard.CENTER);
@@ -97,8 +100,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             Map<String, Set<UUID>> zoneTeamViewers = new HashMap<>();
 
             for (Team team : teamService.getAllTeams()) {
-                // TODO CONFIG FOR HEIGHT
-                Location teamLoc = center.clone().add(0, 3.8, 0);
+                Location teamLoc = center.clone().add(0, zoneCfg.displayTeamHeight(), 0);
 
                 TextDisplay teamTd = teamLoc.getWorld().spawn(teamLoc, TextDisplay.class, d -> {
                     d.setBillboard(Display.Billboard.CENTER);
@@ -173,7 +175,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             double offset = particleOffsets.merge(def.id(), 0.08, Double::sum) % (Math.PI * 2);
             particleOffsets.put(def.id(), offset);
 
-            spawnParticleRing(center, radiusOf(def), zs.ownerTeamId(), zs.captureProgress(), offset, snapshot);
+            spawnParticles(def, center, zs.ownerTeamId(), zs.captureProgress(), offset, snapshot);
             tickZoneSounds(def.id(), zs, center);
         }
     }
@@ -250,17 +252,28 @@ public final class ZoneDisplayManager implements MatchLifecycle {
 
     /* == Particles == */
 
-    private void spawnParticleRing(
-        Location center, double radius,
+    private void spawnParticles(
+        ZoneDefinition def, Location center,
         String ownerTeamId, double captureProgress,
         double angleOffset, MatchSnapshot snapshot
     ) {
         Color color = ownerTeamId != null
             ? TeamUtils.colorTagToRgb(teamColorTag(ownerTeamId))
             : Color.SILVER;
-
         Particle.DustOptions dust = new Particle.DustOptions(color, 1.3f);
 
+        switch (def) {
+            case ZoneDefinition.Circle c ->
+                spawnCircleRing(center, c.radius(), captureProgress, angleOffset, dust, snapshot);
+            case ZoneDefinition.Cuboid c ->
+                spawnCuboidOutline(c, captureProgress, dust, snapshot);
+        }
+    }
+
+    private void spawnCircleRing(
+        Location center, double radius, double captureProgress,
+        double angleOffset, Particle.DustOptions dust, MatchSnapshot snapshot
+    ) {
         int points = Math.max(16, (int) (radius * 4));
         double step = (Math.PI * 2) / points;
         for (int i = 0; i < points; i++) {
@@ -274,13 +287,61 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             double height = (captureProgress / 100.0) * 3.0;
             for (int i = 0; i < 4; i++) {
                 double angle = (Math.PI / 2) * i + angleOffset;
-                double ox = radius * Math.cos(angle);
-                double oz = radius * Math.sin(angle);
                 for (double y = 0; y < height; y += 0.4) {
                     ParticleUtils.spawn(Particle.DUST,
-                        center.clone().add(ox, y, oz),
-                        1, 0, 0, 0, 0, dust, snapshot
-                    );
+                        center.clone().add(radius * Math.cos(angle), y, radius * Math.sin(angle)),
+                        1, 0, 0, 0, 0, dust, snapshot);
+                }
+            }
+        }
+    }
+
+    private void spawnCuboidOutline(
+        ZoneDefinition.Cuboid c,
+        double captureProgress,
+        Particle.DustOptions dust,
+        MatchSnapshot snapshot
+    ) {
+        World world = plugin.getServer().getWorld(c.worldName());
+        if (world == null) return;
+
+        double y = c.maxY() + 0.2;
+        double step = 0.5;
+
+        // North/South edges (along X axis, fixed Z)
+        for (double x = c.minX(); x <= c.maxX() + 1.0; x += step) {
+            ParticleUtils.spawn(Particle.DUST,
+                new Location(world, x, y, c.minZ()),
+                1, 0, 0, 0, 0, dust, snapshot);
+            ParticleUtils.spawn(Particle.DUST,
+                new Location(world, x, y, c.maxZ() + 1.0),
+                1, 0, 0, 0, 0, dust, snapshot);
+        }
+
+        // East/West edges (along Z axis, fixed X)
+        for (double z = c.minZ(); z <= c.maxZ() + 1.0; z += step) {
+            ParticleUtils.spawn(Particle.DUST,
+                new Location(world, c.minX(), y, z),
+                1, 0, 0, 0, 0, dust, snapshot);
+            ParticleUtils.spawn(Particle.DUST,
+                new Location(world, c.maxX() + 1.0, y, z),
+                1, 0, 0, 0, 0, dust, snapshot);
+        }
+
+        // Capture progress pillars at corners
+        if (captureProgress > 0 && captureProgress < 100) {
+            double height = (captureProgress / 100.0) * 3.0;
+            double[][] corners = {
+                {c.minX(), c.minZ()},
+                {c.maxX() + 1.0, c.minZ()},
+                {c.maxX() + 1.0, c.maxZ() + 1.0},
+                {c.minX(), c.maxZ() + 1.0}
+            };
+            for (double[] corner : corners) {
+                for (double py = 0; py < height; py += 0.4) {
+                    ParticleUtils.spawn(Particle.DUST,
+                        new Location(world, corner[0], c.maxY() + py, corner[1]),
+                        1, 0, 0, 0, 0, dust, snapshot);
                 }
             }
         }

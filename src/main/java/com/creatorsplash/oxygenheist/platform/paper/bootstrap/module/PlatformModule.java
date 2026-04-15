@@ -41,6 +41,7 @@ public record PlatformModule(
             plugin,
             gameplay.teamService(),
             configs.arenaConfig(),
+            configs.matchConfig(),
             configs.messageConfig(),
             gameplay.snapshotProvider(),
             gameplay.scheduler(),

@@ -48,10 +48,10 @@ public final class ZoneSelectionService {
             displayName,
             p1.getWorld().getName(),
             Math.min(p1.getX(), p2.getX()),
-            Math.min(p1.getY(), p2.getY()),
+            Math.min(p1.getY(), p2.getY()) + 1,
             Math.min(p1.getZ(), p2.getZ()),
             Math.max(p1.getX(), p2.getX()),
-            Math.max(p1.getY(), p2.getY()),
+            Math.max(p1.getY(), p2.getY()) + 1,
             Math.max(p1.getZ(), p2.getZ())
         ));
     }
@@ -81,7 +81,7 @@ public final class ZoneSelectionService {
             displayName,
             center.getWorld().getName(),
             center.getX(),
-            center.getY(),
+            center.getY() + 1,
             center.getZ(),
             radius
         ));
