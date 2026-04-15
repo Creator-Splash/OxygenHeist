@@ -128,6 +128,12 @@ zones:
   # drain_split - total drain that tick is split equally across present players
   replenish-mode: per_player
 
+  # Seconds after a team fully evacuates before they may recapture the zone
+  recapture-cooldown-seconds: 5
+
+  # Minimum zone oxygen % a team must have refilled to before recapturing
+  capture-oxygen-restore-threshold: 80.0
+
 # =======
 # Weapons
 # =======

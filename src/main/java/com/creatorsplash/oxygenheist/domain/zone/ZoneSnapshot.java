@@ -14,5 +14,7 @@ public record ZoneSnapshot(
    double captureProgress,
    Map<String, Double> teamOxygen,
    Set<String> presentTeamIds,
-   Set<String> refillingTeamIds
+   Set<String> evacuatingTeamIds,
+   Set<String> refillingTeamIds,
+   Map<String, Integer> teamCooldownTicks
 ) {}

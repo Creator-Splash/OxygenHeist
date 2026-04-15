@@ -151,12 +151,23 @@ public class CaptureZoneState {
      */
     public ZoneSnapshot toSnapshot(Set<String> presentTeamIds) {
         Map<String, Double> teamOxygen = new HashMap<>();
+        Set<String> evacuatingTeamIds = new HashSet<>();
         Set<String> refillingTeamIds = new HashSet<>();
+        Map<String, Integer> teamCooldownTicks = new HashMap<>();
 
         for (Map.Entry<String, ZoneTeamOxygenState> entry : getZoneOxygen().entrySet()) {
-            teamOxygen.put(entry.getKey(), entry.getValue().getOxygenPercent());
-            if (entry.getValue().isRefilling()) {
-                refillingTeamIds.add(entry.getKey());
+            String teamId = entry.getKey();
+            ZoneTeamOxygenState state = entry.getValue();
+
+            teamOxygen.put(teamId, state.getOxygenPercent());
+
+            switch (state.getPhase()) {
+                case EVACUATING -> evacuatingTeamIds.add(teamId);
+                case REFILLING  -> {
+                    refillingTeamIds.add(teamId);
+                    teamCooldownTicks.put(teamId, state.getRecaptureCooldownTicks());
+                }
+                case NORMAL -> { /* nothing extra needed */ }
             }
         }
 
@@ -168,7 +179,9 @@ public class CaptureZoneState {
             getCaptureProgress(),
             teamOxygen,
             Set.copyOf(presentTeamIds),
-            Set.copyOf(refillingTeamIds)
+            Set.copyOf(evacuatingTeamIds),
+            Set.copyOf(refillingTeamIds),
+            Map.copyOf(teamCooldownTicks)
         );
     }
 

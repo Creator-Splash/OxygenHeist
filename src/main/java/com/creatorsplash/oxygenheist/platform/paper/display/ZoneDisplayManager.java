@@ -154,6 +154,8 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         MatchSnapshot snapshot = snapshotProvider.get();
         if (snapshot == null) return;
 
+        int maxCooldownTicks = snapshot.config().zones().recaptureCooldownSeconds() * 20;
+
         for (ZoneDefinition def : arenaConfigService.getZones()) {
             ZoneSnapshot zs = snapshot.getZone(def.id());
             if (zs == null) continue;
@@ -163,7 +165,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 main.text(buildMainText(def.displayName(), zs));
             }
 
-            tickTeamDisplays(def.id(), zs);
+            tickTeamDisplays(def.id(), zs, maxCooldownTicks);
 
             Location center = centerOf(def);
             if (center == null) continue;
@@ -176,7 +178,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         }
     }
 
-    private void tickTeamDisplays(String zoneId, ZoneSnapshot zs) {
+    private void tickTeamDisplays(String zoneId, ZoneSnapshot zs, int maxCooldownTicks) {
         Map<String, TextDisplay> zoneDisplays = teamOxygenDisplays.get(zoneId);
         Map<String, Set<UUID>> zoneViewers = teamOxygenViewers.get(zoneId);
         if (zoneDisplays == null || zoneViewers == null) return;
@@ -188,9 +190,9 @@ public final class ZoneDisplayManager implements MatchLifecycle {
             if (td == null || !td.isValid()) continue;
 
             // Update text
-            td.text(buildTeamOxygenText(teamId, zs));
+            td.text(buildTeamOxygenText(teamId, zs, maxCooldownTicks));
 
-            // Diff viewers — who should see this display vs who currently does
+            // Diff viewers - who should see this display vs who currently does
             Set<UUID> currentViewers = zoneViewers.computeIfAbsent(teamId, k -> new HashSet<>());
             Set<UUID> shouldSee = new HashSet<>();
 
@@ -378,21 +380,52 @@ public final class ZoneDisplayManager implements MatchLifecycle {
      * Builds the private oxygen bar shown only to a specific teams members
      * <p>Always rendered regardless of zone state - draining, evacuating, refilling, or neutral</p>
      */
-    private Component buildTeamOxygenText(String teamId, ZoneSnapshot zs) {
+    private Component buildTeamOxygenText(String teamId, ZoneSnapshot zs, int maxCooldownTicks) {
         Team team = teamService.getTeam(teamId);
         double oxygen = zs.teamOxygen().getOrDefault(teamId, 100.0);
         String color = team != null ? team.getColor() : "gray";
         String name = team != null ? team.getName() : teamId;
+
+        // EVACUATING - team still physically in zone after depletion
+        if (zs.evacuatingTeamIds().contains(teamId)) {
+            return MM.msg(
+                "<" + color + ">" + sym().zoneOxygen() + " " + name + "</" + color + ">"
+                + "\n<red><bold>" + sym().downedWarning() + " Evacuate the zone!</bold></red>"
+            );
+        }
+
+        // REFILLING - oxygen recovering, cooldown may or may not be active
+        if (zs.refillingTeamIds().contains(teamId)) {
+            int cooldownTicks = zs.teamCooldownTicks().getOrDefault(teamId, 0);
+            String oxygenColor = oxygen > 50 ? "aqua" : oxygen > 20 ? "yellow" : "red";
+
+            String labelLine = "<" + color + ">" + sym().zoneOxygen() + " " + name
+                + " " + sym().zoneRefilling() + "</" + color + ">";
+
+            if (cooldownTicks > 0) {
+                // Cooldown still active - show countdown bar
+                int secondsLeft = (int) Math.ceil(cooldownTicks / 20.0);
+                float cooldownProgress = maxCooldownTicks > 0
+                    ? Math.clamp((float) cooldownTicks / maxCooldownTicks, 0f, 1f)
+                    : 0f;
+
+                String cooldownLabel = "<gray>Recapture ready in <white>" + secondsLeft + "s</white></gray>";
+                String cooldownBar = buildProgressBar(cooldownProgress * 100, "gray");
+
+                return MM.msg(labelLine + "\n" + buildProgressBar(oxygen, oxygenColor)
+                    + "\n\n" + cooldownLabel + "\n" + cooldownBar);
+            } else {
+                // Cooldown expired - ready to recapture
+                String readyLabel = "<green><bold>Ready to recapture!</bold></green>";
+                return MM.msg(labelLine + "\n" + buildProgressBar(oxygen, oxygenColor)
+                    + "\n\n" + readyLabel);
+            }
+        }
+
+        // NORMAL - standard oxygen bar
         String oxygenColor = oxygen > 50 ? "aqua" : oxygen > 20 ? "yellow" : "red";
-
-        boolean refilling = zs.refillingTeamIds().contains(teamId);
-        String indicator = refilling ? " " + sym().zoneRefilling() : "";
-
-        String labelLine = "<" + color + ">" + sym().zoneOxygen() + " " + name
-            + indicator + "</" + color + ">";
-        String barLine = buildProgressBar(oxygen, oxygenColor);
-
-        return MM.msg(labelLine + "\n" + barLine);
+        String labelLine   = "<" + color + ">" + sym().zoneOxygen() + " " + name + "</" + color + ">";
+        return MM.msg(labelLine + "\n" + buildProgressBar(oxygen, oxygenColor));
     }
 
     private String buildProgressBar(double progress, String color) {

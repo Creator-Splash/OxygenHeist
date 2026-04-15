@@ -4,10 +4,13 @@ import com.creatorsplash.oxygenheist.application.match.oxygen.PlayerOxygenServic
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchZoneConfig;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
+import com.creatorsplash.oxygenheist.domain.zone.ZoneTeamOxygenState;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Handles capture zone progression during an active match
@@ -50,18 +53,22 @@ public class CaptureService {
         ZonePresence presence,
         MatchSession session
     ) {
-        var config = session.config().zones();
+        MatchZoneConfig config = session.config().zones();
 
-        if (presence.isContested(zone)) {
-            zone.setContested(true);
-            return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
-        }
+        // Only teams that can actually participate in capture this tick
+        // Evacuating teams and teams still in recapture cooldown are excluded
+        Set<String> eligibleTeams = presence.getTeamsInZone(zone).stream()
+            .filter(teamId -> zone.getOrCreateZoneOxygen(teamId).canRecapture()
+                    || teamId.equals(zone.getOwnerTeamId()))
+            .collect(Collectors.toSet());
 
-        zone.setContested(false);
+        boolean contested = eligibleTeams.size() > 1;
+        boolean empty = eligibleTeams.isEmpty();
 
-        if (presence.isEmpty(zone)) {
-            return handleEmpty(zone, config);
-        }
+        zone.setContested(contested);
+
+        if (contested) return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
+        if (empty) return handleEmpty(zone, config);
 
         zone.clearRestoreCooldown();
 
@@ -125,9 +132,19 @@ public class CaptureService {
         zone.progressCapture(teamId, config.captureRatePerTick());
 
         if (zone.isFullyCaptured()) {
+            ZoneTeamOxygenState oxygenState = zone.getOrCreateZoneOxygen(teamId);
+            double oxygenAtCapture = oxygenState.getOxygenPercent();
+
             zone.completeCapture();
-            oxygenService.restoreTeamOxygen(session, teamId, config.captureOxygenRestore());
-            return new CaptureEvent(CaptureEvent.Type.CAPTURED, teamId, zone, config.captureOxygenRestore());
+            oxygenState.resetToNormal();
+
+            int oxygenRestored = 0;
+            if (oxygenAtCapture >= config.captureOxygenRestoreThreshold()) {
+                oxygenService.restoreTeamOxygen(session, teamId, config.captureOxygenRestore());
+                oxygenRestored = config.captureOxygenRestore();
+            }
+
+            return new CaptureEvent(CaptureEvent.Type.CAPTURED, teamId, zone, oxygenRestored);
         }
 
         return new CaptureEvent(CaptureEvent.Type.CAPTURING, teamId, zone, 0);

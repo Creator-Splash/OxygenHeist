@@ -19,7 +19,10 @@ public record MatchZoneConfig(
     int holdingPointsPerTick,
 
     double replenishPlayerPerSecond,
-    ReplenishMode replenishMode
+    ReplenishMode replenishMode,
+
+    int recaptureCooldownSeconds,
+    double captureOxygenRestoreThreshold
 ) {
 
     public enum ReplenishMode { PER_PLAYER, DRAIN_SPLIT }
@@ -35,6 +38,8 @@ public record MatchZoneConfig(
         50,
         1,
         2.0,
-        ReplenishMode.PER_PLAYER
+        ReplenishMode.PER_PLAYER,
+        5,
+        80.0
     );
 }

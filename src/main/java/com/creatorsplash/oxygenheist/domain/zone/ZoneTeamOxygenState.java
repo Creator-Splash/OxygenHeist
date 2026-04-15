@@ -10,7 +10,7 @@ import lombok.Getter;
  *
  * <p>Phase lifecycle:
  * <pre>
- *   NORMAL ──(hits 0%)──▶ EVACUATING ──(team fully leaves)──▶ REFILLING ──(reaches 100%)──▶ NORMAL
+ *   NORMAL ──(hits 0%)──▶ EVACUATING ──(team fully leaves)──▶ REFILLING
  * </pre>
  * </p>
  */
@@ -21,6 +21,9 @@ public class ZoneTeamOxygenState {
 
     private double oxygenPercent = 100.0;
     private OxygenPhase phase = OxygenPhase.NORMAL;
+
+    /** Ticks remaining before the team may recapture. <p>0 = ready */
+    private int recaptureCooldownTicks = 0;
 
     /**
      * Drains oxygen from the team
@@ -48,9 +51,15 @@ public class ZoneTeamOxygenState {
      * <p>Called when the last team member has left the zone after depletion.
      * No-op if not currently EVACUATING</p>
      */
-    public void beginRefill() {
-        if (this.phase == OxygenPhase.EVACUATING) {
-            this.phase = OxygenPhase.REFILLING;
+    public void beginRefill(int cooldownTicks) {
+        if (this.phase != OxygenPhase.EVACUATING) return;
+        this.phase = OxygenPhase.REFILLING;
+        this.recaptureCooldownTicks = cooldownTicks;
+    }
+
+    public void tickCooldown() {
+        if (phase == OxygenPhase.REFILLING && recaptureCooldownTicks > 0) {
+            recaptureCooldownTicks--;
         }
     }
 
@@ -65,8 +74,16 @@ public class ZoneTeamOxygenState {
         if (phase != OxygenPhase.REFILLING) return;
         this.oxygenPercent = Math.min(100.0, this.oxygenPercent + amount);
         if (this.oxygenPercent >= 100.0) {
-            this.phase = OxygenPhase.NORMAL;
+            resetToNormal();
         }
+    }
+
+    /**
+     * Forces a transition back to NORMAL regardless of current phase
+     */
+    public void resetToNormal() {
+        this.phase = OxygenPhase.NORMAL;
+        this.recaptureCooldownTicks = 0;
     }
 
     /**
@@ -74,7 +91,8 @@ public class ZoneTeamOxygenState {
      * (fully refilled and in NORMAL phase)
      */
     public boolean canRecapture() {
-        return phase == OxygenPhase.NORMAL && oxygenPercent >= 100.0;
+        return (phase == OxygenPhase.REFILLING || phase == OxygenPhase.NORMAL)
+            && recaptureCooldownTicks <= 0;
     }
 
     /**

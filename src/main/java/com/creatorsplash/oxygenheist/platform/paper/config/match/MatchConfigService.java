@@ -69,7 +69,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             fileConfig.getInt("zones.capture-oxygen-restore", 50),
             fileConfig.getInt("zones.holding-points-per-tick", 1),
             fileConfig.getDouble("zones.replenish-player-per-second", 2.0),
-            parseReplenishMode(fileConfig.getString("zones.replenish-mode", "per_player"))
+            parseReplenishMode(fileConfig.getString("zones.replenish-mode", "per_player")),
+            fileConfig.getInt("zones.recapture-cooldown-seconds", 5),
+            fileConfig.getDouble("zones.capture-oxygen-restore-threshold", 80.0)
         );
 
         MatchConfig newConfig = new MatchConfig(

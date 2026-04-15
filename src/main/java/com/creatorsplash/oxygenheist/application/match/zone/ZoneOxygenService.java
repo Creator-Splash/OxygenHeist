@@ -77,12 +77,14 @@ public class ZoneOxygenService {
 
             switch (oxygenState.getPhase()) {
                 case EVACUATING -> { /* Team still present after depletion - wait, do nothing */ }
-                // Team wandered back in during refill
-                case REFILLING -> oxygenState.refill(config.refillPercentPerSecond() / 20.0);
+                case REFILLING -> {
+                    // Team wandered back in during refill
+                    oxygenState.refill(config.refillPercentPerSecond() / 20.0);
+                    oxygenState.tickCooldown();
+                }
                 case NORMAL -> {
                     int drainMultiplier = Math.clamp(playerCount, 1, maxMultiplier);
                     double totalDrain = drainPerTick * drainMultiplier;
-
                     boolean justDepleted = oxygenState.drain(totalDrain);
 
                     if (justDepleted) {
@@ -100,7 +102,7 @@ public class ZoneOxygenService {
                                 config, totalDrain, playerCount
                             );
                             playerOxygenService.replenishPlayersInZone(
-                                    session, presentPlayers, replenish
+                                session, presentPlayers, replenish
                             );
                         }
                     }
@@ -115,6 +117,7 @@ public class ZoneOxygenService {
         Map<String, Integer> teamCounts
     ) {
         double refillPerTick = config.refillPercentPerSecond() / 20.0;
+        int cooldownTicks = config.recaptureCooldownSeconds() * 20;
 
         for (Map.Entry<String, ZoneTeamOxygenState> entry : zone.getZoneOxygen().entrySet()) {
             String teamId = entry.getKey();
@@ -125,10 +128,13 @@ public class ZoneOxygenService {
             switch (oxygenState.getPhase()) {
                 case EVACUATING -> {
                     // Team just fully vacated - begin refill
-                    oxygenState.beginRefill();
+                    oxygenState.beginRefill(cooldownTicks);
                     oxygenState.refill(refillPerTick);
                 }
-                case REFILLING -> oxygenState.refill(refillPerTick);
+                case REFILLING -> {
+                    oxygenState.refill(refillPerTick);
+                    oxygenState.tickCooldown();
+                }
                 case NORMAL -> { /* nothing to do */ }
             }
         }
