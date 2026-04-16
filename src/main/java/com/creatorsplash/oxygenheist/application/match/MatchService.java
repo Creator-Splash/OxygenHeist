@@ -176,7 +176,7 @@ public final class MatchService {
      * Ends the current match, resolving the winner by team score
      */
     public void endMatch() {
-        endMatch(resolveWinnerByScore());
+        endMatch(resolveWinner().orElseGet(this::resolveWinnerByScore));
     }
 
     /* == Player == */
@@ -385,7 +385,7 @@ public final class MatchService {
                 }
 
                 if (session.isTimeExpired()) {
-                    endMatch(resolveWinnerByScore());
+                    endMatch(resolveWinner().orElseGet(this::resolveWinnerByScore));
                 }
             }
 
@@ -537,17 +537,25 @@ public final class MatchService {
     }
 
     private void checkWinCondition() {
-        if (session == null || !session.isPlaying()) return;
+       resolveWinner().ifPresent(this::endMatch);
+    }
+
+    private Optional<String> resolveWinner() {
+        if (session == null || !session.isPlaying()) return Optional.empty();
 
         Set<String> aliveTeams = session.getTeamsWithAlivePlayers();
 
         if (aliveTeams.size() == 1) {
             String winnerId = aliveTeams.iterator().next();
             Team winner = teamService.getTeam(winnerId);
-            endMatch(winner != null ? winner.getName() : winnerId);
-        } else if (aliveTeams.isEmpty()) {
-            endMatch("");
+            return Optional.of(winner != null ? winner.getName() : winnerId);
         }
+
+        if (aliveTeams.isEmpty()) {
+            return Optional.of(""); // mass disconnect / draw
+        }
+
+        return Optional.empty();
     }
 
     private String resolveWinnerByScore() {
