@@ -57,7 +57,7 @@ public interface GamePlayerService {
     /**
      * Removes downed effects and sets spectator mode on elimination
      */
-    void onPlayerEliminated(UUID playerId, @Nullable UUID spectateTargetId);
+    void onPlayerEliminated(UUID playerId, MatchSession session);
 
     /* Gameplay */
 

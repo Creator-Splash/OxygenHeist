@@ -268,7 +268,7 @@ public final class MatchService {
 
         reviveService.cancelRevivesInvolving(playerId);
         displayService.onPlayerEliminated(playerId, session.isInstantDeath());
-        playerService.onPlayerEliminated(playerId, resolveSpectateTarget(playerId));
+        playerService.onPlayerEliminated(playerId, session);
 
         awardKillReward(playerId, player.getLastAttacker());
         gameBridge.onPlayerEliminated(playerId, reason);
@@ -276,22 +276,6 @@ public final class MatchService {
         checkWinCondition();
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
-    }
-
-    private @Nullable UUID resolveSpectateTarget(UUID eliminatedId) {
-        if (session == null) return null;
-
-        String teamId = session.getPlayerTeam(eliminatedId);
-        if (teamId == null) return null;
-
-        // Find a living, non-downed teammate
-        return session.getPlayers().stream()
-            .filter(p -> !p.getPlayerId().equals(eliminatedId))
-            .filter(p -> p.isAlive() && !p.isDowned())
-            .map(PlayerMatchState::getPlayerId)
-            .filter(playerId -> teamId.equals(session.getPlayerTeam(playerId)))
-            .findFirst()
-            .orElse(null);
     }
 
     private void awardKillReward(UUID victimId, @Nullable UUID attackerId) {

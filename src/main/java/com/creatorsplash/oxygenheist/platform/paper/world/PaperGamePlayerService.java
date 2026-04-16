@@ -16,6 +16,7 @@ import lombok.Setter;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.inventory.ItemStack;
@@ -162,7 +163,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
     }
 
     @Override
-    public void onPlayerEliminated(UUID playerId, @Nullable UUID spectateTargetId) {
+    public void onPlayerEliminated(UUID playerId, MatchSession session) {
         Player player = server.getPlayer(playerId);
         if (player == null) return;
 
@@ -172,14 +173,28 @@ public final class PaperGamePlayerService implements GamePlayerService {
 
         dropWeaponsAtDeath(player);
 
-        if (spectateTargetId != null) {
-            Player target = server.getPlayer(spectateTargetId);
-            if (target != null && target.isOnline()) {
-                player.setSpectatorTarget(target);
-            }
+        UUID spectateTargetId = session.resolveSpectateTarget(playerId);
+        Player target = spectateTargetId != null
+            ? server.getPlayer(spectateTargetId) : null;
+        if (target != null && target.isOnline()) {
+            player.setSpectatorTarget(target);
         }
 
-        // todo drop any spectators
+        // Redirect spectators of the eliminated player
+        for (Player online : server.getOnlinePlayers()) {
+            if (online.getUniqueId().equals(playerId)) continue;
+            if (online.getGameMode() != GameMode.SPECTATOR) continue;
+
+            Entity currentTarget = online.getSpectatorTarget();
+            if (currentTarget == null) continue;
+            if (!currentTarget.getUniqueId().equals(playerId)) continue;
+
+            UUID newSpectateId = session.resolveSpectateTarget(online.getUniqueId());
+            Player newTarget = newSpectateId != null
+                ? server.getPlayer(newSpectateId) : null;
+
+            online.setSpectatorTarget(newTarget);
+        }
     }
 
     @Override

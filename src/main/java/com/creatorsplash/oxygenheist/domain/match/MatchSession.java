@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -216,6 +217,27 @@ public final class MatchSession {
                 }
             }
         }
+    }
+
+    /**
+     * Resolves the best spectate target for a player being eliminated -
+     * the first alive, non-downed teammate
+     *
+     * @param eliminatedId the player being eliminated
+     * @return a teammate UUID to spectate, or null if none are available
+     */
+    public @Nullable UUID resolveSpectateTarget(UUID eliminatedId) {
+        String teamId = getPlayerTeam(eliminatedId);
+        if (teamId == null) return null;
+
+        // Find a living, non-downed teammate
+        return getPlayers().stream()
+            .filter(p -> !p.getPlayerId().equals(eliminatedId))
+            .filter(p -> p.isAlive() && !p.isDowned())
+            .map(PlayerMatchState::getPlayerId)
+            .filter(playerId -> teamId.equals(getPlayerTeam(playerId)))
+            .findFirst()
+            .orElse(null);
     }
 
     /* == Timing == */
