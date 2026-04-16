@@ -1,5 +1,6 @@
 [versions]
 paper = "1.21.8-R0.1-SNAPSHOT"
+paperweight = "2.0.0-beta.21"
 
 # MainEventCore
 #creatorsplashcore = "1.0.0"
@@ -52,3 +53,4 @@ triumph-gui = { module = "dev.triumphteam:triumph-gui-paper", version = "4.0.0-S
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 plugin-yml = { id = "net.minecrell.plugin-yml.paper", version.ref = "plugin-yml" }
 indra = { id = "net.kyori.indra.git", version.ref = "indra" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

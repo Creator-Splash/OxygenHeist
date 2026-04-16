@@ -39,6 +39,7 @@ public final class PaperGamePlayerService implements GamePlayerService {
     private final Server server;
     private final Scheduler scheduler;
     private final TeamService teamService;
+    private final DownedCrawlManager crawlManager;
     private final LogCenter log;
 
     @Nullable @Setter
@@ -125,7 +126,6 @@ public final class PaperGamePlayerService implements GamePlayerService {
             player.setFoodLevel(20);
             player.setSaturation(20f);
             player.getInventory().clear();
-            player.setSneaking(false);
             player.setRemainingAir(player.getMaximumAir());
             TeamUtils.removeArmor(player);
         }
@@ -141,10 +141,11 @@ public final class PaperGamePlayerService implements GamePlayerService {
         if (player == null) return;
 
         player.setHealth(maxHealth(player));
-        player.setSneaking(true);
 
-        player.addPotionEffect(new PotionEffect(
-            PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 3, false, false));
+        crawlManager.apply(player);
+
+//        player.addPotionEffect(new PotionEffect(
+//            PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 3, false, false));
 
         player.addPotionEffect(new PotionEffect(
             PotionEffectType.BLINDNESS, 20, 0, false, false));
@@ -155,8 +156,8 @@ public final class PaperGamePlayerService implements GamePlayerService {
         Player player = server.getPlayer(playerId);
         if (player == null) return;
 
-        player.setSneaking(false);
-        player.removePotionEffect(PotionEffectType.SLOWNESS);
+        crawlManager.restore(player);
+
         player.setHealth(maxHealth(player) * 0.5);
     }
 
@@ -165,8 +166,8 @@ public final class PaperGamePlayerService implements GamePlayerService {
         Player player = server.getPlayer(playerId);
         if (player == null) return;
 
-        player.setSneaking(false);
-        player.removePotionEffect(PotionEffectType.SLOWNESS);
+        crawlManager.restore(player);
+
         player.setGameMode(GameMode.SPECTATOR);
 
         dropWeaponsAtDeath(player);
@@ -177,6 +178,8 @@ public final class PaperGamePlayerService implements GamePlayerService {
                 player.setSpectatorTarget(target);
             }
         }
+
+        // todo drop any spectators
     }
 
     @Override

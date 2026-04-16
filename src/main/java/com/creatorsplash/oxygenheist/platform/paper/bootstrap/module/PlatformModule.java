@@ -83,7 +83,8 @@ public record PlatformModule(
                 display.lobbyDisplayManager()
             ),
             new MatchJoinListener(gameplay.matchService(), display.matchDisplayManager()),
-            new AirChangeListener(display.airBarController())
+            new AirChangeListener(display.airBarController()),
+            new DownedCrawlListener(gameplay.crawlManager())
         );
 
         // Register weapon listeners

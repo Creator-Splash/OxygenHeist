@@ -87,7 +87,7 @@ downed:
   intent-ttl-ticks: 40
 
   label-view-range: 16.0
-  label-height-offset: 0.75
+  label-height-offset: 0.35
 
 # =====
 # Zones

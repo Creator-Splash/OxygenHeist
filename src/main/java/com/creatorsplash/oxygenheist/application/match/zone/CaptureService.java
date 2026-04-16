@@ -67,7 +67,15 @@ public class CaptureService {
 
         zone.setContested(contested);
 
-        if (contested) return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
+        if (contested) {
+            String capturingTeam = zone.getCapturingTeamId();
+            if (!zone.hasOwner() && capturingTeam != null && !eligibleTeams.contains(capturingTeam)) {
+                zone.regressCapture(config.regressRatePerTick());
+            }
+
+            return new CaptureEvent(CaptureEvent.Type.CONTESTED, null, zone, 0);
+        }
+
         if (empty) return handleEmpty(zone, config);
 
         zone.clearRestoreCooldown();

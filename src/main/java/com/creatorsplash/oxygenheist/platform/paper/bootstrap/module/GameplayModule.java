@@ -20,10 +20,7 @@ import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.zone.config.ZoneDefinition;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.scheduler.PaperSchedulerAdapter;
-import com.creatorsplash.oxygenheist.platform.paper.world.PaperGamePlayerService;
-import com.creatorsplash.oxygenheist.platform.paper.world.PaperGameWorldService;
-import com.creatorsplash.oxygenheist.platform.paper.world.PlayerSelectionService;
-import com.creatorsplash.oxygenheist.platform.paper.world.ZoneSelectionService;
+import com.creatorsplash.oxygenheist.platform.paper.world.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -45,6 +42,7 @@ public final class GameplayModule implements Module {
     private PlayerActionService actionService;
     private GamePlayerService gamePlayerService;
     private GameWorldService worldService;
+    private DownedCrawlManager crawlManager;
     private CombatService combatService;
     private DownedService downedService;
     private ReviveService reviveService;
@@ -73,8 +71,16 @@ public final class GameplayModule implements Module {
             plugin.getServer(), scheduler, configs.arenaConfig(), plugin.getLogCenter()
         );
 
+        this.crawlManager = new DownedCrawlManager(plugin.getServer(), scheduler);
+
         this.gamePlayerService =
-            new PaperGamePlayerService(plugin().getServer(), scheduler, teamService, plugin.getLogCenter());
+            new PaperGamePlayerService(
+                plugin().getServer(),
+                scheduler,
+                teamService,
+                crawlManager,
+                plugin.getLogCenter()
+            );
 
         this.snapshotProvider = new MatchSnapshotProvider();
 

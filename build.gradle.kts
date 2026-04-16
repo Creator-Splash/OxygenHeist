@@ -7,6 +7,7 @@ plugins {
 
     alias(libs.plugins.shadow)
     alias(libs.plugins.plugin.yml)
+    alias(libs.plugins.paperweight)
 }
 
 group = "com.creatorsplash.oxygenheist"
@@ -35,6 +36,7 @@ repositories {
 
 dependencies {
     // Paper
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
     compileOnly(libs.paper.api)
 
     // Event Core
