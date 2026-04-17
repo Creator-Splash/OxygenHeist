@@ -13,6 +13,9 @@ import org.incendo.cloud.annotations.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Command("oxygenheist|oh")
 @Permission("com.creatorsplash.oxygenheist.game")
@@ -33,8 +36,13 @@ public final class GameCommands implements CommandHandler {
             return;
         }
 
+        Set<UUID> activePlayers = teamService.getAllTeams().stream()
+            .flatMap(t -> t.getMembers().stream())
+            .filter(id -> Bukkit.getPlayer(id) != null)
+            .collect(Collectors.toSet());
+
         matchService.createMatch();
-        matchService.startMatch();
+        matchService.startMatch(activePlayers);
 
         Bukkit.getServer().sendRichMessage("<aqua><bold>Oxygen Heist</bold> <gray>- match starting!");
     }

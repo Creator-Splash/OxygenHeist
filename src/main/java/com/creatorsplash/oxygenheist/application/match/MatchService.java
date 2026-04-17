@@ -118,7 +118,7 @@ public final class MatchService {
      *
      * @throws IllegalStateException if no match has been created
      */
-    public void startMatch() {
+    public void startMatch(Set<UUID> activePlayerIds) {
         if (session == null) {
             throw new IllegalStateException("Match not created");
         }
@@ -131,6 +131,7 @@ public final class MatchService {
         // Init match state for all teamed players only
         for (Team team : teamService.getAllTeams()) {
             for (UUID memberId : team.getMembers()) {
+                if (!activePlayerIds.contains(memberId)) continue;
                 session.getOrCreatePlayer(memberId)
                     .initOxygen(session.config().oxygen().max());
             }
