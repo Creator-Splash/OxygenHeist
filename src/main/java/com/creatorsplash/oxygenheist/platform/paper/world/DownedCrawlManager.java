@@ -134,11 +134,13 @@ public final class DownedCrawlManager implements MatchLifecycle {
         Location fakeLoc = fakeBlocks.remove(playerId);
         if (fakeLoc == null) return;
 
+        if (player != null) trackedEntityIds.remove(player.getEntityId());
+
         cleanupInterceptorIfEmpty();
 
         if (player != null && player.isOnline()) {
             player.sendBlockChange(fakeLoc, fakeLoc.getBlock().getBlockData());
-            player.setPose(Pose.STANDING);
+            scheduler.runLater(() -> player.setPose(Pose.STANDING), 2L);
         }
     }
 

@@ -506,9 +506,9 @@ public final class ZoneDisplayManager implements MatchLifecycle {
                 new Location(world, c.centerX(), c.centerY(), c.centerZ());
             case ZoneDefinition.Cuboid c ->
                 new Location(world,
-                (c.minX() + c.maxX()) / 2.0,
-                (c.minY() + c.maxY()) / 2.0,
-                (c.minZ() + c.maxZ()) / 2.0);
+                (c.minX() + c.maxX() + 1.0) / 2.0,
+                (c.minY() + c.maxY() + 1.0) / 2.0,
+                (c.minZ() + c.maxZ() + 1.0) / 2.0);
         };
     }
 

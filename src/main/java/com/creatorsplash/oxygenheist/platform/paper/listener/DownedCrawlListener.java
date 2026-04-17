@@ -25,7 +25,6 @@ public final class DownedCrawlListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
         if (!crawlManager.isTracked(player.getUniqueId())) return;
         event.setCancelled(true);
     }

@@ -108,6 +108,7 @@ public record MessageConfig(
         String downedAttackerAlert,
 
         // Revived
+        SoundConfig reviveProgressSound,
         String revivedTitle,
         String revivedSubtitle,
         TitleTimes revivedTimes,

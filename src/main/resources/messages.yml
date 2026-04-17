@@ -88,7 +88,11 @@ player:
   # Sent to the attacker when they down a player. Placeholder: <player>
   downed-attacker-alert: "<gray>You knocked down <yellow><player><gray>!"
 
-  # Revived
+  # Revive
+  revive-progress-sound:
+    sound: "block.note_block.hat"
+    volume: 0.5
+    pitch: 1.8
   revived-title: "<green><bold>REVIVED!"
   revived-subtitle: "<gray>You're back in the fight!"
   revived-title-fade-in: 5

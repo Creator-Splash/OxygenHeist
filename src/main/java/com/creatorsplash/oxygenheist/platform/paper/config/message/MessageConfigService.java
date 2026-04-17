@@ -92,7 +92,8 @@ public final class MessageConfigService implements Supplier<MessageConfig> {
             s(c, "player.downed-teammate-alert", "<yellow><bold><player> <gray>is down! Go revive them!"),
             s(c, "player.downed-attacker-alert", "<gray>You knocked down <yellow><player><gray>!"),
 
-            // Revived
+            // Revive
+            SoundConfig.sound(c, "player.revive-progress-sound"),
             s(c, "player.revived-title", "<green><bold>REVIVED!"),
             s(c, "player.revived-subtitle", "<gray>You're back in the fight!"),
             times(c, "player.revived", 0, 40, 10),

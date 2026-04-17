@@ -48,6 +48,8 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     private final Map<UUID, Long> lastLowOxygenSound = new HashMap<>();
     private final Map<UUID, Long> lastSuffocatingSound = new HashMap<>();
+    private final Map<UUID, Long> lastReviveProgressSound = new HashMap<>();
+
 
     /* State */
 
@@ -318,6 +320,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
         lastLowOxygenSound.clear();
         lastSuffocatingSound.clear();
+        lastReviveProgressSound.clear();
     }
 
     @Override
@@ -450,6 +453,18 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
             1, 0.3, 0.1, 0.3,
             0,  (MatchSnapshot) null
         );
+
+        long now = System.currentTimeMillis();
+        if (now - lastReviveProgressSound.getOrDefault(targetId, 0L) < 500) return;
+        lastReviveProgressSound.put(targetId, now);
+
+        SoundConfig sound = msg().player().reviveProgressSound();
+
+        // Play to downed player and reviver
+        if (target.isOnline()) playSound(target, sound);
+
+        Player reviver = plugin.getServer().getPlayer(reviverId);
+        if (reviver != null && reviver.isOnline()) playSound(reviver, sound);
     }
 
     @Override
@@ -544,6 +559,10 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
                 player.hideBossBar(timerBar);
             }
         }
+
+        lastReviveProgressSound.remove(playerId);
+        lastSuffocatingSound.remove(playerId);
+        lastLowOxygenSound.remove(playerId);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -51,6 +52,7 @@ public final class DownedDisplayManager implements MatchLifecycle {
             Player player = server.getPlayer(ps.playerId());
             if (player == null || !player.isOnline()) continue;
 
+            updateBleedoutHealth(player, ps, cfg);
             ensureLabel(player, cfg);
             updateLabel(player, ps, cfg);
             spawnBleedoutParticles(player, ps);
@@ -69,6 +71,27 @@ public final class DownedDisplayManager implements MatchLifecycle {
     }
 
     /* == Internals == */
+
+    private void updateBleedoutHealth(Player player, PlayerSnapshot ps, DownedConfig cfg) {
+        int bleedoutMax = cfg.bleedoutSeconds() * 20;
+        if (bleedoutMax <= 0) return;
+
+        double maxHp = maxHealth(player);
+
+        // Scale linearly from maxHp (just downed) down to 1.0 (about to bleed out)
+        double healthFraction = (double) ps.bleedoutTicks() / bleedoutMax;
+        double targetHealth = Math.max(1.0, healthFraction * maxHp);
+
+        // avoid spamming health packets every tick
+        if (Math.abs(player.getHealth() - targetHealth) > 0.05) {
+            player.setHealth(targetHealth);
+        }
+    }
+
+    private double maxHealth(Player player) {
+        var attr = player.getAttribute(Attribute.MAX_HEALTH);
+        return attr != null ? attr.getValue() : 20.0;
+    }
 
     /* Label management */
 
