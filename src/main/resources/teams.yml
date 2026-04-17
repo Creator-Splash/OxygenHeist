@@ -23,28 +23,52 @@ settings:
 #   captain - Single player UUID. Managed at runtime, do not edit manually
 
 teams:
-  red:
-    name: "<red>Red"
+
+  orca:
+    name: "Team Orca"
     color: "red"
-    base:
-      world: ""
-      x: 0.0
-      y: 64.0
-      z: 0.0
-      yaw: 0.0
-      pitch: 0.0
     members: []
     captain: ""
 
-  blue:
-    name: "<blue>Blue"
+  seahorse:
+    name: "Team Seahorse"
+    color: "yellow"
+    members: []
+    captain: ""
+
+  turtle:
+    name: "Team Turtle"
+    color: "green"
+    members: []
+    captain: ""
+
+  dolphin:
+    name: "Team Dolphin"
+    color: "aqua"
+    members: []
+    captain: ""
+
+  swordfish:
+    name: "Team Swordfish"
     color: "blue"
-    base:
-      world: ""
-      x: 0.0
-      y: 64.0
-      z: 0.0
-      yaw: 0.0
-      pitch: 0.0
+    members: []
+    captain: ""
+
+  stingray:
+    name: "Team Stingray"
+    # No named MiniMessage tag for purple — using hex
+    color: "#AA00FF"
+    members: []
+    captain: ""
+
+  jellyfish:
+    name: "Team Jellyfish"
+    color: "#FF69B4"
+    members: []
+    captain: ""
+
+  octopus:
+    name: "Team Octopus"
+    color: "#FF6600"
     members: []
     captain: ""
