@@ -16,7 +16,7 @@ public record DownedConfig(
     public static final DownedConfig EMPTY =
         new DownedConfig(
             30, 60,
-            3.0, 40L,
+            3.0, 5L,
                 16F, 2.0
         );
 }
