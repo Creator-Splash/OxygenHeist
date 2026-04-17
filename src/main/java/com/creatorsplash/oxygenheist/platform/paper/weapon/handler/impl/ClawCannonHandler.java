@@ -256,12 +256,12 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
     /* == Lifecycle == */
 
     @Override
-    public void onMatchEnd() {
-        super.onMatchEnd();
-
+    public void cleanUp() {
         inFlight.clear();
         cooldown.clearAll();
         bypassMeleeCancel.clear();
+
+        super.cleanUp();
     }
 
     @Override

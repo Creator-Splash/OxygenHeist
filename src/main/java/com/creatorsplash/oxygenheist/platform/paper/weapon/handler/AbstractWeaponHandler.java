@@ -72,6 +72,11 @@ public abstract class AbstractWeaponHandler implements WeaponHandler {
 
     @Override
     public void onMatchEnd() {
+        cleanUp();
+    }
+
+    @Override
+    public void cleanUp() {
         cancelAllTasks();
     }
 

@@ -4,6 +4,8 @@ import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
+import lombok.RequiredArgsConstructor;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,16 +27,14 @@ import java.util.UUID;
  * call from {@link MatchLifecycle#onMatchEnd} and {@link MatchLifecycle#onPlayerLeave}
  * to prevent item loss</p>
  */
+@RequiredArgsConstructor
 public final class WeaponHideService implements MatchLifecycle {
 
     private record HideState(ItemStack item, int slot, Scheduler.Task task) {}
 
+    private final Server server;
     private final Scheduler scheduler;
     private final Map<UUID, HideState> hidden = new HashMap<>();
-
-    public WeaponHideService(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
 
     /**
      * Hides the players main hand item and schedules its return after {@code delayTicks}
@@ -104,7 +104,7 @@ public final class WeaponHideService implements MatchLifecycle {
     public void onMatchEnd() {
         // Restore all hidden items - match cleanup removes items from players
         new HashSet<>(hidden.keySet()).forEach(id -> {
-            Player player = org.bukkit.Bukkit.getPlayer(id);
+            Player player = server.getPlayer(id);
             if (player != null) restore(id);
             else hidden.remove(id);
         });

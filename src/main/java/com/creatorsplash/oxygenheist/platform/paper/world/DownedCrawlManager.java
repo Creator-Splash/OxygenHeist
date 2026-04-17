@@ -2,9 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
-import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.util.nms.DownedPacketInterceptor;
-import com.creatorsplash.oxygenheist.platform.paper.util.nms.PoseUtil;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
@@ -120,6 +118,11 @@ public final class DownedCrawlManager implements MatchLifecycle {
         for (UUID id : new ArrayList<>(fakeBlocks.keySet())) {
             restoreById(id, server.getPlayer(id));
         }
+        cleanUp();
+    }
+
+    @Override
+    public void cleanUp() {
         fakeBlocks.clear();
         trackedEntityIds.clear();
         server.getOnlinePlayers().forEach(this::removeInterceptor);

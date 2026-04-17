@@ -58,7 +58,7 @@ public final class ReloadTracker implements MatchLifecycle {
     /* Lifecycle */
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         reloading.clear();
         startMs.clear();
         slot.clear();

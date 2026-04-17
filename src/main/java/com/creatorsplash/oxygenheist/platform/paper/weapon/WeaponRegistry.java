@@ -110,9 +110,8 @@ public final class WeaponRegistry implements MatchLifecycle {
         }
     }
 
-
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         handlers.values().forEach(WeaponHandler::onMatchEnd);
     }
 

@@ -127,7 +127,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     }
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         if (task != null) { task.cancel(); task = null; }
 
         displays.values().forEach(td -> { if (td.isValid()) td.remove(); });

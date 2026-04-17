@@ -64,7 +64,7 @@ public final class DownedDisplayManager implements MatchLifecycle {
     }
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         removeAll();
     }
 

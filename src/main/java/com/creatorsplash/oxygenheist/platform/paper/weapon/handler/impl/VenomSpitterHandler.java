@@ -173,10 +173,10 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     /* == Lifecycle == */
 
     @Override
-    public void onMatchEnd() {
-        super.onMatchEnd(); // clears reload tracker
+    public void cleanUp() {
         shooting.clear();
         bypassMeleeCancel.clear();
+        super.cleanUp();
     }
 
     @Override

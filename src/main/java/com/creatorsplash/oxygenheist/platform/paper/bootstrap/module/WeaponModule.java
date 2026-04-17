@@ -54,7 +54,7 @@ public final class WeaponModule implements Module {
         this.projectileTracker = new WeaponProjectileTracker();
         this.effectsState = new WeaponEffectsState();
         this.weaponRegistry = new WeaponRegistry();
-        this.hideService = new WeaponHideService(gameplay.scheduler());
+        this.hideService = new WeaponHideService(plugin().getServer(), gameplay.scheduler());
 
         this.dropService = new WeaponDropService(
             plugin.getServer(),

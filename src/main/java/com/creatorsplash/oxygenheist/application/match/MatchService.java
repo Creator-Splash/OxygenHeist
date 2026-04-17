@@ -85,6 +85,10 @@ public final class MatchService {
         externalLifecycles.add(lifecycle);
     }
 
+    public List<MatchLifecycle> readLifecycles() {
+        return List.copyOf(externalLifecycles);
+    }
+
     /* == Match == */
 
     /**

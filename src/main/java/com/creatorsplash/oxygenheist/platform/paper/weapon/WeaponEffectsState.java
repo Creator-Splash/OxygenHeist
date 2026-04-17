@@ -31,7 +31,7 @@ public class WeaponEffectsState implements MatchLifecycle {
     /* Lifecycle */
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         invertedControls.clear();
     }
 

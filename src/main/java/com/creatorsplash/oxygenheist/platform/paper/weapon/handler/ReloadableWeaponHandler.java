@@ -125,8 +125,7 @@ public abstract class ReloadableWeaponHandler extends AbstractWeaponHandler {
     /* == Lifecycle == */
 
     @Override
-    public void onMatchEnd() {
-        reload.onMatchEnd();
+    public void cleanUp() {
+        reload.cleanUp();
     }
-
 }

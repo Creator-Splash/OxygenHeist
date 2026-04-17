@@ -28,7 +28,11 @@ public interface MatchLifecycle {
      * <p>Implementations must wipe all match-scoped state here.
      * This will always be called before the next {@link #onMatchStart()}</p>
      */
-    default void onMatchEnd() {}
+    default void onMatchEnd() {
+        cleanUp();
+    }
+
+    default void cleanUp() {}
 
     /**
      * Called when a player joins an active match

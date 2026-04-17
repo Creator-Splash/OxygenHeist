@@ -47,6 +47,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     private final MessageConfigService messages;
 
     private final Map<UUID, Long> lastLowOxygenSound = new HashMap<>();
+    private final Map<UUID, Long> lastSuffocatingSound = new HashMap<>();
 
     /* State */
 
@@ -283,9 +284,13 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
             }
         }
 
-        clearAll();
+        cleanUp();
+    }
 
-        gameStarted.set(false);
+    @Override
+    public void onPlayerLeave(UUID playerId) {
+        lastLowOxygenSound.remove(playerId);
+        lastSuffocatingSound.remove(playerId);
     }
 
     @Override
@@ -312,7 +317,16 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
         lastState = null;
 
         lastLowOxygenSound.clear();
+        lastSuffocatingSound.clear();
     }
+
+    @Override
+    public void cleanUp() {
+        clearAll();
+        gameStarted.set(false);
+    }
+
+    /* Zones */
 
     @Override
     public void onZoneCaptured(
@@ -356,6 +370,10 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     @Override
     public void onPlayerSuffocating(UUID playerId) {
+        long now = System.currentTimeMillis();
+        if (now - lastSuffocatingSound.getOrDefault(playerId, 0L) < 2000) return;
+        lastSuffocatingSound.put(playerId, now);
+
         Player player = plugin.getServer().getPlayer(playerId);
         if (player == null) return;
         playSound(player, msg().player().suffocatingSound());

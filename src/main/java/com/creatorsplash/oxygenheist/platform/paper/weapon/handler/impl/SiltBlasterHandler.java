@@ -162,9 +162,9 @@ public final class SiltBlasterHandler extends AbstractWeaponHandler {
     /* == Lifecycle == */
 
     @Override
-    public void onMatchEnd() {
-        super.onMatchEnd();
+    public void cleanUp() {
         cooldown.clearAll();
+        super.cleanUp();
     }
 
     @Override

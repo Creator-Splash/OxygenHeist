@@ -51,7 +51,7 @@ public class WeaponProjectileTracker implements MatchLifecycle {
     /* Lifecycle */
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         tracked.clear();
     }
 

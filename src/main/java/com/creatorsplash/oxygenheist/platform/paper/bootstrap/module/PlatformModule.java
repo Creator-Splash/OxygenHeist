@@ -30,6 +30,9 @@ public record PlatformModule(
 
     private void registerLifecycles() {
         MatchService matchService = gameplay.matchService();
+        if (matchService == null) {
+            throw new IllegalStateException("MatchService has not been initialized!");
+        }
 
         matchService.registerLifecycle(weapons().weaponRegistry());
         matchService.registerLifecycle(weapons().projectileTracker());
@@ -142,4 +145,20 @@ public record PlatformModule(
         }
     }
 
+    @Override
+    public void disable() {
+        MatchService matchService = gameplay.matchService();
+        if (matchService == null) {
+            throw new IllegalStateException("MatchService has not been initialized!");
+        }
+
+        matchService.readLifecycles().forEach(lifecycle -> {
+            try {
+                lifecycle.cleanUp();
+            } catch (Exception e) {
+                plugin.getLogCenter().error("MatchLifecycle '" + lifecycle.getClass().getSimpleName()
+                    + "' had an error during cleanUp, skipping: ", e);
+            }
+        });
+    }
 }

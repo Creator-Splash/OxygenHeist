@@ -123,7 +123,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
     }
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         if (particleTask != null) { particleTask.cancel(); particleTask = null; }
         removeAllItems();
         activeItems.clear();

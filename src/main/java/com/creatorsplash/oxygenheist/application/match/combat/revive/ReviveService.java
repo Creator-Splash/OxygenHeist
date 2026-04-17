@@ -141,7 +141,7 @@ public class ReviveService implements MatchLifecycle {
     /* Lifecycle */
 
     @Override
-    public void onMatchEnd() {
+    public void cleanUp() {
         activeRevives.clear();
     }
 
