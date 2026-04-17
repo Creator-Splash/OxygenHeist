@@ -25,8 +25,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -131,7 +134,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
         pickupDeniedCooldown.clear();
     }
 
-    /* Spawning */
+    /* Runtime hooks */
 
     /**
      * Drops a specific weapon item at the given location, registering it fully
@@ -146,14 +149,26 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
     public void dropWeaponFromPlayer(ItemStack item, Location location) {
         if (item == null || item.isEmpty()) return;
 
-        // Respect maximum on field
-        if (activeItems.size() >= globals.get().weaponSpawner().maximumOnField()) return;
+//        if (activeItems.size() >= globals.get().weaponSpawner().maximumOnField()) return;
 
         Item dropped = location.getWorld().dropItem(location, item);
         dropped.setVelocity(new Vector(0, 0.1, 0));
         dropped.setPickupDelay(globals.get().weaponSpawner().pickupCooldownSeconds() * 20);
 
-        String weaponId = item.getItemMeta()
+        registerDroppedItem(dropped);
+    }
+
+    /**
+     * Registers an already-spawned Item entity with the drop service,
+     * attaching a label and tracking it for particles and pickup handling.
+     *
+     * <p>Called when a player manually drops a weapon from their inventory</p>
+     */
+    public void registerDroppedItem(Item item) {
+//        if (activeItems.size() >= globals.get().weaponSpawner().maximumOnField()) return;
+        if (!item.getItemStack().hasItemMeta()) return;
+
+        String weaponId = item.getItemStack().getItemMeta()
             .getPersistentDataContainer()
             .get(PDCKeys.WEAPON_ID, PersistentDataType.STRING);
 
@@ -161,11 +176,16 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
             ? WeaponUtils.formatDisplayName(weaponId)
             : "Weapon";
 
-        TextDisplay label = spawnLabel(location, displayName);
+        TextDisplay label = spawnLabel(item.getLocation(), displayName);
+        item.addPassenger(label);
 
-        activeItems.put(dropped.getUniqueId(), label.getUniqueId());
-        particleOffsets.put(dropped.getUniqueId(), 0.0);
+        activeItems.put(item.getUniqueId(), label.getUniqueId());
+        particleOffsets.put(item.getUniqueId(), 0.0);
+
+        item.addPassenger(label);
     }
+
+    /* Spawning */
 
     private void spawnInitial() {
         var cfg = globals.get().weaponSpawner();
@@ -219,16 +239,26 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
 
         activeItems.put(dropped.getUniqueId(), label.getUniqueId());
         particleOffsets.put(dropped.getUniqueId(), 0.0);
+
+        dropped.addPassenger(label);
     }
 
     private TextDisplay spawnLabel(Location loc, String displayName) {
-        return loc.getWorld().spawn(loc.clone().add(0, 1.4, 0), TextDisplay.class, d -> {
+        return loc.getWorld().spawn(loc, TextDisplay.class, d -> {
             d.setBillboard(Display.Billboard.CENTER);
             d.setShadowed(true);
             d.setDefaultBackground(false);
             d.setViewRange(12f);
+            d.setTransformation(new Transformation(
+                new Vector3f(0f, 1.4f, 0f), // config this if necessary
+                new AxisAngle4f(),
+                new Vector3f(1f),
+                new AxisAngle4f()
+            ));
             d.setPersistent(false);
-            d.text(MM.msg("<aqua><bold>" + displayName + "</bold></aqua>\n<gray>⬆ Pick up"));
+            d.text(MM.msg("<aqua><bold>" + displayName
+                + "</bold></aqua>\n<gray>" + messages.get().symbols().pickupPrompt()
+                + " Pick up"));
         });
     }
 
@@ -433,7 +463,10 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
         if (labelId == null) return;
 
         Entity label = world.getEntity(labelId);
-        if (label != null) label.remove();
+        if (label != null) {
+            label.eject();
+            label.remove();
+        }
     }
 
     /* Helpers */

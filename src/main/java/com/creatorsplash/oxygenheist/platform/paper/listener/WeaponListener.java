@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.*;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public final class WeaponListener implements Listener {
     private final GlobalConfigService globals;
     private final WeaponRegistry registry;
     private final WeaponProjectileTracker projectileTracker;
+    private final WeaponDropService dropService;
     private final WeaponEffectsState effectsState;
     private final MatchService matchService;
     private final PlayerActionService actionService;
@@ -182,6 +184,8 @@ public final class WeaponListener implements Listener {
         if (handler.preventsDropDuringReload(event.getPlayer())) {
             event.setCancelled(true);
         }
+
+        dropService.registerDroppedItem(event.getItemDrop());
     }
 
     /* Block break */

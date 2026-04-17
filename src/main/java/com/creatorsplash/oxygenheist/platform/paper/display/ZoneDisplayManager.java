@@ -121,7 +121,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         }
 
         // Single task drives both display updates and particles
-        task = scheduler.runRepeating(this::tick, 1L, 4L);
+        task = scheduler.runRepeating(this::tick, 1L, 5L);
 
         log.info("Zone displays spawned for " + displays.size() + " zone(s)");
     }

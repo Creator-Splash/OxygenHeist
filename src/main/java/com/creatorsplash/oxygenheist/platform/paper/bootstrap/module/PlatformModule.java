@@ -74,6 +74,7 @@ public record PlatformModule(
                 configs.globals(),
                 weapons.weaponRegistry(),
                 weapons.projectileTracker(),
+                weapons.dropService(),
                 weapons.effectsState(),
                 gameplay.matchService(),
                 gameplay.actionService()
