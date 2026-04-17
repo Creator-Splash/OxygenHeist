@@ -59,9 +59,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
         );
 
         MatchZoneConfig zones = new MatchZoneConfig(
-            fileConfig.getDouble("zones.capture-rate-per-tick", 0.05),
-            fileConfig.getDouble("zones.regress-rate-per-tick", 0.1),
-            fileConfig.getDouble("zones.restore-rate-per-tick", 0.075),
+            fileConfig.getDouble("zones.capture-rate-per-tick", 0.2),
+            fileConfig.getDouble("zones.regress-rate-per-tick", 0.4),
+            fileConfig.getDouble("zones.restore-rate-per-tick", 0.3),
             fileConfig.getInt("zones.restore-cooldown-seconds", 5),
             fileConfig.getDouble("zones.drain-percent-per-second", 100.0 / 120.0),
             fileConfig.getInt("zones.max-drain-multiplier", 5),
@@ -72,8 +72,8 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             parseReplenishMode(fileConfig.getString("zones.replenish-mode", "per_player")),
             fileConfig.getInt("zones.recapture-cooldown-seconds", 5),
             fileConfig.getDouble("zones.capture-oxygen-restore-threshold", 80.0),
-            fileConfig.getDouble("zones.display-main-height", 2.6),
-            fileConfig.getDouble("zones.display-team-height", 3.8)
+            fileConfig.getDouble("zones.display-main-height", 2.8),
+            fileConfig.getDouble("zones.display-team-height", 4.4)
         );
 
         MatchConfig newConfig = new MatchConfig(

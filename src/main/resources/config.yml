@@ -95,13 +95,13 @@ downed:
 
 zones:
   # Capture progress gained per tick while a team occupies a zone
-  capture-rate-per-tick: 0.05
+  capture-rate-per-tick: 0.2
 
   # Capture progress regressed per tick when capture flips
-  regress-rate-per-tick: 0.1
+  regress-rate-per-tick: 0.4
 
   # Capture progress restored per tick when contest is defended
-  restore-rate-per-tick: 0.075
+  restore-rate-per-tick: 0.3
 
   # Cooldown before restoring capture progress
   restore-cooldown-seconds: 3
@@ -135,7 +135,7 @@ zones:
   capture-oxygen-restore-threshold: 80.0
 
   display-main-height: 2.8
-  display-team-height: 4.2
+  display-team-height: 4.4
 
 # =======
 # Weapons
