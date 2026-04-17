@@ -1,0 +1,74 @@
+# =================================
+# OxygenHeist - Teams Configuration
+# =================================
+
+settings:
+  # Whether players on the same team can damage each other
+  friendly-fire: false
+
+  # Maximum number of players allowed per team
+  max-team-size: 6
+
+# ----------------------------------------------------------------
+# Team Definitions
+# ----------------------------------------------------------------
+# Each key under 'teams' becomes the team's internal ID (lowercase)
+#
+# Fields:
+#   name - Display name (supports MiniMessage formatting)
+#   color - MiniMessage color tag used for armor and display
+#   base - Spawn location for this team. Set via /oh setup or fill in manually
+#             Leave 'world' empty to leave unset — match start will be blocked
+#   members - List of player UUIDs. Managed at runtime, do not edit manually
+#   captain - Single player UUID. Managed at runtime, do not edit manually
+
+teams:
+
+  orca:
+    name: "Team Orca"
+    color: "red"
+    members: []
+    captain: ""
+
+  seahorse:
+    name: "Team Seahorse"
+    color: "yellow"
+    members: []
+    captain: ""
+
+  turtle:
+    name: "Team Turtle"
+    color: "green"
+    members: []
+    captain: ""
+
+  dolphin:
+    name: "Team Dolphin"
+    color: "aqua"
+    members: []
+    captain: ""
+
+  swordfish:
+    name: "Team Swordfish"
+    color: "blue"
+    members: []
+    captain: ""
+
+  stingray:
+    name: "Team Stingray"
+    # No named MiniMessage tag for purple — using hex
+    color: "#AA00FF"
+    members: []
+    captain: ""
+
+  jellyfish:
+    name: "Team Jellyfish"
+    color: "#FF69B4"
+    members: []
+    captain: ""
+
+  octopus:
+    name: "Team Octopus"
+    color: "#FF6600"
+    members: []
+    captain: ""

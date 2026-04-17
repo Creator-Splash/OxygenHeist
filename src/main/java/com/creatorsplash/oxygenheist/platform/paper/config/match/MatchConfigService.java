@@ -1,0 +1,101 @@
+package com.creatorsplash.oxygenheist.platform.paper.config.match;
+
+import com.creatorsplash.oxygenheist.domain.match.config.*;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.Objects;
+import java.util.function.Supplier;
+
+/**
+ * Provides the current {@link MatchConfig} and supports reloading from a Bukkit {@link FileConfiguration}
+ */
+public final class MatchConfigService implements Supplier<MatchConfig> {
+
+    private volatile MatchConfig config = MatchConfig.EMPTY;
+
+    public boolean isLoaded() { return config != MatchConfig.EMPTY; }
+
+    @Override
+    public MatchConfig get() {
+        //if (!isLoaded()) throw new IllegalStateException("Cannot use MatchConfig before its loaded");
+        return config;
+    }
+
+    public MatchConfig load(FileConfiguration fileConfig) {
+        Objects.requireNonNull(fileConfig, "fileConfig");
+
+        int duration = fileConfig.getInt("match.duration-seconds", 600);
+        int countdown = fileConfig.getInt("match.countdown-seconds", 10);
+
+        int instantDeathSecondsRemaining =
+            fileConfig.getInt("match.instant-death-seconds-remaining", 120);
+
+        boolean globalFF = fileConfig.getBoolean("weapons.friendly-fire", false);
+
+        int killReward = fileConfig.getInt("match.kill-reward", 10);
+        int captainKillBonus = fileConfig.getInt("match.captain-kill-bonus", 5);
+
+        MatchBorderConfig border = new MatchBorderConfig(
+            fileConfig.getInt("border.shrink-delay-seconds", 60),
+            fileConfig.getInt("border.shrink-duration-seconds", 300),
+            fileConfig.getDouble("border.shrink-size-percent", 20.0),
+            fileConfig.getDouble("border.shrink-minimum-size", 10.0)
+        );
+
+        OxygenConfig oxygen = new OxygenConfig(
+            fileConfig.getDouble("oxygen.max", 300),
+            fileConfig.getDouble("oxygen.drain-per-tick", 0.1),
+            fileConfig.getDouble("oxygen.suffocation-damage", 2.0),
+            fileConfig.getDouble("oxygen.low-oxygen-threshold", 0.2)
+        );
+
+        DownedConfig downed = new DownedConfig(
+            fileConfig.getInt("downed.bleedout-seconds", 30),
+            fileConfig.getInt("downed.revive-ticks", 100),
+            fileConfig.getDouble("downed.revive-max-distance", 3.0),
+            fileConfig.getLong("downed.intent-ttl-ticks", 5),
+            (float) fileConfig.getDouble("downed.label-view-range", 16),
+            fileConfig.getDouble("downed.label-height-offset", 2.0)
+        );
+
+        MatchZoneConfig zones = new MatchZoneConfig(
+            fileConfig.getDouble("zones.capture-rate-per-tick", 0.2),
+            fileConfig.getDouble("zones.regress-rate-per-tick", 0.4),
+            fileConfig.getDouble("zones.restore-rate-per-tick", 0.3),
+            fileConfig.getInt("zones.restore-cooldown-seconds", 5),
+            fileConfig.getDouble("zones.drain-percent-per-second", 100.0 / 120.0),
+            fileConfig.getInt("zones.max-drain-multiplier", 5),
+            fileConfig.getDouble("zones.refill-percent-per-second", (100.0 / 120.0) * 0.5),
+            fileConfig.getInt("zones.capture-oxygen-restore", 50),
+            fileConfig.getInt("zones.holding-points-per-tick", 1),
+            fileConfig.getDouble("zones.replenish-player-per-second", 2.0),
+            parseReplenishMode(fileConfig.getString("zones.replenish-mode", "per_player")),
+            fileConfig.getInt("zones.recapture-cooldown-seconds", 5),
+            fileConfig.getDouble("zones.capture-oxygen-restore-threshold", 80.0),
+            fileConfig.getDouble("zones.display-main-height", 2.8),
+            fileConfig.getDouble("zones.display-team-height", 4.4)
+        );
+
+        MatchConfig newConfig = new MatchConfig(
+            duration,
+            countdown,
+            instantDeathSecondsRemaining,
+            globalFF,
+            killReward,
+            captainKillBonus,
+            border,
+            oxygen,
+            downed,
+            zones
+        );
+
+        this.config = newConfig;
+        return newConfig;
+    }
+
+    private static MatchZoneConfig.ReplenishMode parseReplenishMode(String value) {
+        if ("drain_split".equalsIgnoreCase(value)) return MatchZoneConfig.ReplenishMode.DRAIN_SPLIT;
+        return MatchZoneConfig.ReplenishMode.PER_PLAYER;
+    }
+
+}

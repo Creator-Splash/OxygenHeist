@@ -1,0 +1,195 @@
+# ====================================
+# OxygenHeist - Messages Configuration
+# ====================================
+#
+# All text values support MiniMessage formatting: https://docs.advntr.dev/minimessage
+# Sounds use Minecraft sound IDs, e.g. entity.player.hurt (no namespace prefix needed)
+# Placeholders are listed per-message in comments
+
+# Match Lifecycle
+
+match:
+  # Broadcast to all players when the match begins
+  start: "<green><bold>LET THE GAMES BEGIN!"
+  start-subtitle: "<gray>May the best team win."
+  start-title-fade-in: 5
+  start-title-stay: 40
+  start-title-fade-out: 20
+  start-sound:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.0
+  # Broadcast to all players when the match ends
+  end: "<red><bold>GAME OVER!"
+
+  # Broadcast to all players when a team wins. Placeholder: <team>
+  team-wins: "<gold><bold><team> <green><bold>WINS!"
+  team-wins-subtitle: "<gray>Congratulations!"
+  team-wins-title-fade-in: 5
+  team-wins-title-stay: 100
+  team-wins-title-fade-out: 40
+
+  # Title shown to all players + broadcast when instant death activates
+  instant-death: "<red><bold>⚠ INSTANT DEATH MODE!"
+  instant-death-subtitle: "<gray>No more revives!"
+  instant-death-title-fade-in: 10
+  instant-death-title-stay: 60
+  instant-death-title-fade-out: 20
+
+  instant-death-sound:
+    sound: "entity.ender_dragon.growl"
+    volume: 1.0
+    pitch: 1.0
+  # Broadcast when 60, 30, or 10 seconds remain. Placeholder: <time>
+  time-warning: "<yellow><bold>Round ending in <time> seconds!"
+
+# Countdown
+
+countdown:
+  # Boss bar shown to all players during the countdown. Placeholder: <time>
+  bossbar: "<yellow><bold>Game starting in <time> seconds"
+  # Large title shown every second during countdown. Placeholder: <time>
+  title: "<gold><bold><time>"
+  subtitle: "<gray>Game starting soon!"
+  title-fade-in: 0
+  title-stay: 25
+  title-fade-out: 5
+  tick-sound:
+    sound: "ui.button.click"
+    source: "master"
+    volume: 1.0
+    pitch: 1.2
+
+# Player Events
+
+player:
+  suffocation-sound:
+    sound: "entity.player.hurt_drown"
+    source: "player"
+    volume: 0.5
+    pitch: 0.9
+  low-oxygen-sound:
+    sound: "entity.player.breath"
+    source: "player"
+    volume: 0.3
+    pitch: 1.5
+  # Downed
+  downed-title: "<red><bold>YOU'RE DOWN!"
+  downed-subtitle: "<gray>Hold on! A teammate can revive you"
+  downed-title-fade-in: 0
+  downed-title-stay: 60
+  downed-title-fade-out: 20
+  downed-sound:
+    sound: "entity.player.hurt"
+    volume: 1.0
+    pitch: 0.5
+  # Sent to teammates when a player is downed. Placeholder: <player>
+  downed-teammate-alert: "<yellow><bold><player> <gray>is down! Go revive them!"
+  # Sent to the attacker when they down a player. Placeholder: <player>
+  downed-attacker-alert: "<gray>You knocked down <yellow><player><gray>!"
+
+  # Revive
+  revive-progress-sound:
+    sound: "block.note_block.hat"
+    volume: 0.5
+    pitch: 1.8
+  revived-title: "<green><bold>REVIVED!"
+  revived-subtitle: "<gray>You're back in the fight!"
+  revived-title-fade-in: 5
+  revived-title-stay: 40
+  revived-title-fade-out: 10
+  revived-sound:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.5
+  # Sent to the reviver when a revive completes. Placeholder: <player>
+  revive-success: "<green><bold>You revived <yellow><player><green>!"
+
+  # Eliminated
+  eliminated-title: "<dark_red><bold>ELIMINATED"
+  # Subtitle shown when the player bled out (from downed state)
+  eliminated-subtitle-bleedout: "<gray>You've bled out!"
+  # Subtitle shown when the player was eliminated instantly (instant death mode)
+  eliminated-subtitle-instant: "<gray>You've been eliminated!"
+  eliminated-title-fade-in: 5
+  eliminated-title-stay: 60
+  eliminated-title-fade-out: 20
+  eliminated-sound:
+    sound: "entity.wither.death"
+    volume: 0.5
+    pitch: 1.0
+  eliminated-world-sound:
+    sound: "entity.lightning_bolt.thunder"
+    source: "player"
+    volume: 0.4
+    pitch: 0.8
+  # Broadcast to all players when a player is eliminated. Placeholder: <player>
+  eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
+  kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"
+  captain-kill-attacker: "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"
+  friendly-fire-denied: "<red>That's your teammate!"
+
+  weapons:
+    inventory-full: "<red>You're carrying the maximum number of weapons. Drop one first!"
+    inventory-full-sound:
+      sound: "block.dispenser.fail"
+      volume: 0.8
+      pitch: 1.2
+
+# Zone Events
+
+zone:
+  # Broadcast to all players when a team captures a zone. Placeholders: <team>, <zone>
+  captured: "<green><bold><team> <gray>captured <yellow><zone><gray>!"
+  capture-sound:
+    sound: "block.beacon.activate"
+    source: "master"
+    volume: 1.0
+    pitch: 1.2
+  contested-sound:
+    sound: "block.note_block.bass"
+    source: "master"
+    volume: 0.6
+    pitch: 0.8
+  capturing-sound:
+    sound: "block.note_block.pling"
+    source: "master"
+    volume: 0.5
+    pitch: 1.5
+  label-zone-oxygen: "Zone Oxygen"
+  label-capture-progress: "Capture Progress"
+  label-remaining-hold: "Remaining Hold"
+  # Sent only to members of the capturing team. Placeholders: <amount>, <zone>
+  oxygen-restored: "<aqua><bold>+<amount> Oxygen! <reset><gray>Your team captured <zone>"
+  oxygen-depleted-title: "<red><bold>ZONE DRAINED"
+  oxygen-depleted-subtitle: "<gray>Your zone oxygen is depleted - no more protection!"
+  oxygen-depleted-fade-in: 10
+  oxygen-depleted-stay: 60
+  oxygen-depleted-fade-out: 20
+
+# UI Elements
+
+ui:
+  # Server-wide boss bar during a match. Placeholder: <time> (formatted as MM:SS)
+  timer-bar-playing: "<yellow><bold><time>"
+  # Boss bar text shown when no match is running (resets after match ends)
+  timer-bar-idle: "<gold><bold>No game in progress"
+  # Per-player boss bar shown while downed. Placeholder: <time> (seconds remaining)
+  downed-bar: "<red><bold>DOWNED <reset><gray>- <yellow><time>s"
+  # Per-player boss bar shown while being revived. Placeholder: <progress> (0–100)
+  reviving-bar: "<green><bold>BEING REVIVED <reset><gray>- <yellow><progress>%"
+  waiting-bar: "<yellow>Waiting to be assigned to a team"
+
+  symbols:
+    bar-filled: "█"
+    bar-empty: "░"
+    zone-owned: "▶"
+    zone-neutral: "◆"
+    zone-capturing: "⚡"
+    zone-oxygen: "Oxygen"
+    zone-refilling: "↻"
+    downed-warning: "⚠"
+    reviving: "⬆"
+    small-bar-filled: "▪"
+    small-bar-empty: "▫"
+    pickup-prompt: "⬆"

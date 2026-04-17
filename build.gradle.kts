@@ -1,0 +1,131 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.paper.PaperPluginDescription
+
+plugins {
+    id("java")
+    id("java-library")
+
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.plugin.yml)
+    alias(libs.plugins.paperweight)
+}
+
+group = "com.creatorsplash.oxygenheist"
+version = "1.0.0"
+
+repositories {
+    mavenCentral()
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.triumphteam.dev/snapshots")
+    maven("https://jitpack.io")
+    maven("https://repo.extendedclip.com/releases/")
+    maven("https://maven.devs.beer/")
+
+//    maven("https://maven.pkg.github.com/Creator-Splash/MainEventCore") {
+//        name = "GitHubPackages"
+//        credentials {
+//            username = findProperty("gpr.user") as String?
+//                ?: System.getenv("GITHUB_ACTOR")
+//            password = findProperty("gpr.key") as String?
+//                ?: System.getenv("GITHUB_TOKEN")
+//        }
+//    }
+}
+
+dependencies {
+    // Paper
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
+    compileOnly(libs.paper.api)
+
+    // Event Core
+    //compileOnly(libs.creatorsplashcore.api)
+
+    // ItemsAdder
+    compileOnly(libs.itemsadder.api)
+
+    // PAPI
+    paperLibrary(libs.papi)
+
+    // GUI
+    paperLibrary(libs.triumph.gui)
+
+    // Commands
+    paperLibrary(libs.cloud.paper)
+    paperLibrary(libs.cloud.annotations)
+
+    // Development
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    annotationProcessor(libs.auto.service)
+    compileOnly(libs.auto.service.annotations)
+
+    compileOnly(libs.jetbrains.annotations)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks {
+    build {
+        dependsOn(shadowJar)
+        finalizedBy("exportJars")
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+        minimize()
+    }
+
+    withType<JavaCompile> {
+        options.release.set(21)
+        options.encoding = Charsets.UTF_8.name()
+        options.compilerArgs = listOf("-parameters")
+    }
+
+    register<Copy>("exportJars") {
+        val shadowJar = named<ShadowJar>("shadowJar")
+
+        dependsOn(shadowJar)
+
+        from(
+            shadowJar.flatMap { it.archiveFile },
+        )
+
+        into(rootProject.layout.projectDirectory.dir("target"))
+    }
+}
+
+paper {
+    name = "OxygenHeist"
+
+    apiVersion = "1.21"
+    version = "1.0.0"
+
+    main = "com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin"
+
+    loader = "com.creatorsplash.oxygenheist.platform.paper.bootstrap.LibLoader"
+    generateLibrariesJson = true
+
+    serverDependencies {
+        register("PlaceholderAPI") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+
+        register("ItemsAdder") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+//
+//        register("CreatorSplashCore") {
+//            required = true
+//            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+//        }
+    }
+}

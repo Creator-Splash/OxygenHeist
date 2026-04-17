@@ -1,0 +1,216 @@
+# =====================================
+# OxygenHeist weapon type configuration
+# =====================================
+#
+# Each top-level key is a weapon id matching the handler registered in code
+#
+# Weapons marked enabled: false are not registered at startup
+
+claw_cannon:
+  enabled: true
+  cooldown-ms: 3000
+  damage: 8.0
+  explosion-radius: 4.0
+  launch-speed: 2.5
+  launch-y: 0.8
+  melee-knockback: 2.0
+  melee-knockback-y: 0.5
+  frames:
+    idle: "oxygenheist:claw_cannon"
+    launch: "oxygenheist:claw_cannon_launch"
+  sounds:
+    fire:
+      dragon:
+        sound: "entity.ender_dragon.flap"
+        volume: 1.5
+        pitch: 1.2
+      rocket:
+        sound: "entity.firework_rocket.launch"
+        volume: 1.5
+        pitch: 0.8
+    melee:
+      sound: "entity.iron_golem.hurt"
+      volume: 1.0
+      pitch: 1.5
+    land:
+      explode:
+        sound: "entity.generic.explode"
+        volume: 2.5
+        pitch: 0.7
+      fireball:
+        sound: "entity.dragon_fireball.explode"
+        volume: 2.0
+        pitch: 0.9
+      anvil:
+        sound: "block.anvil.land"
+        volume: 1.5
+        pitch: 0.5
+
+manta_cannon:
+  enabled: true
+  reload-frames: 2
+  ammo: 4
+  reload-ms: 6000
+  shot-cooldown-ms: 3000
+  damage: 12.0
+  cone-angle: 60.0
+  max-range: 8.0
+  frames:
+    idle: "oxygenheist:manta_cannon"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3
+
+needle_rifle:
+  enabled: true
+  reload-frames: 1
+  ammo: 8
+  reload-ms: 4000
+  shot-cooldown-ms: 2000
+  damage: 7.0
+  max-range: 10.0
+  close-range-distance: 3.0
+  close-range-bonus-damage: 3.0
+  long-range-distance: 6.0
+  long-range-nerf-damage: 3.0
+  frames:
+    idle: "oxygenheist:needle_rifle"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3
+
+reef_harpoon:
+  enabled: true
+  reload-frames: 1
+  ammo: 1
+  start-ammo: 0
+  reload-ms: 5000
+  damage: 10.0
+  max-range: 12.0
+  frames:
+    idle: "oxygenheist:reef_harpoon"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3
+
+spike_shooter:
+  enabled: true
+  reload-frames: 5
+  ammo: 10
+  reload-ms: 3500
+  shot-cooldown-ms: 0
+  damage: 2.0
+  max-range: 12.0
+  burst-count: 3
+  burst-cooldown-ms: 500
+  poison-duration-ticks: 100
+  frames:
+    idle: "oxygenheist:spike_shooter"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3
+
+silt_blaster:
+  enabled: true
+  cooldown-ms: 2000
+  cloud-radius: 3.0
+  effect-duration-ticks: 40
+  frames:
+    idle: "oxygenheist:silt_blaster"
+  sounds:
+    fire:
+      sound: "entity.ender_dragon.shoot"
+      volume: 1.5
+      pitch: 0.6
+
+venom_spitter:
+  enabled: true
+  reload-frames: 1
+  ammo: 25
+  reload-ms: 5000
+  shot-cooldown-ms: 200
+  damage-per-shot: 0.5
+  max-range: 7.0
+  poison-duration-ticks: 20
+  frames:
+    idle: "oxygenheist:venom_spitter_idle"
+    charged: "oxygenheist:venom_spitter_charged"
+  sounds:
+    fire:
+      sound: "entity.blaze.shoot"
+      volume: 1.0
+      pitch: 1.0
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 0.6
+      pitch: 1.3
+
+dart_slingshot:
+  enabled: true
+  reload-frames: 1
+  ammo: 3
+  reload-ms: 2500
+  shot-cooldown-ms: 500
+  damage: 2.0
+  max-range: 15.0
+  poison-duration-ticks: 80
+  frames:
+    idle: "oxygenheist:dart_slingshot"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3
+
+steal_crossbow:
+  enabled: true
+  reload-frames: 1
+  ammo: 1
+  start-ammo: 0
+  reload-ms: 3000
+  shot-cooldown-ms: 2000
+  damage: 3.0
+  max-range: 25.0
+  frames:
+    idle: "oxygenheist:steal_crossbow"
+  sounds:
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.0
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 1.0
+      pitch: 1.3

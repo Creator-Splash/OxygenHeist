@@ -1,0 +1,39 @@
+package com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging;
+
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.common.debug.DebugFlags;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
+import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Match-scoped logger
+ */
+@RequiredArgsConstructor
+public final class MatchLogCenter implements LogCenter {
+
+    private final String matchId;
+    private final GlobalConfigService globals;
+
+    @Override
+    public @NotNull String prefix() {
+        return "<gold>[<aqua>Oxygen</aqua>]</gold> <dark_gray>»</dark_gray> <aqua>(match:" + matchId + ")</aqua>";
+    }
+
+    @Override
+    public boolean debugEnabled() {
+        return globals.get().debugFlags().enabled("global") && globals.get().debugFlags().enabled("match");
+    }
+
+    @Override
+    public boolean debugEnabled(@NotNull String key) {
+        return debugEnabled() && globals.get().debugFlags().enabled(key);
+    }
+
+    @Override
+    public void sendLog(@NotNull String message) {
+        Bukkit.getConsoleSender().sendRichMessage(message);
+    }
+
+}

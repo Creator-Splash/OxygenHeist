@@ -1,0 +1,156 @@
+# ================================
+# OxygenHeist global configuration
+# ================================
+
+debug:
+  # Which debug flag categories to enable
+  # Use "all" to enable everything, or list specific keys e.g. [weapons, zones, match]
+  # Available keys: weapons, zones, match, capture, oxygen
+  flags: []
+
+  # Allow weapon usage outside an active match
+  # Useful for testing ItemsAdder items and weapon behaviour without starting a game
+  # Should be false in production
+  weapon-bypass: false
+
+# =====
+# Match
+# =====
+
+match:
+  # Total match duration in seconds
+  duration-seconds: 600
+
+  # Countdown before the match starts (in seconds)
+  countdown-seconds: 10
+
+  # When this many seconds remain, instant-death mode activates
+  # Players outside a zone will take damage rapidly
+  instant-death-seconds-remaining: 120
+
+  # Points awarded to a team for eliminating an enemy player
+  kill-reward: 10
+
+  # Bonus points for killing a team captain
+  captain-kill-bonus: 5
+
+# ============
+# World border
+# ============
+
+border:
+  # Seconds after match start before the border begins shrinking
+  shrink-delay-seconds: 60
+
+  # How long the shrink animation takes (in seconds)
+  shrink-duration-seconds: 300
+
+  # How much the border shrinks, as a percentage of its original size
+  shrink-size-percent: 20.0
+
+  # The border will never shrink below this size (in blocks)
+  shrink-minimum-size: 10.0
+
+# ======
+# Oxygen
+# ======
+
+oxygen:
+  # Maximum oxygen a player can hold
+  max: 300.0
+
+  # Oxygen drained per tick while outside a zone
+  drain-per-tick: 0.1
+
+  # damage per tick at 0 oxygen
+  suffocation-damage: 2.0
+
+  # % below to trigger "low oxygen effects"
+  low-oxygen-threshold: 0.2
+
+# ============
+# Downed state
+# ============
+
+downed:
+  # Seconds a downed player has before they are eliminated
+  bleedout-seconds: 30
+
+  # Ticks a teammate must stand nearby to complete a revive
+  revive-ticks: 100
+
+  # Maximum distance (in blocks) a teammate can be to revive
+  revive-max-distance: 3.0
+
+  # How many ticks a revive intent is kept alive before being discarded
+  # Increase if revives feel unresponsive; decrease to tighten the interaction window
+  intent-ttl-ticks: 5
+
+  label-view-range: 16.0
+  label-height-offset: 0.35
+
+# =====
+# Zones
+# =====
+
+zones:
+  # Capture progress gained per tick while a team occupies a zone
+  capture-rate-per-tick: 0.2
+
+  # Capture progress regressed per tick when capture flips
+  regress-rate-per-tick: 0.4
+
+  # Capture progress restored per tick when contest is defended
+  restore-rate-per-tick: 0.3
+
+  # Cooldown before restoring capture progress
+  restore-cooldown-seconds: 3
+
+  # Percentage of a zones oxygen drained per second when uncaptured
+  drain-percent-per-second: 0.8333
+
+  # Maximum multiplier applied to drain when multiple enemies contest a zone
+  max-drain-multiplier: 5
+
+  # Percentage of a zones oxygen refilled per second when held
+  refill-percent-per-second: 0.4167
+
+  # Flat oxygen restored to the capturing team when a zone is fully captured
+  capture-oxygen-restore: 50
+
+  # Score points awarded to the holding team per tick
+  holding-points-per-tick: 1
+
+  # Personal oxygen replenished per player per second while holding their owned zone
+  replenish-player-per-second: 2.0
+
+  # per_player  - each player receives a flat amount per tick
+  # drain_split - total drain that tick is split equally across present players
+  replenish-mode: per_player
+
+  # Seconds after a team fully evacuates before they may recapture the zone
+  recapture-cooldown-seconds: 5
+
+  # Minimum zone oxygen % a team must have refilled to before recapturing
+  capture-oxygen-restore-threshold: 80.0
+
+  display-main-height: 2.8
+  display-team-height: 4.4
+
+# =======
+# Weapons
+# =======
+
+weapons:
+  friendly-fire: false
+  spawner:
+    max-per-player: 2
+    initial-count: 12
+    minimum-on-field: 6
+    maximum-on-field: 16
+    surface-scan-step: 3
+    min-spawn-y: 0          # set to trench floor Y
+    max-spawn-y: 320        # set to trench ceiling Y
+    pickup-radius: 1.5
+    pickup-cooldown-seconds: 3
+    allowed-surface-blocks: [ ]

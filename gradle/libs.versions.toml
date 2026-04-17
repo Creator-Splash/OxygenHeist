@@ -1,0 +1,56 @@
+[versions]
+paper = "1.21.8-R0.1-SNAPSHOT"
+paperweight = "2.0.0-beta.21"
+
+# MainEventCore
+#creatorsplashcore = "1.0.0"
+
+# Cloud
+cloud = "2.0.0"
+cloud-paper = "2.0.0-beta.10"
+
+# Libraries
+placeholderapi = "2.11.6"
+itemsadder = "4.0.10"
+
+# Utility
+lombok = "1.18.42"
+auto-service = "1.1.1"
+jetbrains-annotations = "26.0.2-1"
+
+# Plugins
+shadow = "8.3.5"
+plugin-yml = "0.6.0"
+indra = "3.1.3"
+
+[libraries]
+
+# Paper
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+
+# MainEventCore
+#creatorsplashcore-api = { module = "com.creatorsplash:creatorsplashcore-api", version.ref = "creatorsplashcore" }
+
+# Cloud
+cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }
+cloud-annotations = { module = "org.incendo:cloud-annotations", version.ref = "cloud" }
+cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-paper" }
+
+# Auto service
+auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
+auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
+
+# Other
+itemsadder-api = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
+papi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+# GUI
+triumph-gui = { module = "dev.triumphteam:triumph-gui-paper", version = "4.0.0-SNAPSHOT" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+plugin-yml = { id = "net.minecrell.plugin-yml.paper", version.ref = "plugin-yml" }
+indra = { id = "net.kyori.indra.git", version.ref = "indra" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

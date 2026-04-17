@@ -1,0 +1,110 @@
+package com.creatorsplash.oxygenheist.application.match.oxygen;
+
+import com.creatorsplash.oxygenheist.application.match.zone.ZoneService;
+import com.creatorsplash.oxygenheist.domain.match.MatchSession;
+import com.creatorsplash.oxygenheist.domain.match.config.OxygenConfig;
+import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.ObjDoubleConsumer;
+
+/**
+ * Handles player oxygen logic during an active match
+ *
+ * <p>Responsible for:
+ * <ul>
+ *     <li>Draining oxygen over time</li>
+ *     <li>Restoring oxygen</li>
+ *     <li>Skipping oxygen drain when players are inside owned zones</li>
+ *     <li>Ignoring players who are not active (dead, downed, etc)</li>
+ * </ul>
+ * </p>
+ */
+@RequiredArgsConstructor
+public class PlayerOxygenService {
+
+    private final ZoneService zoneService;
+
+    /**
+     * Processes oxygen drain for all players in the match
+     *
+     * @param session the active match session
+     */
+    public void tickDrain(
+        MatchSession session,
+        ObjDoubleConsumer<UUID> onSuffocating,
+        Consumer<UUID> onLowOxygen
+    ) {
+        OxygenConfig cfg = session.config().oxygen();
+
+        for (PlayerMatchState player: session.getPlayers()) {
+            if (!player.isActive()) continue;
+            if (zoneService.isPlayerInOwnedZone(session, player.getPlayerId())) continue;
+            if (player.getMaxOxygen() <= 0) continue;
+
+            player.drainOxygen(cfg.drainPerTick());
+
+            if (player.isOxygenDepleted()) {
+                onSuffocating.accept(player.getPlayerId(), cfg.suffocationDamage());
+            } else if (player.getOxygen() / player.getMaxOxygen() <= cfg.lowOxygenThreshold()) {
+                onLowOxygen.accept(player.getPlayerId());
+            }
+        }
+    }
+
+    /**
+     * Replenishes personal oxygen for a specific set of players
+     * <p>Only applies to active players. Oxygen is capped at max</p>
+     *
+     * @param session   the active match session
+     * @param playerIds the UUIDs of players to replenish
+     * @param amount    the amount to restore per player
+     */
+    public void replenishPlayersInZone(
+        MatchSession session,
+        Set<UUID> playerIds,
+        double amount
+    ) {
+        if (amount <= 0 || playerIds.isEmpty()) return;
+
+        for (UUID playerId : playerIds) {
+            session.getPlayer(playerId).ifPresent(player -> {
+                if (player.isActive()) {
+                    player.restoreOxygen(amount);
+                }
+            });
+        }
+    }
+
+    /**
+     * Restores oxygen for all active players in a team
+     *
+     * @param session the active match session
+     * @param teamId the team identifier
+     * @param amount the amount to restore
+     */
+    public void restoreTeamOxygen(MatchSession session, String teamId, int amount) {
+        for (PlayerMatchState player : session.getPlayers()) {
+            if (!player.isActive()) continue;
+            String playerTeam = session.getPlayerTeam(player.getPlayerId());
+            if (!teamId.equals(playerTeam)) continue;
+            player.restoreOxygen(amount);
+        }
+    }
+
+    /**
+     * Gets the current oxygen level for a player
+     *
+     * @param session the match session
+     * @param playerId the player UUID
+     * @return oxygen value, or 0 if not found
+     */
+    public double getOxygen(MatchSession session, UUID playerId) {
+        PlayerMatchState state = session.getPlayer(playerId).orElse(null);
+        return state != null ? state.getOxygen() : 0.0;
+    }
+
+}
