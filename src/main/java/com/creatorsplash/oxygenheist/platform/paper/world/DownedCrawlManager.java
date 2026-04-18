@@ -186,7 +186,16 @@ public final class DownedCrawlManager implements MatchLifecycle {
                 Location loc = LocationUtils.toLoc(world, pos);
                 player.sendBlockChange(loc, loc.getBlock().getBlockData());
             }
-            scheduler.runLater(() -> player.setPose(Pose.STANDING), 2L);
+
+            // Refresh pose state
+            scheduler.runLater(() -> {
+                player.setPose(Pose.SWIMMING);
+                player.setSwimming(true);
+            }, 2L);
+            scheduler.runLater(() -> {
+                player.setPose(Pose.STANDING);
+                player.setSwimming(false);
+            }, 4L);
         }
 
         cleanupInterceptorIfEmpty();

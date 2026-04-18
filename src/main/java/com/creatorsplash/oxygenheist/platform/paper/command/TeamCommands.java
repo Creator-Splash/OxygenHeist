@@ -60,7 +60,7 @@ public final class TeamCommands implements CommandHandler {
             player.setGameMode(GameMode.ADVENTURE);
         }
 
-        teamConfigService.save(plugin, teamService);
+        teamConfigService.save(teamService);
 
         player.sendRichMessage("<green>You have been added to team <"
             + team.getColor() + ">" + team.getName());
@@ -84,7 +84,7 @@ public final class TeamCommands implements CommandHandler {
 
         player.setGameMode(GameMode.SPECTATOR);
 
-        teamConfigService.save(plugin, teamService);
+        teamConfigService.save(teamService);
 
         player.sendRichMessage("<yellow>You have been removed from your team");
         sender.sendRichMessage("<green>Removed " + player.getName() + " from their team");
@@ -114,7 +114,7 @@ public final class TeamCommands implements CommandHandler {
         );
 
         team.setBase(base);
-        teamConfigService.save(plugin, teamService);
+        teamConfigService.save(teamService);
 
         sender.sendRichMessage("<green>Base set for team <"
             + team.getColor() + ">" + team.getName()
@@ -142,7 +142,7 @@ public final class TeamCommands implements CommandHandler {
 
         TeamUtils.applyArmor(player, team);
 
-        teamConfigService.save(plugin, teamService);
+        teamConfigService.save(teamService);
 
         player.sendRichMessage("<gold>You are now captain of team <"
             + team.getColor() + ">" + team.getName());
@@ -196,7 +196,6 @@ public final class TeamCommands implements CommandHandler {
             + "/" + teamService.getMaxTeamSize());
 
         if (team.hasCaptain()) {
-            // null check on captain id?
             Player captain = Bukkit.getPlayer(team.getCaptainId());
             String captainName = captain != null
                 ? captain.getName()
