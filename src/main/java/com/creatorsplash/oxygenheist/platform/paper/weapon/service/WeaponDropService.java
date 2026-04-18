@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
@@ -47,7 +48,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
 
     private static final Color PICKUP_PARTICLE_COLOR = Color.fromRGB(0, 255, 220);
 
-    private final Server server;
+    private final PlayerActionService actionService;
     private final GlobalConfigService globals;
     private final ArenaConfigService arenaConfigService;
     private final MessageConfigService messages;
@@ -74,6 +75,11 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
 
         UUID itemId = event.getItem().getUniqueId();
         if (!activeItems.containsKey(itemId)) return;
+
+        if (!actionService.canInteract(player.getUniqueId())) {  // <-- add
+            event.setCancelled(true);
+            return;
+        }
 
         UUID playerId = player.getUniqueId();
         int maxPerPlayer = globals.get().weaponSpawner().maxPerPlayer();

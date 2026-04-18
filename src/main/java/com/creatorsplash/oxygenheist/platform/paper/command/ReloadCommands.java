@@ -1,8 +1,14 @@
 package com.creatorsplash.oxygenheist.platform.paper.command;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
+import com.creatorsplash.oxygenheist.application.match.MatchService;
+import com.creatorsplash.oxygenheist.application.match.team.TeamService;
+import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,8 +23,18 @@ import org.incendo.cloud.annotations.Permission;
 public final class ReloadCommands implements CommandHandler {
 
     private final JavaPlugin plugin;
-    private final MatchConfigService matchConfigService;
-    private final MessageConfigService messageConfigService;
+
+    private final MatchService matchService;
+
+    private final GlobalConfigService globals;
+    private final MatchConfigService match;
+    private final MessageConfigService messages;
+    private final ArenaConfigService arena;
+    private final WeaponConfigService weapons;
+
+    private final TeamConfigService teams;
+    private final TeamService teamService;
+
     private final LogCenter log;
 
     @Command("reload")
@@ -27,8 +43,20 @@ public final class ReloadCommands implements CommandHandler {
         plugin.reloadConfig();
         FileConfiguration config = plugin.getConfig();
 
-        matchConfigService.load(config);
-        messageConfigService.load();
+        globals.load();
+        match.load(config);
+        messages.load();
+        arena.load();
+        weapons.load();
+        teams.load();
+
+        if (matchService.isMatchActive()) {
+            sender.sendRichMessage("<yellow>Warning: Team definitions were not refreshed -" +
+                " a match is currently active. Reload again after the match ends");
+            teamService.refreshSettingsOnly();
+        } else {
+            teamService.refresh();
+        }
 
         sender.sendRichMessage("<green>OxygenHeist config reloaded.");
         log.info("Config reloaded by " + sender.getName());

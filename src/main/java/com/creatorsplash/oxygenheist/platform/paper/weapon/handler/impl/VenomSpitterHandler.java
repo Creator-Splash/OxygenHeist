@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -129,7 +130,7 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
         player.sendActionBar(MM.msg("<yellow>Ammo: <white>" + (currentAmmo - 1) + "/" + config.ammo().maxAmmo()));
     }
 
-    private void shoot(Player player, @NotNull MatchSession session) {
+    private void shoot(Player player, @Nullable MatchSession session) {
         Location start = player.getEyeLocation();
         var dir = start.getDirection().normalize();
         double maxRange = config.combat().maxRange();
@@ -149,7 +150,8 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
             loc.getNearbyPlayers(1.5, 2.0, 1.5, target -> {
                 if (target.equals(player)) return false;
                 if (hitThisTick.contains(target.getUniqueId())) return false;
-                return !session.isSameTeam(shooterId, target.getUniqueId());
+                if (session != null && session.isSameTeam(shooterId, target.getUniqueId())) return false;
+                return true;
             }).forEach(target -> {
                 hitThisTick.add(target.getUniqueId());
 

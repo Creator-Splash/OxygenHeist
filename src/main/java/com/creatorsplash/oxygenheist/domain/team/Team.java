@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Team {
 
     private final String id;
-    private String name;
+    private final String name;
     private String color; // color tag
 
     @Setter

@@ -80,6 +80,7 @@ public final class ClawCannonHandler extends AbstractWeaponHandler {
 
     @Override
     public void onMeleeHit(WeaponContext ctx, Entity victim) {
+        if (bypassMeleeCancel.contains(ctx.player().getUniqueId())) return;
         if (!ctx.effectsActive()) return;
         if (!(victim instanceof LivingEntity le)) return;
 

@@ -31,12 +31,13 @@ public final class ConfigModule implements Module {
         this.arenaConfig = new ArenaConfigService(plugin, plugin.getLogCenter());
         this.weaponConfig = new WeaponConfigService(plugin, plugin.getLogCenter());
         this.messageConfig = new MessageConfigService(plugin);
-        this.teamConfig = new TeamConfigService(plugin.getLogCenter());
+        this.teamConfig = new TeamConfigService(plugin);
 
         matchConfig.load(plugin.getConfig());
         arenaConfig.load();
         weaponConfig.load();
         messageConfig.load();
+        teamConfig.load();
 
         return this;
     }
