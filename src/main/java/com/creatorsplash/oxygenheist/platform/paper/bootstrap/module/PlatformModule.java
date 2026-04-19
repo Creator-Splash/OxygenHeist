@@ -54,6 +54,7 @@ public record PlatformModule(
 
         matchService.registerLifecycle(gameplay.reviveService());
         matchService.registerLifecycle(gameplay.downedService());
+        matchService.registerLifecycle(gameplay.crawlManager());
 
         matchService.registerLifecycle(display.matchDisplayManager());
         matchService.registerLifecycle(display.downedDisplayManager());

@@ -58,7 +58,14 @@ public final class TeamListener implements Listener {
         Team team = teamService.getPlayerTeam(player.getUniqueId());
 
         if (team != null) {
-            TeamUtils.applyArmor(player, team);
+            boolean matchActive = matchService.getSession()
+                .map(s -> s.isPlaying() || s.isCountdown())
+                .orElse(false);
+
+            if (!matchActive) {
+                TeamUtils.applyArmor(player, team);
+            }
+
             lobbyDisplayManager.hideWaitingBar(player);
         } else {
             enforceSpectator(player);
@@ -71,6 +78,7 @@ public final class TeamListener implements Listener {
         Player player = event.getPlayer();
         matchService.getSession().ifPresent(session -> {
             if (session.getPlayer(player.getUniqueId()).isPresent()) {
+                TeamUtils.removeArmor(player);
                 matchService.removePlayer(player.getUniqueId());
             }
         });
