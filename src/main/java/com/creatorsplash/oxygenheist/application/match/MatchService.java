@@ -91,6 +91,10 @@ public final class MatchService {
 
     /* == Match == */
 
+    public boolean isMatchActive() {
+        return session != null && session.isPlaying();
+    }
+
     /**
      * Initializes a new match session
      */

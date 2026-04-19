@@ -2,7 +2,9 @@ package com.creatorsplash.oxygenheist.application.match.team;
 
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.team.Team;
+import com.creatorsplash.oxygenheist.platform.paper.config.team.TeamConfigService;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -15,6 +17,8 @@ import java.util.*;
  */
 public class TeamService {
 
+    private final TeamConfigService teamConfig;
+
     private final Map<String, Team> teams = new LinkedHashMap<>();
 
     /**
@@ -23,22 +27,32 @@ public class TeamService {
      */
     private final Map<UUID, String> playerTeams = new HashMap<>();
 
-    @Getter private final boolean friendlyFireEnabled;
-    @Getter private final int maxTeamSize;
+    @Getter private boolean friendlyFireEnabled;
+    @Getter private int maxTeamSize;
 
-    public TeamService(
-        List<Team> teams,
-        boolean friendlyFireEnabled,
-        int maxTeamSize
-    ) {
-        for (Team team : teams) {
+    public TeamService(@NotNull final TeamConfigService config) {
+        this.teamConfig = config;
+        refresh();
+    }
+
+    /**
+     * Refreshes scalar settings from config without touching the runtime roster
+     */
+    public void refresh() {
+        this.friendlyFireEnabled = teamConfig.isFriendlyFireEnabled();
+        this.maxTeamSize = teamConfig.getMaxTeamSize();
+
+        for (Team team : teamConfig.getTeams()) {
             this.teams.put(team.getId(), team);
             for (UUID memberId : team.getMembers()) {
                 playerTeams.put(memberId, team.getId());
             }
         }
-        this.friendlyFireEnabled = friendlyFireEnabled;
-        this.maxTeamSize = maxTeamSize;
+    }
+
+    public void refreshSettingsOnly() {
+        this.friendlyFireEnabled = teamConfig.isFriendlyFireEnabled();
+        this.maxTeamSize = teamConfig.getMaxTeamSize();
     }
 
     /* Queries */

@@ -6,7 +6,15 @@ import org.bukkit.NamespacedKey;
 @UtilityClass
 public class PDCKeys {
 
-    // == Weapon ==
+    /* == Teams == */
+
+    /**
+     * Stamped onto every team armour piece at apply time
+     * <p>Value: the team id, e.g. {@code "red"}</p>
+     */
+    public final NamespacedKey TEAM_ARMOR = key("team_armor");
+
+    /* == Weapon == */
 
     /**
      * Stamped onto every weapon ItemStack at creation time
@@ -20,7 +28,7 @@ public class PDCKeys {
      */
     public final NamespacedKey WEAPON_AMMO = key("weapon_ammo");
 
-    // == World / Arena ==
+    /* == Tools == */
 
     /**
      * Marks an item as the zone selection wand

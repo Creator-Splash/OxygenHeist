@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 /**
  * Team utils
@@ -16,13 +17,21 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 @UtilityClass
 public class TeamUtils {
 
+    public boolean isTeamArmor(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta()
+            .getPersistentDataContainer()
+            .has(PDCKeys.TEAM_ARMOR, PersistentDataType.STRING);
+    }
+
     public void applyArmor(Player player, Team team) {
+        String teamId = team.getId();
         Color color = colorTagToRgb(team.getColor());
 
-        player.getInventory().setHelmet(coloredArmor(Material.LEATHER_HELMET, color));
-        player.getInventory().setChestplate(coloredArmor(Material.LEATHER_CHESTPLATE, color));
-        player.getInventory().setLeggings(coloredArmor(Material.LEATHER_LEGGINGS, color));
-        player.getInventory().setBoots(coloredArmor(Material.LEATHER_BOOTS, color));
+        player.getInventory().setHelmet(coloredArmor(teamId, Material.LEATHER_HELMET, color));
+        player.getInventory().setChestplate(coloredArmor(teamId, Material.LEATHER_CHESTPLATE, color));
+        player.getInventory().setLeggings(coloredArmor(teamId, Material.LEATHER_LEGGINGS, color));
+        player.getInventory().setBoots(coloredArmor(teamId, Material.LEATHER_BOOTS, color));
     }
 
     public void removeArmor(Player player) {
@@ -32,13 +41,18 @@ public class TeamUtils {
         player.getInventory().setBoots(null);
     }
 
-    private ItemStack coloredArmor(Material material, org.bukkit.Color color) {
+    private ItemStack coloredArmor(
+        String teamId,
+        Material material,
+        Color color
+    ) {
         ItemStack item = new ItemStack(material);
-        LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
-        if (meta != null) {
+        item.editMeta(LeatherArmorMeta.class, meta -> {
             meta.setColor(color);
-            item.setItemMeta(meta);
-        }
+            meta.getPersistentDataContainer().set(
+                PDCKeys.TEAM_ARMOR, PersistentDataType.STRING, teamId);
+        });
+
         return item;
     }
 

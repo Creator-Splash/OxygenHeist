@@ -57,7 +57,7 @@ public final class WeaponModule implements Module {
         this.hideService = new WeaponHideService(plugin().getServer(), gameplay.scheduler());
 
         this.dropService = new WeaponDropService(
-            plugin.getServer(),
+            gameplay.actionService(),
             configs.globals(),
             configs.arenaConfig(),
             configs.messageConfig(),

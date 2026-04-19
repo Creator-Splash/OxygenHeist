@@ -1,14 +1,14 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.team;
 
-import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamBase;
+import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -19,25 +19,30 @@ import java.util.UUID;
 /**
  * Loads and saves team configuration from {@code teams.yml}
  */
+@Getter
 @RequiredArgsConstructor
 public final class TeamConfigService {
 
     private static final String FILE_NAME = "teams.yml";
 
-    private final LogCenter log;
+    private final OxygenHeistPlugin plugin;
 
-    public TeamService load(JavaPlugin plugin) {
+    private List<Team> teams = List.of();
+    private boolean friendlyFireEnabled = false;
+    private int maxTeamSize = 10;
+
+    public void load() {
         plugin.saveResource(FILE_NAME, false);
 
         File file = new File(plugin.getDataFolder(), FILE_NAME);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        boolean friendlyFire = config.getBoolean("settings.friendly-fire", false);
-        int maxTeamSize = config.getInt("settings.max-team-size", 10);
+        this.friendlyFireEnabled = config.getBoolean("settings.friendly-fire", false);
+        this.maxTeamSize = config.getInt("settings.max-team-size", 10);
 
         /* Teams */
 
-        List<Team> teams = new ArrayList<>();
+        List<Team> loaded = new ArrayList<>();
 
         ConfigurationSection teamsSection = config.getConfigurationSection("teams");
         if (teamsSection != null) {
@@ -55,7 +60,7 @@ public final class TeamConfigService {
                     try {
                         team.addMember(UUID.fromString(uuidStr));
                     } catch (IllegalArgumentException e) {
-                        log.warn(
+                        plugin.getLogCenter().warn(
                             "Invalid member UUID in team '" + teamId + "': " + uuidStr);
                     }
                 }
@@ -65,25 +70,24 @@ public final class TeamConfigService {
                     try {
                         team.setCaptain(UUID.fromString(captainStr));
                     } catch (IllegalArgumentException e) {
-                        log.warn(
+                        plugin.getLogCenter().warn(
                             "Invalid captain UUID in team '" + teamId + "': " + captainStr);
                     }
                 }
 
-                teams.add(team);
-                log.info("Loaded team: %s (id=%s)".formatted(name, teamId));
+                loaded.add(team);
+                plugin.getLogCenter().info("Loaded team: %s (id=%s)".formatted(name, teamId));
             }
         }
 
-        log.info("Loaded " + teams.size() + " team(s) from " + FILE_NAME);
-
-        return new TeamService(teams, friendlyFire, maxTeamSize);
+        this.teams = List.copyOf(loaded);
+        plugin.getLogCenter().info("Loaded " + teams.size() + " team(s) from " + FILE_NAME);
     }
 
     /**
      * Saves mutable roster data (members, captain) back to {@code teams.yml}
      */
-    public void save(JavaPlugin plugin, TeamService teamService) {
+    public void save(TeamService teamService) {
         File file = new File(plugin.getDataFolder(), FILE_NAME);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
@@ -117,8 +121,10 @@ public final class TeamConfigService {
         try {
             config.save(file);
         } catch (Exception e) {
-            log.warn("Failed to save " + FILE_NAME + ": " + e.getMessage());
+            plugin.getLogCenter().warn("Failed to save " + FILE_NAME + ": " + e.getMessage());
         }
+
+        load();
     }
 
     /* Helpers */

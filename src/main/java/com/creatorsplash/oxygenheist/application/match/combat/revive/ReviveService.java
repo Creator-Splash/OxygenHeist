@@ -53,6 +53,7 @@ public class ReviveService implements MatchLifecycle {
         if (target == null || reviver == null) return;
         if (!target.isDowned()) return;
         if (!reviver.isAlive() || reviver.isDowned()) return;
+        if (!session.isSameTeam(reviverId, targetId)) return;
 
         ReviveSession existing = activeRevives.get(targetId);
 

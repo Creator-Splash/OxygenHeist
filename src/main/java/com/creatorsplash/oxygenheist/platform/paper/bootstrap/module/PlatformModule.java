@@ -54,6 +54,7 @@ public record PlatformModule(
 
         matchService.registerLifecycle(gameplay.reviveService());
         matchService.registerLifecycle(gameplay.downedService());
+        matchService.registerLifecycle(gameplay.crawlManager());
 
         matchService.registerLifecycle(display.matchDisplayManager());
         matchService.registerLifecycle(display.downedDisplayManager());
@@ -118,8 +119,14 @@ public record PlatformModule(
         ));
         registrar.registerAnnotated(new ReloadCommands(
             plugin,
+            gameplay.matchService(),
+            configs.globals(),
             configs.matchConfig(),
             configs.messageConfig(),
+            configs.arenaConfig(),
+            configs.weaponConfig(),
+            configs.teamConfig(),
+            gameplay.teamService(),
             plugin.getLogCenter()
         ));
         registrar.registerAnnotated(new TeamCommands(

@@ -49,7 +49,7 @@ public final class GameplayModule implements Module {
     private MatchSnapshotProvider snapshotProvider;
 
     public GameplayModule build() {
-        this.teamService = configs.teamConfig().load(plugin);
+        this.teamService = new TeamService(configs.teamConfig());
         this.selectionService = new PlayerSelectionService(plugin);
         this.zoneSelectionService = new ZoneSelectionService(selectionService);
 

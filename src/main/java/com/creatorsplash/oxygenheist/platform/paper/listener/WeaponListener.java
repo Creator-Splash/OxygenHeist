@@ -58,6 +58,8 @@ public final class WeaponListener implements Listener {
             && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
+        if (!actionService.canInteract(player.getUniqueId())) return;
+
         ItemStack item = player.getInventory().getItemInMainHand();
         WeaponHandler handler = registry.find(item);
         if (handler == null) return;
@@ -72,6 +74,8 @@ public final class WeaponListener implements Listener {
         if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
 
         Player player = event.getPlayer();
+        if (!actionService.canInteract(player.getUniqueId())) return;
+
         ItemStack item = player.getInventory().getItemInMainHand();
         WeaponHandler handler = registry.find(item);
         if (handler == null) return;
@@ -85,6 +89,8 @@ public final class WeaponListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onSneak(PlayerToggleSneakEvent event) {
         Player player = event.getPlayer();
+        if (!actionService.canInteract(player.getUniqueId())) return;
+
         ItemStack item = player.getInventory().getItemInMainHand();
         WeaponHandler handler = registry.find(item);
         if (handler == null) return;
@@ -134,6 +140,7 @@ public final class WeaponListener implements Listener {
 
         Player shooter = Bukkit.getPlayer(tracked.shooterId());
         if (shooter == null) return;
+        if (!actionService.canAttack(shooter.getUniqueId())) return;
 
         MatchSession session = matchService.getSession().orElse(null);
         boolean effectsActive = matchService.isPlayerInActiveMatch(shooter.getUniqueId());
