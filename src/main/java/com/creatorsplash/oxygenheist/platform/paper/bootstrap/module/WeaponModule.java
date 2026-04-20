@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
@@ -13,6 +14,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.SiltBlas
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.VenomSpitterHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAdderWeaponItemProvider;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.NexoWeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponHideService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
@@ -47,9 +49,26 @@ public final class WeaponModule implements Module {
     private final List<Listener> listeners = new ArrayList<>();
 
     public WeaponModule build() {
-        ItemsAdderWeaponItemProvider iaProvider = new ItemsAdderWeaponItemProvider(configs.weaponConfig());
-        this.itemProvider = iaProvider;
-        listeners.add(iaProvider);
+        GlobalConfig.ItemProvider providerType = plugin.globals().itemProvider();
+
+        switch (providerType) {
+            case NEXO -> {
+                var nexoProvider = new NexoWeaponItemProvider(configs.weaponConfig());
+                this.itemProvider = nexoProvider;
+                listeners.add(nexoProvider);
+                log.info("[WeaponModule] Using Nexo item provider");
+            }
+            case ITEMSADDER -> {
+                ItemsAdderWeaponItemProvider iaProvider =
+                    new ItemsAdderWeaponItemProvider(configs.weaponConfig());
+                this.itemProvider = iaProvider;
+                listeners.add(iaProvider);  // IA needs a listener for load event
+                log.info("[WeaponModule] Using ItemsAdder item provider");
+            }
+            default -> throw new IllegalStateException(
+                "Unhandled item provider type: " + providerType
+            );
+        }
 
         this.projectileTracker = new WeaponProjectileTracker();
         this.effectsState = new WeaponEffectsState();

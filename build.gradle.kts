@@ -19,9 +19,16 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.triumphteam.dev/snapshots")
+    maven("https://repo.nexomc.com/releases/")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/releases/")
     maven("https://maven.devs.beer/")
+//    maven {
+//        url = uri("https://repo.unnamed.team/repository/unnamed-public/")
+//        content {
+//            includeGroup("team.unnamed")
+//        }
+//    }
 
 //    maven("https://maven.pkg.github.com/Creator-Splash/MainEventCore") {
 //        name = "GitHubPackages"
@@ -43,6 +50,9 @@ dependencies {
     //compileOnly(libs.creatorsplashcore.api)
 
     // ItemsAdder
+    compileOnly(libs.nexo.api) {
+        exclude(group = "team.unnamed")
+    }
     compileOnly(libs.itemsadder.api)
 
     // PAPI
@@ -119,7 +129,12 @@ paper {
         }
 
         register("ItemsAdder") {
-            required = true
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+
+        register("Nexo") {
+            required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
         }
 //

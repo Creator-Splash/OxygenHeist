@@ -8,9 +8,14 @@ import java.util.Set;
 
 public record GlobalConfig(
     @NotNull DebugFlags debugFlags,
+    ItemProvider itemProvider,
     boolean weaponDebugBypass,
     WeaponSpawnerConfig weaponSpawner
 ) {
+
+    public enum ItemProvider {
+        NEXO, ITEMSADDER, CRAFTENGINE, ORAXEN, VANILLA
+    }
 
     public record WeaponSpawnerConfig(
         int maxPerPlayer,

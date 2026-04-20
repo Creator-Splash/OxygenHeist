@@ -12,6 +12,7 @@ cloud-paper = "2.0.0-beta.10"
 # Libraries
 placeholderapi = "2.11.6"
 itemsadder = "4.0.10"
+nexo = "1.7.0"
 
 # Utility
 lombok = "1.18.42"
@@ -41,6 +42,7 @@ auto-service = { module = "com.google.auto.service:auto-service", version.ref = 
 auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
 
 # Other
+nexo-api = { module = "com.nexomc:nexo", version.ref = "nexo" }
 itemsadder-api = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
 papi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }

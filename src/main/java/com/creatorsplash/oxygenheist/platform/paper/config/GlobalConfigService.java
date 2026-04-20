@@ -33,10 +33,19 @@ public final class GlobalConfigService implements Supplier<GlobalConfig> {
         FileConfiguration raw = plugin.getConfig();
 
         DebugFlags flags = loadDebugFlags(raw);
+        String itemProviderRaw = raw.getString("weapons.item-provider", "nexo");
+        GlobalConfig.ItemProvider itemProvider;
+        try {
+            itemProvider = GlobalConfig.ItemProvider.valueOf(itemProviderRaw);
+        } catch (Exception e) {
+            itemProvider = GlobalConfig.ItemProvider.VANILLA;
+        }
+
         boolean weaponDebugBypass = raw.getBoolean("debug.weapon-bypass", false);
 
         this.config = new GlobalConfig(
             flags,
+            itemProvider,
             weaponDebugBypass,
             loadWeaponSpawner(raw)
         );

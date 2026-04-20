@@ -142,6 +142,7 @@ zones:
 # =======
 
 weapons:
+  item-provider: nexo # supported: itemsadder | nexo
   friendly-fire: false
   spawner:
     max-per-player: 2
