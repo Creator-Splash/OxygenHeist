@@ -14,6 +14,7 @@ import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.util.LocationUtils;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
@@ -76,7 +77,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
         var zoneCfg = matchConfigService.get().zones();
 
         for (ZoneDefinition def : arenaConfigService.getZones()) {
-            Location center = centerOf(def);
+            Location center = LocationUtils.centerOf(def);
             if (center == null) {
                 log.warn("Zone '" + def.id() + "' world '" + def.worldName()
                     + "' not loaded - display skipped");
@@ -169,7 +170,7 @@ public final class ZoneDisplayManager implements MatchLifecycle {
 
             tickTeamDisplays(def.id(), zs, maxCooldownTicks);
 
-            Location center = centerOf(def);
+            Location center = LocationUtils.centerOf(def);
             if (center == null) continue;
 
             double offset = particleOffsets.merge(def.id(), 0.08, Double::sum) % (Math.PI * 2);
@@ -497,29 +498,6 @@ public final class ZoneDisplayManager implements MatchLifecycle {
     }
 
     /* Helpers */
-
-    private Location centerOf(ZoneDefinition def) {
-        World world = plugin.getServer().getWorld(def.worldName());
-        if (world == null) return null;
-        return switch (def) {
-            case ZoneDefinition.Circle c ->
-                new Location(world, c.centerX(), c.centerY(), c.centerZ());
-            case ZoneDefinition.Cuboid c ->
-                new Location(world,
-                (c.minX() + c.maxX() + 1.0) / 2.0,
-                (c.minY() + c.maxY() + 1.0) / 2.0,
-                (c.minZ() + c.maxZ() + 1.0) / 2.0);
-        };
-    }
-
-    private double radiusOf(ZoneDefinition def) {
-        return switch (def) {
-            case ZoneDefinition.Circle c -> c.radius();
-            case ZoneDefinition.Cuboid c -> Math.max(
-                (c.maxX() - c.minX()) / 2.0,
-                (c.maxZ() - c.minZ()) / 2.0);
-        };
-    }
 
     private String teamColorTag(String teamId) {
         Team team = teamService.getTeam(teamId);

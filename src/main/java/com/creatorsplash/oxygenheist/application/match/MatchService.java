@@ -438,7 +438,7 @@ public final class MatchService {
 
     private void tickGameAsync() {
         MatchSnapshot snapshot = snapshotProvider.get();
-        if (snapshot != null) handleSnapshot(snapshot);
+        if (snapshot != null) handleSnapshotAsync(snapshot);
     }
 
     private void handleGameTick() {
@@ -489,8 +489,9 @@ public final class MatchService {
         );
     }
 
-    private void handleSnapshot(MatchSnapshot snapshot) {
-        // TODO
+    private void handleSnapshotAsync(MatchSnapshot snapshot) {
+        // Trigger async tick updates
+        externalLifecycles.forEach(l -> l.readGameTickAsync(snapshot));
     }
 
     /**

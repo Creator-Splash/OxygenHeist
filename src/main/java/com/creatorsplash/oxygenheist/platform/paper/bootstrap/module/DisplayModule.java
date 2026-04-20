@@ -5,7 +5,7 @@ import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.display.DownedDisplayManager;
 import com.creatorsplash.oxygenheist.platform.paper.display.LobbyDisplayManager;
-import com.creatorsplash.oxygenheist.platform.paper.display.PaperAirBarController;
+import com.creatorsplash.oxygenheist.platform.paper.display.AirBarManager;
 import com.creatorsplash.oxygenheist.platform.paper.display.PaperMatchDisplayManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +22,10 @@ public final class DisplayModule implements Module {
     private MatchDisplayService matchDisplayManager;
     private LobbyDisplayManager lobbyDisplayManager;
     private DownedDisplayManager downedDisplayManager;
-    private PaperAirBarController airBarController;
+    private AirBarManager airBarController;
 
     public DisplayModule build() {
-        this.airBarController = new PaperAirBarController(plugin.getLogCenter());
+        this.airBarController = new AirBarManager(plugin.getLogCenter());
 
         this.matchDisplayManager = new PaperMatchDisplayManager(
             plugin,

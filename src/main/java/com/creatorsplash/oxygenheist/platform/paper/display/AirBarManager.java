@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Controls the vanilla air bar to represent oxygen
  */
 @RequiredArgsConstructor
-public final class PaperAirBarController {
+public final class AirBarManager {
 
     private final LogCenter log;
 

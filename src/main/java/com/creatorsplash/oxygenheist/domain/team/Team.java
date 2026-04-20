@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.domain.team;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class Team {
 
     private final String id;
     private final String name;
+
+    @Setter
     private String color; // color tag
 
     @Setter
@@ -25,7 +28,12 @@ public class Team {
 
     private final List<UUID> members = new ArrayList<>();
 
-    public Team(String id, String name, String color, @Nullable TeamBase base) {
+    public Team(
+        String id,
+        String name,
+        String color,
+        @Nullable TeamBase base
+    ) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -77,13 +85,6 @@ public class Team {
 
     public boolean hasBase() {
         return base != null;
-    }
-
-    /* Mutable config */
-
-    /** Runtime color changes persist */
-    public void setColor(String color) {
-        this.color = color;
     }
 
     /* Snapshot */

@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     // Paper
-    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
     compileOnly(libs.paper.api)
 
     // Event Core
