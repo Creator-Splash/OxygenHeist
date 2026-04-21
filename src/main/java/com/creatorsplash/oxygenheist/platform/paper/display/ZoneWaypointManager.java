@@ -162,9 +162,6 @@ public final class ZoneWaypointManager implements MatchLifecycle, Listener {
 
         NamedTextColor teamColor = resolveWaypointColor(activeTeamId);
 
-        log.warn("Zone " + zs.id() + " with owner " + zs.ownerTeamId()
-            + " setting color " + teamColor + " | Transmit on? " + visible);
-
         if (!visible) return;
 
         reassignTeam(stand, activeTeamId);

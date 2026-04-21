@@ -41,9 +41,13 @@ public final class NexoWeaponItemProvider extends AbstractWeaponProvider<ItemSta
 
     @Override
     protected @NonNull ItemStack requireCustomItem(String sourceId) {
-        ItemBuilder builder = NexoItems.itemFromId(sourceId);
+        String nexoId = sourceId.contains(":")
+            ? sourceId.substring(sourceId.indexOf(':') + 1)
+            : sourceId;
+        ItemBuilder builder = NexoItems.itemFromId(nexoId);
         if (builder == null) throw new IllegalStateException(
-            "Nexo item not found: '" + sourceId + "' - is it defined in Nexo config?"
+            "Namespacede ID: '" + sourceId + "' | Nexo item not found: '"
+                + nexoId + "' - is it defined in  Nexo config?"
         );
         return builder.build();
     }
