@@ -141,7 +141,14 @@ public final class MatchService {
             }
         }
 
-        externalLifecycles.forEach(MatchLifecycle::onCountdownStart);
+        externalLifecycles.forEach(l -> {
+            try {
+                l.onCountdownStart();
+            } catch (Exception e) {
+                log.error("Error in lifecycle countdown start for '"
+                    + l.getClass().getSimpleName() + "' Reason: " , e);
+            }
+        });
 
         playerService.prepareForCountdown(session);
 
@@ -159,7 +166,15 @@ public final class MatchService {
      * @param winner winner the winning team identifier, or empty string if no winner
      */
     public void endMatch(String winner) {
-        externalLifecycles.forEach(MatchLifecycle::onMatchEnd);
+        externalLifecycles.forEach(l -> {
+            try {
+                l.onMatchEnd();
+            } catch (Exception e) {
+                log.error("Error in lifecycle match end for '"
+                    + l.getClass().getSimpleName() + "' Reason: " , e);
+            }
+        });
+
         if (session == null) return;
 
         session.state(MatchState.ENDING);
@@ -364,7 +379,14 @@ public final class MatchService {
         session.tickTimer();
 
         // External systems tick against current state first
-        externalLifecycles.forEach(l -> l.onGameTick(session));
+        externalLifecycles.forEach(l -> {
+            try {
+                l.onGameTick(session);
+            } catch (Exception e) {
+                log.error("Error in lifecycle tick handler for '"
+                    + l.getClass().getSimpleName() + "' Reason: " , e);
+            }
+        });
 
         // Start display immediately
         displayService.onMatchStart();
@@ -375,7 +397,15 @@ public final class MatchService {
                     session.startMatch();
                     playerService.prepareForMatch(session);
                     worldService.onMatchStarted(session.config());
-                    externalLifecycles.forEach(MatchLifecycle::onMatchStart);
+
+                    externalLifecycles.forEach(l -> {
+                        try {
+                            l.onMatchStart();
+                        } catch (Exception e) {
+                            log.error("Error in lifecycle match start for '"
+                                + l.getClass().getSimpleName() + "' Reason: " , e);
+                        }
+                    });
                 }
             }
 
@@ -419,7 +449,14 @@ public final class MatchService {
         snapshotProvider.update(snapshot);
 
         // Trigger post tick updates
-        externalLifecycles.forEach(l -> l.readGameTick(snapshot));
+        externalLifecycles.forEach(l -> {
+            try {
+                l.readGameTick(snapshot);
+            } catch (Exception e) {
+                log.error("Error in lifecycle tick reader for '"
+                    + l.getClass().getSimpleName() + "' Reason: " , e);
+            }
+        });
 
         /* Debug */
 
@@ -438,7 +475,7 @@ public final class MatchService {
 
     private void tickGameAsync() {
         MatchSnapshot snapshot = snapshotProvider.get();
-        if (snapshot != null) handleSnapshot(snapshot);
+        if (snapshot != null) handleSnapshotAsync(snapshot);
     }
 
     private void handleGameTick() {
@@ -489,8 +526,15 @@ public final class MatchService {
         );
     }
 
-    private void handleSnapshot(MatchSnapshot snapshot) {
-        // TODO
+    private void handleSnapshotAsync(MatchSnapshot snapshot) {
+        externalLifecycles.forEach(l -> {
+            try {
+                l.readGameTickAsync(snapshot);
+            } catch (Exception e) {
+                log.error("Error in lifecycle async tick reader for '"
+                    + l.getClass().getSimpleName() + "' Reason: " , e);
+            }
+        });
     }
 
     /**

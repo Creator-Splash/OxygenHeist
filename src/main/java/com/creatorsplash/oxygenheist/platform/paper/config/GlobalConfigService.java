@@ -36,7 +36,7 @@ public final class GlobalConfigService implements Supplier<GlobalConfig> {
         String itemProviderRaw = raw.getString("weapons.item-provider", "nexo");
         GlobalConfig.ItemProvider itemProvider;
         try {
-            itemProvider = GlobalConfig.ItemProvider.valueOf(itemProviderRaw);
+            itemProvider = GlobalConfig.ItemProvider.valueOf(itemProviderRaw.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             itemProvider = GlobalConfig.ItemProvider.VANILLA;
         }

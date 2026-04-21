@@ -137,6 +137,9 @@ zones:
   display-main-height: 2.8
   display-team-height: 4.4
 
+  waypoint-show-uncaptured: true
+  waypoint-transmit-range: 60.0
+
 # =======
 # Weapons
 # =======

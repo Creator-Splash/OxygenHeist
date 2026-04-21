@@ -17,7 +17,9 @@ public class Team {
 
     private final String id;
     private final String name;
-    private String color; // color tag
+
+    @Setter
+    private String color;
 
     @Setter
     @Nullable private TeamBase base;
@@ -77,13 +79,6 @@ public class Team {
 
     public boolean hasBase() {
         return base != null;
-    }
-
-    /* Mutable config */
-
-    /** Runtime color changes persist */
-    public void setColor(String color) {
-        this.color = color;
     }
 
     /* Snapshot */

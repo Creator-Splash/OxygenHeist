@@ -73,4 +73,19 @@ public class TeamUtils {
         return Color.fromRGB(textColor.value());
     }
 
+    public static NamedTextColor colorTagToNearestNamed(String colorTag) {
+        TextColor textColor = NamedTextColor.NAMES.value(colorTag);
+
+        if (textColor == null) {
+            String hex = colorTag.startsWith("#") ? colorTag : "#" + colorTag;
+            textColor = TextColor.fromHexString(hex);
+        }
+
+        if (textColor == null) {
+            return NamedTextColor.WHITE;
+        }
+
+        return NamedTextColor.nearestTo(textColor);
+    }
+
 }

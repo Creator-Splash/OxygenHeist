@@ -1,7 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.display;
 
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
-import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
@@ -42,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class PaperMatchDisplayManager implements MatchDisplayService {
 
     private final OxygenHeistPlugin plugin;
-    private final PaperAirBarController airBarController;
+    private final AirBarManager airBarController;
     private final MatchConfigService matchConfig;
     private final MessageConfigService messages;
 

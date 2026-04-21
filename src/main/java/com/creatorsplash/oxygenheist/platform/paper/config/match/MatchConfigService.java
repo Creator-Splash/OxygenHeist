@@ -73,7 +73,9 @@ public final class MatchConfigService implements Supplier<MatchConfig> {
             fileConfig.getInt("zones.recapture-cooldown-seconds", 5),
             fileConfig.getDouble("zones.capture-oxygen-restore-threshold", 80.0),
             fileConfig.getDouble("zones.display-main-height", 2.8),
-            fileConfig.getDouble("zones.display-team-height", 4.4)
+            fileConfig.getDouble("zones.display-team-height", 4.4),
+            fileConfig.getBoolean("zones.waypoint-show-uncaptured", true),
+            fileConfig.getDouble("zones.waypoint-transmit-range", 30.0)
         );
 
         MatchConfig newConfig = new MatchConfig(

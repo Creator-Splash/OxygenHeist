@@ -25,7 +25,10 @@ public record MatchZoneConfig(
     double captureOxygenRestoreThreshold,
 
     double displayMainHeight,   // height of main zone hologram above zone surface
-    double displayTeamHeight   // height of per-team holograms above zone surface
+    double displayTeamHeight,   // height of per-team holograms above zone surface
+
+    boolean waypointShowUncaptured,
+    double waypointBaseTransmitRange
 ) {
 
     public enum ReplenishMode { PER_PLAYER, DRAIN_SPLIT }
@@ -45,6 +48,8 @@ public record MatchZoneConfig(
         5,
         80.0,
         2.8,
-        4.4
+        4.4,
+        true,
+        60.0
     );
 }

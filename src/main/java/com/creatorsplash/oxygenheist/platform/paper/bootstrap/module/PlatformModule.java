@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.CommandRegistrar;
 import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.display.ZoneDisplayManager;
+import com.creatorsplash.oxygenheist.platform.paper.display.ZoneWaypointManager;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
 import org.bukkit.Bukkit;
@@ -51,6 +52,16 @@ public record PlatformModule(
             plugin.getLogCenter()
         );
         matchService.registerLifecycle(zoneDisplayManager);
+
+        ZoneWaypointManager zoneWaypointManager = new ZoneWaypointManager(
+            plugin,
+            gameplay.matchService(),
+            gameplay.teamService(),
+            configs.arenaConfig(),
+            configs.matchConfig(),
+            plugin.getLogCenter()
+        );
+        matchService.registerLifecycle(zoneWaypointManager);
 
         matchService.registerLifecycle(gameplay.reviveService());
         matchService.registerLifecycle(gameplay.downedService());

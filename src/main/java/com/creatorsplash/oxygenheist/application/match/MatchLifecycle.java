@@ -58,8 +58,15 @@ public interface MatchLifecycle {
     /**
      * Called every match tick
      *
-     * @param session the match snapshot relevant to this match lifecycle
+     * @param snapshot the match snapshot relevant to this match lifecycle
      */
-    default void readGameTick(MatchSnapshot session) {}
+    default void readGameTick(MatchSnapshot snapshot) {}
+
+    /**
+     * Called async every match tick
+     *
+     * @param snapshot the match snapshot relevant to this match lifecycle
+     */
+    default void readGameTickAsync(MatchSnapshot snapshot) {}
 
 }
