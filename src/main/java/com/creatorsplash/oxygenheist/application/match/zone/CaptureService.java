@@ -115,6 +115,12 @@ public class CaptureService {
     ) {
         if (teamId.equals(zone.getOwnerTeamId())) {
             session.addTeamScore(teamId, config.holdingPointsPerTick());
+
+            // If capture was partially regressed while the owner was off-point,
+            // restore it now that the owner has successfully defended and returned
+            if (zone.getCaptureProgress() < 100.0) {
+                zone.progressCapture(teamId, config.restoreRatePerTick());
+            }
         } else {
             zone.regressCapture(config.regressRatePerTick());
         }
