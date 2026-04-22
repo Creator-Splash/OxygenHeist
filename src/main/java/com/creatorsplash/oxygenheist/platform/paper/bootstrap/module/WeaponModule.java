@@ -136,7 +136,17 @@ public final class WeaponModule implements Module {
             projectileTracker
         ));
 
-        // todo
+        register(SpikeShooterHandler.ID, config -> new SpikeShooterHandler(
+            config,
+            itemProvider,
+            projectileTracker
+        ));
+
+        register(ReefHarpoonGunHandler.ID, config -> new ReefHarpoonGunHandler(
+            config,
+            itemProvider,
+            projectileTracker
+        ));
     }
 
     /* == Internals == */

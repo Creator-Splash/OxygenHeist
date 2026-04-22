@@ -67,47 +67,63 @@ manta_cannon:
       volume: 1.0
       pitch: 1.3
 
-reef_harpoon:
-  enabled: true
-  reload-frames: 1
-  ammo: 1
-  start-ammo: 0
-  reload-ms: 5000
-  damage: 10.0
-  max-range: 12.0
-  frames:
-    idle: "oxygenheist:reef_harpoon"
-  sounds:
-    reload-start:
-      sound: "item.armor.equip_iron"
-      volume: 1.0
-      pitch: 1.0
-    reload-complete:
-      sound: "item.armor.equip_iron"
-      volume: 1.0
-      pitch: 1.3
-
 spike_shooter:
   enabled: true
-  reload-frames: 5
-  ammo: 10
-  reload-ms: 3500
-  shot-cooldown-ms: 0
-  damage: 2.0
-  max-range: 12.0
+  reload-frames: 6
+  ammo:
+    max: 1
+    display-item: spike_shooter_projectile
+  reload-ms: 3000
   burst-count: 3
-  burst-cooldown-ms: 500
-  poison-duration-ticks: 100
+  burst-cooldown-ms: 250
+  damage: 2.0
+  poison-duration-ticks: 30
+  launch-speed: 1.8
+  max-range: 15.0
   frames:
-    idle: "oxygenheist:spike_shooter"
+    idle: "oxygenheist:spike_shooter_idle"
+    charged: "oxygenheist:spike_shooter_charged"
   sounds:
+    fire:
+      sound: "block.sweet_berry_bush.pick_berries"
+      volume: 1.0
+      pitch: 1.2
     reload-start:
       sound: "item.armor.equip_iron"
       volume: 1.0
       pitch: 1.0
     reload-complete:
       sound: "item.armor.equip_iron"
-      volume: 1.0
+      volume: 0.8
+      pitch: 1.3
+
+reef_harpoon_gun:
+  enabled: true
+  reload-frames: 1
+  ammo:
+    max: 1
+    display-item: harpoon_projectile
+  reload-ms: 5000
+  damage: 10.0
+  effect-duration-ticks: 80
+  launch-speed: 0.8
+  aim-spread-multiplier: 0.3
+  recoil: 0.5
+  frames:
+    idle: "oxygenheist:reef_harpoon_gun_idle"
+    charged: "oxygenheist:reef_harpoon_gun_charged"
+  sounds:
+    fire:
+      sound: "item.trident.throw"
+      volume: 1.2
+      pitch: 1.0
+    reload-start:
+      sound: "item.armor.equip_iron"
+      volume: 0.8
+      pitch: 1.1
+    reload-complete:
+      sound: "item.armor.equip_iron"
+      volume: 0.8
       pitch: 1.3
 
 silt_blaster:

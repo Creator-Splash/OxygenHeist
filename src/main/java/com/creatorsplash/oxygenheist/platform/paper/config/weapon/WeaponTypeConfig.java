@@ -97,7 +97,8 @@ public record WeaponTypeConfig(
         double meleeKnockbackY,
         double coneAngle,
         double cloudRadius,
-        double aimSpreadMultiplier
+        double aimSpreadMultiplier,
+        double recoil
     ) {}
 
     /* Effects config */

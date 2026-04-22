@@ -161,7 +161,8 @@ public final class WeaponConfigService {
             s.getDouble("melee-knockback-y", 0.0),
             s.getDouble("cone-angle", 0.0),
             s.getDouble("cloud-radius", 0.0),
-            s.getDouble("aim-spread-multiplier", 0.7)
+            s.getDouble("aim-spread-multiplier", 0.7),
+            s.getDouble("recoil", 0.0)
         );
     }
 
