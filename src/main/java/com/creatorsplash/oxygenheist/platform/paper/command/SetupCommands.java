@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.incendo.cloud.annotations.Argument;
-import org.incendo.cloud.annotations.Command;
-import org.incendo.cloud.annotations.CommandDescription;
-import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -133,7 +130,8 @@ public final class SetupCommands implements CommandHandler {
     public void zoneSet(
         Player player,
         @Argument("id") String id,
-        @Argument("displayName") @Nullable String displayName
+        @Argument("displayName") @Nullable String displayName,
+        @Flag(value = "transmit-range", aliases = "t") @Nullable Double transmitRangeOverride
     ) {
         String safeId = id.toLowerCase();
         String name = displayName != null ? displayName : safeId;
@@ -153,13 +151,28 @@ public final class SetupCommands implements CommandHandler {
         try {
             ZoneDefinition.Cuboid c = zone.get();
 
+            // transmit override if provided
+            if (transmitRangeOverride != null) {
+                c = new ZoneDefinition.Cuboid(
+                    c.id(), c.displayName(), c.worldName(),
+                    c.minX(), c.minY(), c.minZ(),
+                    c.maxX(), c.maxY(), c.maxZ(),
+                    transmitRangeOverride
+                );
+            }
+
             arenaConfigService.saveZone(c);
             zoneSelectionService.clearSelection(player.getUniqueId());
+
+            String rangeInfo = transmitRangeOverride != null
+                ? " <gray>Transmit range: <white>" + transmitRangeOverride
+                : "";
 
             player.sendRichMessage(
                 "<green>Zone '<white>" + safeId + "</white>' saved! " +
                 "<gray>(" + (int) c.minX() + ", " + (int) c.minY() + ", " + (int) c.minZ() + ")" +
                 " -> (" + (int) c.maxX() + ", " + (int) c.maxY() + ", " + (int) c.maxZ() + ")"
+                + rangeInfo
             );
         } catch (RuntimeException e) {
             log.error("Failed to save zone config", e);
@@ -173,7 +186,8 @@ public final class SetupCommands implements CommandHandler {
         Player player,
         @Argument("id") String id,
         @Argument("radius") double radius,
-        @Argument("displayName") @Nullable String displayName
+        @Argument("displayName") @Nullable String displayName,
+        @Flag(value = "transmit-range", aliases = "t") @Nullable Double transmitRangeOverride
     ) {
         if (radius <= 0 || radius > ZONE_MAX) {
             player.sendRichMessage("<red>Radius must be between 1 and " + ZONE_MAX);
@@ -195,14 +209,30 @@ public final class SetupCommands implements CommandHandler {
         }
 
         try {
-            arenaConfigService.saveZone(zone.get());
+            ZoneDefinition.Circle c = zone.get();
+
+            // transmit override if provided
+            if (transmitRangeOverride != null) {
+                c = new ZoneDefinition.Circle(
+                    c.id(), c.displayName(), c.worldName(),
+                    c.centerX(), c.centerY(), c.centerZ(),
+                    c.radius(),
+                    transmitRangeOverride
+                );
+            }
+
+            arenaConfigService.saveZone(c);
             zoneSelectionService.clearSelection(player.getUniqueId());
 
-            ZoneDefinition.Circle c = zone.get();
+            String rangeInfo = transmitRangeOverride != null
+                ? " <gray>Transmit range: <white>" + transmitRangeOverride
+                : "";
+
             player.sendRichMessage(
                 "<green>Zone '<white>" + safeId + "</white>' saved! " +
                 "<gray>Center: (" + (int) c.centerX() + ", " + (int) c.centerY() +
                 ", " + (int) c.centerZ() + ") Radius: <white>" + (int) radius
+                + rangeInfo
             );
         } catch (RuntimeException e) {
             log.error("Failed to save zone config", e);

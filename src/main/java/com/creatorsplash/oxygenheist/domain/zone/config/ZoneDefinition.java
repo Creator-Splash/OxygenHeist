@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.domain.zone.config;
 import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.domain.zone.CaptureZoneState;
 import org.checkerframework.checker.units.qual.C;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Immutable definition of a capture zone
@@ -19,6 +20,8 @@ public sealed interface ZoneDefinition {
     String id();
     String displayName();
     String worldName();
+
+    default @Nullable Double transmitRangeOverride() { return null; }
 
     /**
      * @return true if the given world-space position is inside this zone
@@ -40,7 +43,8 @@ public sealed interface ZoneDefinition {
         String displayName,
         String worldName,
         double minX, double minY, double minZ,
-        double maxX, double maxY, double maxZ
+        double maxX, double maxY, double maxZ,
+        @Nullable Double transmitRangeOverride
     ) implements ZoneDefinition {
         @Override
         public boolean contains(FullPosition pos) {
@@ -60,7 +64,8 @@ public sealed interface ZoneDefinition {
         String displayName,
         String worldName,
         double centerX, double centerY, double centerZ,
-        double radius
+        double radius,
+        @Nullable Double transmitRangeOverride
     ) implements ZoneDefinition {
         @Override
         public boolean contains(FullPosition pos) {

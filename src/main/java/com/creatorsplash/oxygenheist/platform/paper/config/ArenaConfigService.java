@@ -94,7 +94,7 @@ public final class ArenaConfigService {
 
         this.arena = Optional.of(new ArenaSetup(world, centerX, centerZ, initialSize));
         log.info("Arena loaded: world=<white>" + world + "</white> center=(<white>" +
-                (int) centerX + ", " + (int) centerZ + "</white>) size=<white>" + (int) initialSize);
+            (int) centerX + ", " + (int) centerZ + "</white>) size=<white>" + (int) initialSize);
     }
 
     private void loadZones(YamlConfiguration config) {
@@ -114,6 +114,10 @@ public final class ArenaConfigService {
                 continue;
             }
 
+            Double transmitOverride = zs.contains("waypoint-transmit-range")
+                ? zs.getDouble("waypoint-transmit-range")
+                : null;
+
             ZoneDefinition def;
 
             if (zs.contains(RADIUS)) {
@@ -127,7 +131,7 @@ public final class ArenaConfigService {
                     continue;
                 }
 
-                def = new ZoneDefinition.Circle(id, displayName, world, cx, cy, cz, r);
+                def = new ZoneDefinition.Circle(id, displayName, world, cx, cy, cz, r, transmitOverride);
             } else {
                 // Cuboid format
                 double minX = zs.getDouble("min-x");
@@ -138,7 +142,7 @@ public final class ArenaConfigService {
                 double maxZ = zs.getDouble("max-z");
 
                 def = new ZoneDefinition.Cuboid(id, displayName, world,
-                    minX, minY, minZ, maxX, maxY, maxZ);
+                    minX, minY, minZ, maxX, maxY, maxZ, transmitOverride);
             }
 
             zones.put(id, def);
@@ -242,6 +246,10 @@ public final class ArenaConfigService {
      */
     public List<ZoneDefinition> getZones() {
         return List.copyOf(zones.values());
+    }
+
+    public @Nullable ZoneDefinition getZone(String id) {
+        return zones.get(id);
     }
 
     /**

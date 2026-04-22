@@ -120,14 +120,15 @@ public final class ZoneWaypointManager implements MatchLifecycle, Listener {
             ZoneSnapshot zs = snapshot.getZone(zoneId);
             if (zs == null) continue;
 
-            updateWaypoint(zoneId, stand, zs);
+            updateWaypoint(zoneId, stand, zs, arenaConfig.getZone(zoneId));
         }
     }
 
     private void updateWaypoint(
         String zoneId,
         ArmorStand stand,
-        ZoneSnapshot zs
+        ZoneSnapshot zs,
+        ZoneDefinition def
     ) {
         boolean showUncaptured = matchConfig.get().zones().waypointShowUncaptured();
 
@@ -154,10 +155,12 @@ public final class ZoneWaypointManager implements MatchLifecycle, Listener {
         if (stateKey.equals(lastState.get(zoneId))) return;
         lastState.put(zoneId, stateKey);
 
+        double nonCapturedRange = def.transmitRangeOverride() != null
+            ? def.transmitRangeOverride()
+            : matchConfig.get().zones().waypointBaseTransmitRange();
+
         setTransmit(stand, visible
-            ? (zs.ownerTeamId() != null
-                ? TRANSMIT_MAX
-                : matchConfig.get().zones().waypointBaseTransmitRange())
+            ? (zs.ownerTeamId() != null ? TRANSMIT_MAX : nonCapturedRange)
             : TRANSMIT_OFF);
 
         NamedTextColor teamColor = resolveWaypointColor(activeTeamId);
