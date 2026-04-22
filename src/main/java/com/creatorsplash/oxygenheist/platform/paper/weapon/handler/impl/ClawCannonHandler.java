@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 public final class ClawCannonHandler extends AbstractWeaponHandler {
 
-    private static final String ID = "claw_cannon";
+    public static final String ID = "claw_cannon";
 
     private final LogCenter log;
     private final Scheduler scheduler;

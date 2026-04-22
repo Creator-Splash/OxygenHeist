@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 public final class SiltBlasterHandler extends AbstractWeaponHandler {
 
-    private static final String ID = "silt_blaster";
+    public static final String ID = "silt_blaster";
 
     private final WeaponEffectsState effectsState;
 

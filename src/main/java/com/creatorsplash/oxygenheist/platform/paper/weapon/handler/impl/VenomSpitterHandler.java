@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 public final class VenomSpitterHandler extends ReloadableWeaponHandler {
 
-    private static final String ID = "venom_spitter";
+    public static final String ID = "venom_spitter";
 
     /** Players currently in continuous-fire mode */
     private final Set<UUID> shooting = new HashSet<>();

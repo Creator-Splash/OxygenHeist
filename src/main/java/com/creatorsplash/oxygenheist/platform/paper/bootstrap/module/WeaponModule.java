@@ -10,9 +10,7 @@ import com.creatorsplash.oxygenheist.platform.paper.display.WeaponAmmoDisplaySer
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.ClawCannonHandler;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.SiltBlasterHandler;
-import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.VenomSpitterHandler;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.*;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.AbstractWeaponProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAdderWeaponItemProvider;
@@ -107,7 +105,7 @@ public final class WeaponModule implements Module {
     private void registerHandlers() {
         Scheduler scheduler = gameplay.scheduler();
 
-        register("silt_blaster", config -> new SiltBlasterHandler(
+        register(SiltBlasterHandler.ID, config -> new SiltBlasterHandler(
             scheduler,
             config,
             itemProvider,
@@ -115,18 +113,30 @@ public final class WeaponModule implements Module {
             hideService
         ));
 
-        register("venom_spitter", config -> new VenomSpitterHandler(
+        register(VenomSpitterHandler.ID, config -> new VenomSpitterHandler(
             config,
             itemProvider
         ));
 
-        register("claw_cannon", config -> new ClawCannonHandler(
+        register(ClawCannonHandler.ID, config -> new ClawCannonHandler(
             scheduler,
             config,
             itemProvider
         ));
 
-        // TODO
+        register(DartSlingshotHandler.ID, config -> new DartSlingshotHandler(
+            config,
+            itemProvider,
+            projectileTracker
+        ));
+
+        register(NeedleRifleHandler.ID, config -> new NeedleRifleHandler(
+            config,
+            itemProvider,
+            projectileTracker
+        ));
+
+        // todo
     }
 
     /* == Internals == */

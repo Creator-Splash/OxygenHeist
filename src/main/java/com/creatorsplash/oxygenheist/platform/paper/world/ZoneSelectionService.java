@@ -52,7 +52,7 @@ public final class ZoneSelectionService {
             Math.min(p1.getZ(), p2.getZ()),
             Math.max(p1.getX(), p2.getX()),
             Math.max(p1.getY(), p2.getY()) + 1,
-            Math.max(p1.getZ(), p2.getZ())
+            Math.max(p1.getZ(), p2.getZ()), null
         ));
     }
 
@@ -83,7 +83,8 @@ public final class ZoneSelectionService {
             center.getX(),
             center.getY() + 1,
             center.getZ(),
-            radius
+            radius,
+            null
         ));
     }
 

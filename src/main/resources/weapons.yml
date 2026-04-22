@@ -67,30 +67,6 @@ manta_cannon:
       volume: 1.0
       pitch: 1.3
 
-needle_rifle:
-  enabled: true
-  reload-frames: 1
-  ammo: 8
-  reload-ms: 4000
-  shot-cooldown-ms: 2000
-  damage: 7.0
-  max-range: 10.0
-  close-range-distance: 3.0
-  close-range-bonus-damage: 3.0
-  long-range-distance: 6.0
-  long-range-nerf-damage: 3.0
-  frames:
-    idle: "oxygenheist:needle_rifle"
-  sounds:
-    reload-start:
-      sound: "item.armor.equip_iron"
-      volume: 1.0
-      pitch: 1.0
-    reload-complete:
-      sound: "item.armor.equip_iron"
-      volume: 1.0
-      pitch: 1.3
-
 reef_harpoon:
   enabled: true
   reload-frames: 1
@@ -178,22 +154,64 @@ venom_spitter:
 dart_slingshot:
   enabled: true
   reload-frames: 1
-  ammo: 3
+  ammo:
+    max: 3
+    display-item: dart_slingshot_projectile
   reload-ms: 2500
   shot-cooldown-ms: 500
   damage: 2.0
-  max-range: 15.0
   poison-duration-ticks: 80
+  max-range: 15.0
+  launch-speed: 2.5
+  aim-spread-multiplier: 0.7
   frames:
-    idle: "oxygenheist:dart_slingshot"
+    idle: "oxygenheist:dart_slingshot_idle"
+    charged: "oxygenheist:dart_slingshot_charged"
   sounds:
+    fire:
+      sound: "entity.arrow.shoot"
+      volume: 0.3
+      pitch: 1.8
+    reload-start:
+      sound: "item.armor.equip_leather"
+      volume: 0.6
+      pitch: 1.2
+    reload-complete:
+      sound: "item.armor.equip_leather"
+      volume: 0.8
+      pitch: 1.5
+
+needle_rifle:
+  enabled: true
+  reload-frames: 1
+  ammo:
+    max: 8
+    display-item: needle_rifle_projectile
+  reload-ms: 4000
+  shot-cooldown-ms: 2000
+  damage: 7.0
+  close-range-distance: 3.0
+  close-range-bonus-damage: 3.0
+  long-range-distance: 6.0
+  long-range-nerf-damage: 3.0
+  max-range: 10.0
+  launch-speed: 1.5
+  aim-spread-multiplier: 0.3
+  frames:
+    idle: "oxygenheist:needle_rifle_idle"
+    charged: "oxygenheist:needle_rifle_charged"
+  sounds:
+    fire:
+      sound: "entity.generic.explode"
+      volume: 1.0
+      pitch: 0.6
     reload-start:
       sound: "item.armor.equip_iron"
       volume: 1.0
       pitch: 1.0
     reload-complete:
       sound: "item.armor.equip_iron"
-      volume: 1.0
+      volume: 0.8
       pitch: 1.3
 
 steal_crossbow:
