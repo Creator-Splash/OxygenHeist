@@ -50,29 +50,16 @@ public abstract class AbstractWeaponProvider<T> implements WeaponItemProvider {
 
     @Override
     public void applyFrame(ItemStack item, String weaponId, String frameName) {
-        WeaponTypeConfig config = requireConfig(weaponId);
-        String itemId = config.frames().get(frameName);
-
-        // Fall back to convention: derive from idle frame prefix
-        if (itemId == null) {
-            String idleId = config.frames().get("idle");
-            if (idleId != null) {
-                int lastUnderscore = idleId.lastIndexOf('_');
-                if (lastUnderscore != -1) {
-                    itemId = idleId.substring(0, lastUnderscore + 1) + frameName;
-                }
-            }
-        }
-
-        if (itemId == null) return;
-
-        T customItem = findCustomItem(itemId);
-        if (customItem == null) {
-            log.warn("Could not find custom item from frame id: " + itemId);
-            return;
-        }
-
+        T customItem = findCustomItem(resolveFrameItemId(weaponId, frameName));
+        if (customItem == null) return;
         copyModelData(item, customItem);
+    }
+
+    @Override
+    public @Nullable ItemStack getFrameItem(String weaponId, String frameName) {
+        T customItem = findCustomItem(resolveFrameItemId(weaponId, frameName));
+        if (customItem == null) return null;
+        return requireItem(customItem).clone();
     }
 
     public @Nullable ItemStack getFrameItem(String frameItemId) {
@@ -82,6 +69,22 @@ public abstract class AbstractWeaponProvider<T> implements WeaponItemProvider {
     }
 
     /* Internals */
+
+    private @Nullable String resolveFrameItemId(String weaponId, String frameName) {
+        WeaponTypeConfig config = requireConfig(weaponId);
+
+        String itemId = config.frames().get(frameName);
+        if (itemId != null) return itemId;
+
+        // Convention fallback
+        String idleId = config.frames().get("idle");
+        if (idleId != null) {
+            int lastUnderscore = idleId.lastIndexOf('_');
+            if (lastUnderscore != -1) return idleId.substring(0, lastUnderscore + 1) + frameName;
+        }
+
+        return null;
+    }
 
     protected WeaponTypeConfig requireConfig(String weaponId) {
         WeaponTypeConfig config = weaponConfig.getConfig(weaponId);

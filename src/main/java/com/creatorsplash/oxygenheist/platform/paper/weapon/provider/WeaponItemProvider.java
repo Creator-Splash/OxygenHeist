@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.provider;
 
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstraction over whichever custom item plugin is providing weapon items
@@ -26,6 +27,11 @@ public interface WeaponItemProvider {
      * @throws IllegalStateException if the provider is not ready or the item id is unknown
      */
     ItemStack createWeaponItem(String weaponId, String displayName);
+
+    @Nullable
+    default ItemStack getFrameItem(String weaponId, String frameName) {
+        return null;
+    }
 
     /**
      * Applies a named frame to the item, e.g, "idle", "charged", "launch"
