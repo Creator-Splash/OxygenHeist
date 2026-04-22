@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
+import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -16,7 +17,9 @@ import java.util.*;
  */
 public abstract class AbstractWeaponHandler implements WeaponHandler {
 
+    @Getter
     protected final WeaponTypeConfig config;
+
     protected final WeaponItemProvider provider;
 
     private final List<Scheduler.Task> worldTasks = new ArrayList<>();

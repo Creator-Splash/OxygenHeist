@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
@@ -9,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -19,9 +21,10 @@ public final class ItemsAdderWeaponItemProvider extends AbstractWeaponProvider<C
     private volatile boolean ready = false;
 
     public ItemsAdderWeaponItemProvider(
-        @NotNull WeaponConfigService weaponConfig
+        @NotNull WeaponConfigService weaponConfig,
+        @NotNull LogCenter logCenter
     ) {
-        super(weaponConfig);
+        super(weaponConfig, logCenter);
     }
 
     @EventHandler
@@ -34,19 +37,12 @@ public final class ItemsAdderWeaponItemProvider extends AbstractWeaponProvider<C
         return this.ready;
     }
 
-    /* Weapon Item Provider */
+    /* Internals */
 
     @Override
-    public void applyFrame(ItemStack item, String weaponId, String frameName) {
-        WeaponTypeConfig config = requireConfig(weaponId);
-        String itemId = config.frames().get(frameName);
-        if (itemId == null) return;
-        CustomStack stack = CustomStack.getInstance(itemId);
-        if (stack == null) return;
-        copyModelData(item, stack);
+    protected @Nullable CustomStack findCustomItem(String sourceId) {
+        return CustomStack.getInstance(sourceId); // already returns null if not found
     }
-
-    /* Internals */
 
     @Override
     protected @NotNull ItemStack requireItem(CustomStack customItem) {

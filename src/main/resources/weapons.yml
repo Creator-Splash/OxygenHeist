@@ -150,7 +150,9 @@ silt_blaster:
 venom_spitter:
   enabled: true
   reload-frames: 1
-  ammo: 25
+  ammo:
+    max: 25
+    display-item: SLIME_BALL
   reload-ms: 5000
   shot-cooldown-ms: 200
   damage-per-shot: 0.5

@@ -4,7 +4,10 @@ import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
+import com.creatorsplash.oxygenheist.platform.paper.display.WeaponAmmoDisplayService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +21,10 @@ import java.util.*;
  * <p>All weapon handlers must be registered here at startup via {@link #register(WeaponHandler)}.
  * This is the single source of truth for which weapons exist in the game</p>
  */
+@RequiredArgsConstructor
 public final class WeaponRegistry implements MatchLifecycle {
+
+    private final WeaponAmmoDisplayService ammoDisplay;
 
     private final Map<String, WeaponHandler> handlers = new LinkedHashMap<>();
     private final Random random = new Random();
@@ -107,17 +113,21 @@ public final class WeaponRegistry implements MatchLifecycle {
             if (handler == null) continue;
 
             handler.tick(new WeaponContext(player, item, session, effectsActive));
+
+            ammoDisplay.update(player, item, handler.getConfig());
         }
     }
 
     @Override
     public void cleanUp() {
         handlers.values().forEach(WeaponHandler::onMatchEnd);
+        ammoDisplay.cleanUp();
     }
 
     @Override
     public void onPlayerLeave(UUID playerId) {
         handlers.values().forEach(h -> h.onPlayerLeave(playerId));
+        ammoDisplay.onPlayerLeave(playerId);
     }
 
 }

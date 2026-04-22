@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -81,6 +82,14 @@ public final class WeaponConfigService {
 
         int reloadFrames = s.getInt("reload-frames", 0);
 
+        String cooldownMatRaw = s.getString("cooldown-material", null);
+        Material cooldownMaterial = null;
+        if (cooldownMatRaw != null) {
+            try {
+                cooldownMaterial = Material.getMaterial(cooldownMatRaw.toUpperCase(Locale.ROOT));
+            } catch (Exception ignored) {}
+        }
+
         Map<String, String> frames = parseFrames(s);
 
         WeaponTypeConfig.AmmoConfig ammo = parseAmmo(s);
@@ -93,6 +102,7 @@ public final class WeaponConfigService {
         return new WeaponTypeConfig(
             id, enabled,
             reloadFrames, frames,
+            cooldownMaterial,
             ammo, timing,
             combat, physics,
             effects, sounds
@@ -110,9 +120,14 @@ public final class WeaponConfigService {
     }
 
     private WeaponTypeConfig.AmmoConfig parseAmmo(ConfigurationSection s) {
-        int maxAmmo = s.getInt("ammo", 0);
-        int startAmmo = s.getInt("start-ammo", maxAmmo); // defaults to max if not set
-        return new WeaponTypeConfig.AmmoConfig(maxAmmo, startAmmo);
+        ConfigurationSection ammoSection = s.getConfigurationSection("ammo");
+        if (ammoSection == null) {
+            return new WeaponTypeConfig.AmmoConfig(0, 0, null);
+        }
+        int max = ammoSection.getInt("max", 0);
+        int start = ammoSection.getInt("start", max);
+        String displayItem = ammoSection.getString("display-item", null);
+        return new WeaponTypeConfig.AmmoConfig(max, start, displayItem);
     }
 
     private WeaponTypeConfig.TimingConfig parseTiming(ConfigurationSection s) {

@@ -81,13 +81,18 @@ public record PlatformModule(
                 gameplay.actionService()
             ),
             new ReviveListener(gameplay.matchService(), gameplay.reviveService(), gameplay.actionService()),
-            new PlayerRestrictionListener(gameplay.actionService()),
+            new PlayerRestrictionListener(
+                configs.globals(),
+                gameplay.actionService()
+            ),
             new WeaponListener(
+                plugin.getLogCenter(),
                 configs.globals(),
                 weapons.weaponRegistry(),
                 weapons.projectileTracker(),
                 weapons.dropService(),
                 weapons.effectsState(),
+                weapons.ammoDisplay(),
                 gameplay.matchService(),
                 gameplay.actionService()
             ),
@@ -111,6 +116,7 @@ public record PlatformModule(
         CommandRegistrar registrar = new CommandRegistrar(plugin);
 
         registrar.registerAnnotated(new GameCommands(
+            plugin,
             gameplay.matchService(),
             configs.arenaConfig(),
             gameplay.teamService()

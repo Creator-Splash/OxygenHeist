@@ -1,6 +1,9 @@
 package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
+import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Map;
 
 /**
@@ -11,6 +14,7 @@ public record WeaponTypeConfig(
    boolean enabled,
    int reloadFrames,
    Map<String, String> frames,
+   @Nullable Material cooldownMaterial,
    AmmoConfig ammo,
    TimingConfig timing,
    CombatConfig combat,
@@ -26,8 +30,14 @@ public record WeaponTypeConfig(
      *
      * <p>{@code startAmmo} defaults to {@code maxAmmo} in the loader unless
      * explicitly overridden (e.g. StealCrossbow starts at 0 - unloaded)</p>
+     *
+     * <p>{@code} displayItem is used for physical ammo display if enabled by the global config</p>
      */
-    public record AmmoConfig(int maxAmmo, int startAmmo) {}
+    public record AmmoConfig(
+        int maxAmmo,
+        int startAmmo,
+        @Nullable String displayItem
+    ) {}
 
     /* Timing */
 

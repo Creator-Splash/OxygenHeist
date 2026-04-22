@@ -1,5 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.nexomc.nexo.api.NexoItems;
@@ -9,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -18,8 +20,11 @@ public final class NexoWeaponItemProvider extends AbstractWeaponProvider<ItemSta
 
     private volatile boolean ready = false;
 
-    public NexoWeaponItemProvider(@NotNull WeaponConfigService weaponConfig) {
-        super(weaponConfig);
+    public NexoWeaponItemProvider(
+        @NotNull WeaponConfigService weaponConfig,
+        @NotNull LogCenter logCenter
+    ) {
+        super(weaponConfig, logCenter);
     }
 
     @EventHandler
@@ -35,21 +40,31 @@ public final class NexoWeaponItemProvider extends AbstractWeaponProvider<ItemSta
     /* Internals */
 
     @Override
+    protected @Nullable ItemStack findCustomItem(String sourceId) {
+        ItemBuilder builder = NexoItems.itemFromId(stripNamespace(sourceId)); // already returns null if not found
+        return builder == null ? null : builder.build();
+    }
+
+    @Override
     protected @NotNull ItemStack requireItem(ItemStack customItem) {
         return customItem;
     }
 
     @Override
     protected @NonNull ItemStack requireCustomItem(String sourceId) {
-        String nexoId = sourceId.contains(":")
-            ? sourceId.substring(sourceId.indexOf(':') + 1)
-            : sourceId;
-        ItemBuilder builder = NexoItems.itemFromId(nexoId);
+        ItemBuilder builder = NexoItems.itemFromId(stripNamespace(sourceId));
         if (builder == null) throw new IllegalStateException(
-            "Namespacede ID: '" + sourceId + "' | Nexo item not found: '"
-                + nexoId + "' - is it defined in  Nexo config?"
+            "Nexo item not found: '" + sourceId + "' - is it defined in Nexo config?"
         );
         return builder.build();
+    }
+
+    /**
+     * Strips the namespace prefix from a namespaced ID
+     */
+    private String stripNamespace(String id) {
+        int colon = id.indexOf(':');
+        return colon != -1 ? id.substring(colon + 1) : id;
     }
 
 }

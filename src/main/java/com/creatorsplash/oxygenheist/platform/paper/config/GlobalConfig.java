@@ -10,6 +10,7 @@ public record GlobalConfig(
     @NotNull DebugFlags debugFlags,
     ItemProvider itemProvider,
     boolean weaponDebugBypass,
+    boolean physicalAmmoDisplay,
     WeaponSpawnerConfig weaponSpawner
 ) {
 

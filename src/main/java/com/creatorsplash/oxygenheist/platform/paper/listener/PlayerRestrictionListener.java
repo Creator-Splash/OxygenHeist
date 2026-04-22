@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
+import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.util.TeamUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
@@ -14,6 +15,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  * Bukkit listener responsible for enforcing player action restrictions
@@ -21,6 +24,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 @RequiredArgsConstructor
 public final class PlayerRestrictionListener implements Listener {
 
+    private static final int OFFHAND_SLOT = 40;
+
+    private final GlobalConfigService globals;
     private final PlayerActionService actionService;
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -38,13 +44,27 @@ public final class PlayerRestrictionListener implements Listener {
         ) {
             event.setCancelled(true);
         }
+
+        if (globals.get().physicalAmmoDisplay()
+            && event.getClickedInventory() instanceof PlayerInventory
+            && event.getSlot() == OFFHAND_SLOT
+        ) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!actionService.canInteract(player.getUniqueId())) return;
+
         if (TeamUtils.isTeamArmor(event.getOldCursor())) {
+            event.setCancelled(true);
+        }
+
+        if (globals.get().physicalAmmoDisplay()
+            && event.getRawSlots().contains(OFFHAND_SLOT)
+        ) {
             event.setCancelled(true);
         }
     }
@@ -55,6 +75,17 @@ public final class PlayerRestrictionListener implements Listener {
         if (TeamUtils.isTeamArmor(event.getItemDrop().getItemStack())) {
             event.setCancelled(true);
         }
+    }
+
+    /**
+     * Prevents players from swapping items into/out of offhand
+     * when physical ammo display is active
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSwapHands(PlayerSwapHandItemsEvent event) {
+        if (!globals.get().physicalAmmoDisplay()) return;
+        if (!actionService.canInteract(event.getPlayer().getUniqueId())) return;
+        event.setCancelled(true);
     }
 
     /**

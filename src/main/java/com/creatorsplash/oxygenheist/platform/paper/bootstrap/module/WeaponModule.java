@@ -6,6 +6,7 @@ import com.creatorsplash.oxygenheist.application.match.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
+import com.creatorsplash.oxygenheist.platform.paper.display.WeaponAmmoDisplayService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponEffectsState;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponRegistry;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
@@ -13,6 +14,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.ClawCann
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.SiltBlasterHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl.VenomSpitterHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.AbstractWeaponProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.ItemsAdderWeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.impl.NexoWeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
@@ -40,6 +42,7 @@ public final class WeaponModule implements Module {
 
     private WeaponItemProvider itemProvider;
     private WeaponRegistry weaponRegistry;
+    private WeaponAmmoDisplayService ammoDisplay;
     private WeaponProjectileTracker projectileTracker;
     private WeaponEffectsState effectsState;
     private WeaponHideService hideService;
@@ -53,14 +56,14 @@ public final class WeaponModule implements Module {
 
         switch (providerType) {
             case NEXO -> {
-                var nexoProvider = new NexoWeaponItemProvider(configs.weaponConfig());
+                var nexoProvider = new NexoWeaponItemProvider(configs.weaponConfig(), log);
                 this.itemProvider = nexoProvider;
                 listeners.add(nexoProvider);
                 log.info("[WeaponModule] Using Nexo item provider");
             }
             case ITEMSADDER -> {
                 ItemsAdderWeaponItemProvider iaProvider =
-                    new ItemsAdderWeaponItemProvider(configs.weaponConfig());
+                    new ItemsAdderWeaponItemProvider(configs.weaponConfig(), log);
                 this.itemProvider = iaProvider;
                 listeners.add(iaProvider);  // IA needs a listener for load event
                 log.info("[WeaponModule] Using ItemsAdder item provider");
@@ -70,9 +73,15 @@ public final class WeaponModule implements Module {
             );
         }
 
+        this.ammoDisplay = new WeaponAmmoDisplayService(
+            log,
+            configs.globals(),
+            (AbstractWeaponProvider<?>) itemProvider
+        );
+
+        this.weaponRegistry = new WeaponRegistry(ammoDisplay);
         this.projectileTracker = new WeaponProjectileTracker();
         this.effectsState = new WeaponEffectsState();
-        this.weaponRegistry = new WeaponRegistry();
         this.hideService = new WeaponHideService(plugin().getServer(), gameplay.scheduler());
 
         this.dropService = new WeaponDropService(
@@ -84,6 +93,7 @@ public final class WeaponModule implements Module {
             gameplay.scheduler(),
             plugin.getLogCenter()
         );
+        listeners.add(dropService);
 
         if (gameplay.gamePlayerService() instanceof PaperGamePlayerService gamePlayerService) {
             gamePlayerService.setWeaponDropService(this.dropService);

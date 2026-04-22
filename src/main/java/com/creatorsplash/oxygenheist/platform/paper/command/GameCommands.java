@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.command;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
+import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public final class GameCommands implements CommandHandler {
 
+    private final OxygenHeistPlugin plugin;
     private final MatchService matchService;
     private final ArenaConfigService arenaConfigService;
     private final TeamService teamService;
@@ -73,11 +75,12 @@ public final class GameCommands implements CommandHandler {
 
         List<Team> teams;
         teams = teamService.getAllTeams().stream()
-            .filter(t -> !t.getMembers().isEmpty())
-            .toList();
+            .filter(t -> t.getMembers().stream()
+                .anyMatch(id -> plugin.getServer().getPlayer(id) != null))
+                .toList();
 
         if (teams.size() < 2) {
-            errors.add("At least 2 teams with members are required (found " + teams.size() + ").");
+            errors.add("At least 2 teams with online members are required (found " + teams.size() + ").");
         }
 
         for (Team team : teams) {

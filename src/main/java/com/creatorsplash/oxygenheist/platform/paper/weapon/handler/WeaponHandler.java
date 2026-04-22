@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.handler;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
+import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.listener.WeaponListener;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileContext;
@@ -17,6 +18,8 @@ import java.util.UUID;
  * <p>Each weapon implements this interface and registers itself with {@link WeaponRegistry}</p>
  */
 public interface WeaponHandler extends MatchLifecycle {
+
+    WeaponTypeConfig getConfig();
 
     /**
      * Unique string identifier for this weapon, used in config and logging

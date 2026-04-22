@@ -1,9 +1,11 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
+import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.display.WeaponAmmoDisplayService;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.*;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.WeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropService;
@@ -23,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  * Central Bukkit listener that routes player events into the {@link WeaponRegistry}.
@@ -42,11 +45,13 @@ import org.bukkit.inventory.ItemStack;
 @RequiredArgsConstructor
 public final class WeaponListener implements Listener {
 
+    private final LogCenter log;
     private final GlobalConfigService globals;
     private final WeaponRegistry registry;
     private final WeaponProjectileTracker projectileTracker;
     private final WeaponDropService dropService;
     private final WeaponEffectsState effectsState;
+    private final WeaponAmmoDisplayService ammoDisplay;
     private final MatchService matchService;
     private final PlayerActionService actionService;
 
@@ -156,15 +161,26 @@ public final class WeaponListener implements Listener {
 
     /* Slot change - interrupt reload */
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        ItemStack previous = player.getInventory().getItem(event.getPreviousSlot());
-        WeaponHandler handler = registry.find(previous);
-        if (handler == null) return;
+        @EventHandler(priority = EventPriority.NORMAL)
+        public void onItemHeld(PlayerItemHeldEvent event) {
+            Player player = event.getPlayer();
+            PlayerInventory inv = player.getInventory();
 
-        handler.onSlotChange(player);
-    }
+            ItemStack previous = player.getInventory().getItem(event.getPreviousSlot());
+            WeaponHandler prevHandler = registry.find(previous);
+            if (prevHandler != null) {
+                log.warn("Clearing ammo display");
+                prevHandler.onSlotChange(player);
+                ammoDisplay.clear(player);
+            }
+
+            ItemStack next = inv.getItem(event.getNewSlot());
+            WeaponHandler nextHandler = registry.find(next);
+            if (nextHandler != null && !next.isEmpty()) {
+                log.warn("Updating ammo display for next item " + next);
+                ammoDisplay.update(player, next, nextHandler.getConfig());
+            }
+        }
 
     /* Hand swap - prevent during reload */
 

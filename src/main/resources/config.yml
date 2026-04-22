@@ -147,6 +147,7 @@ zones:
 weapons:
   item-provider: nexo # supported: itemsadder | nexo
   friendly-fire: false
+  physical-ammo-display: false
   spawner:
     max-per-player: 2
     initial-count: 12

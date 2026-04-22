@@ -42,11 +42,13 @@ public final class GlobalConfigService implements Supplier<GlobalConfig> {
         }
 
         boolean weaponDebugBypass = raw.getBoolean("debug.weapon-bypass", false);
+        boolean physicalAmmoDisplay = raw.getBoolean("weapons.physical-ammo-display", false);
 
         this.config = new GlobalConfig(
             flags,
             itemProvider,
             weaponDebugBypass,
+            physicalAmmoDisplay,
             loadWeaponSpawner(raw)
         );
     }
