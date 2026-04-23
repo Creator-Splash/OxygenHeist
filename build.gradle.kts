@@ -47,7 +47,7 @@ dependencies {
     compileOnly(libs.paper.api)
 
     // Event Core
-    //compileOnly(libs.creatorsplashcore.api)
+    compileOnly(files("libs/CreatorSplashCore-1.0.0.jar"))
 
     // ItemsAdder
     compileOnly(libs.nexo.api) {
@@ -137,10 +137,10 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
         }
-//
-//        register("CreatorSplashCore") {
-//            required = true
-//            load = PaperPluginDescription.RelativeLoadOrder.AFTER
-//        }
+
+        register("CreatorSplashCore") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
 import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.bridge.StandaloneGameBridge;
+import com.creatorsplash.oxygenheist.platform.paper.bridge.CreatorSplashGameBridge;
+import creatorsplash.creatorsplashcore.api.ProxyConnector;
 import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
@@ -66,7 +68,7 @@ public final class GameplayModule implements Module {
             new ZoneOxygenService(display().matchDisplayManager(), playerOxygenService);
 
         this.scheduler = new PaperSchedulerAdapter(plugin);
-        GameBridge bridge = new StandaloneGameBridge();
+        GameBridge bridge = resolveBridge();
         this.worldService = new PaperGameWorldService(
             plugin.getServer(), scheduler, configs.arenaConfig(), plugin.getLogCenter()
         );
@@ -113,6 +115,17 @@ public final class GameplayModule implements Module {
         this.combatService = new CombatService(matchService, reviveService);
 
         return this;
+    }
+
+    private GameBridge resolveBridge() {
+        try {
+            return new CreatorSplashGameBridge(ProxyConnector.getInstance());
+        } catch (IllegalStateException notReady) {
+            plugin.getLogger().warning(
+                "CreatorSplashCore not initialized; falling back to StandaloneGameBridge."
+            );
+            return new StandaloneGameBridge();
+        }
     }
 
     private PlayerPositionProvider buildPositionProvider() {

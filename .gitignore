@@ -28,3 +28,6 @@ local.properties
 
 .kotlin/
 /target
+
+# local build-time dependency drop (rebuilt on demand)
+libs/CreatorSplashCore-*.jar

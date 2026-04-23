@@ -9,7 +9,9 @@ import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
+import com.creatorsplash.oxygenheist.platform.paper.eventcore.EventModeBridge;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
+import creatorsplash.creatorsplashcore.api.ProxyConnector;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -23,6 +25,9 @@ public final class OxygenHeistPlugin extends JavaPlugin {
 
     @Getter
     private GlobalConfigService configService;
+
+    @Getter
+    private EventModeBridge eventModeBridge;
 
     private List<Module> modules;
 
@@ -49,7 +54,24 @@ public final class OxygenHeistPlugin extends JavaPlugin {
            platform
         );
 
+        this.eventModeBridge = new EventModeBridge(this, gameplay.matchService(), gameplay.teamService());
+        this.eventModeBridge.initialize();
+
+        announceToProxy();
+
         logCenter.info("<green>Ready!");
+    }
+
+    private void announceToProxy() {
+        try {
+            ProxyConnector connector = ProxyConnector.getInstance();
+            connector.notifyServerReady();
+            connector.refreshTeamData();
+        } catch (IllegalStateException notReady) {
+            getLogger().warning(
+                "CreatorSplashCore not initialized; skipping proxy announce. Running standalone?"
+            );
+        }
     }
 
     @Override

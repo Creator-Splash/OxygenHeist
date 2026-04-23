@@ -5,6 +5,7 @@ import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.eventcore.EventModeBridge;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -31,6 +32,12 @@ public final class GameCommands implements CommandHandler {
     @Command("start")
     @CommandDescription("Start a match")
     public void start(CommandSender sender) {
+        EventModeBridge bridge = OxygenHeistPlugin.instance().getEventModeBridge();
+        if (bridge != null && bridge.isActive()) {
+            sender.sendRichMessage("<red>Manual /oh start is disabled in event-mode. Matches are launched by the tournament Core.");
+            return;
+        }
+
         List<String> errors = validatePreStart();
         if (!errors.isEmpty()) {
             sender.sendRichMessage("<red><bold>Cannot start match:</bold>");
