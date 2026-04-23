@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import com.creatorsplash.oxygenheist.platform.paper.util.ParticleUtils;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.handler.ReloadableWeaponHandler;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.provider.WeaponItemProvider;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponContext;
@@ -18,9 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Venom Spitter - continuous-fire raycast weapon
@@ -37,6 +36,11 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     private final Set<UUID> shooting = new HashSet<>();
     /** Bypass set for programmatic damage calls */
     private final Set<UUID> bypassMeleeCancel = new HashSet<>();
+
+    private static final int SHOOT_INTENT_EXPIRY_TICKS = 3;
+
+    private final Map<UUID, Integer> lastShootIntentTick = new HashMap<>();
+    private int currentTick = 0;
 
     public VenomSpitterHandler(
         @NotNull WeaponTypeConfig config,
@@ -84,7 +88,9 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
         if (!canFire(ctx.player(), ctx.item())) return;
-        shooting.add(ctx.player().getUniqueId());
+        UUID id = ctx.player().getUniqueId();
+        lastShootIntentTick.put(id, currentTick);
+        shooting.add(id);
     }
 
     @Override
@@ -113,24 +119,35 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
 
     @Override
     public void tick(WeaponContext ctx) {
+        currentTick++;
+
         super.tick(ctx);
 
         Player player = ctx.player();
+        UUID id = player.getUniqueId();
         ItemStack item = ctx.item();
 
-        UUID id = player.getUniqueId();
-        if (!shooting.contains(id)) return;
-
-        int currentAmmo = ammo.getAmmo(item);
-        if (currentAmmo <= 0) {
-            shooting.remove(id);
-            startReload(player, item);
-            return;
+        if (shooting.contains(id)) {
+            // Stop shooting if player released right-click
+            Integer lastIntent = lastShootIntentTick.get(id);
+            if (lastIntent == null
+                || currentTick - lastIntent > SHOOT_INTENT_EXPIRY_TICKS) {
+                shooting.remove(id);
+                lastShootIntentTick.remove(id);
+            } else if (ammo.getAmmo(item) <= 0) {
+                shooting.remove(id);
+                lastShootIntentTick.remove(id);
+                startReload(player, item);
+            } else {
+                shoot(player, ctx.session());
+                ammo.consumeOne(item);
+            }
         }
 
-        shoot(player, ctx.session());
-        ammo.setAmmo(item, currentAmmo - 1);
-        player.sendActionBar(MM.msg("<yellow>Ammo: <white>" + (currentAmmo - 1) + "/" + config.ammo().maxAmmo()));
+        if (!reload.isReloading(id)) {
+            player.sendActionBar(
+                WeaponUtils.ammoBar(ammo.getAmmo(item), config.ammo().maxAmmo()));
+        }
     }
 
     private void shoot(Player player, @Nullable MatchSession session) {
