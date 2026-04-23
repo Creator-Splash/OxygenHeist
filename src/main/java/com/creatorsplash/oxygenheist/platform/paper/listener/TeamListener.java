@@ -1,7 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.listener;
 
 import com.creatorsplash.oxygenheist.application.match.MatchService;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.platform.paper.config.message.MessageConfigService;

@@ -2,7 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.bridge.GamePlayerService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
@@ -15,14 +15,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Pose;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

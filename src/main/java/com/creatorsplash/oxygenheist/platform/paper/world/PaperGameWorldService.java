@@ -2,7 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameWorldService;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchBorderConfig;
 import com.creatorsplash.oxygenheist.domain.match.config.MatchConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.ArenaConfigService;

@@ -1,6 +1,6 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.handler.impl;
 
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.weapon.WeaponCooldownService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;

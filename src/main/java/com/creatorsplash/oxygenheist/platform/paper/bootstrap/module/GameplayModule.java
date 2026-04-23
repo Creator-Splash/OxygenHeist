@@ -9,7 +9,7 @@ import com.creatorsplash.oxygenheist.application.common.math.FullPosition;
 import com.creatorsplash.oxygenheist.application.common.math.PlayerPositionProvider;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.MatchSnapshotProvider;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.combat.CombatService;
 import com.creatorsplash.oxygenheist.application.match.combat.DownedService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;

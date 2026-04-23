@@ -1,4 +1,4 @@
-package com.creatorsplash.oxygenheist.application.match;
+package com.creatorsplash.oxygenheist.application.common.task;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -72,6 +72,17 @@ public interface Scheduler {
     Task runRepeating(Runnable task, long delayTicks, long periodTicks);
 
     /**
+     * Runs a task synchronously at a fixed interval, providing a {@link TickingTask}
+     * to the consumer for tick-count access and self-cancellation
+     *
+     * @param task the task to execute, receives a handle for cancellation and tick tracking
+     * @param delayTicks   the initial delay before first execution, in ticks
+     * @param periodTicks  the interval between executions, in ticks
+     * @return a handle that can be used to cancel the task externally
+     */
+    Task runRepeating(Consumer<TickingTask> task, long delayTicks, long periodTicks);
+
+    /**
      * Runs a task asynchronously at a fixed interval
      *
      * @param task the task to execute
@@ -80,6 +91,18 @@ public interface Scheduler {
      * @return a handle that can be used to cancel the task
      */
     Task runRepeatingAsync(Runnable task, long delayTicks, long periodTicks);
+
+    /**
+     * Runs a task synchronously at a fixed interval for a maximum number of ticks,
+     * auto-cancelling after {@code maxTicks} executions
+     *
+     * @param task the task to execute, receives a handle for cancellation and tick tracking
+     * @param delayTicks the initial delay before first execution, in ticks
+     * @param periodTicks the interval between executions, in ticks
+     * @param maxTicks the maximum number of times the task will execute before auto-cancelling
+     * @return a handle that can be used to cancel the task externally before it completes
+     */
+    Task runRepeating(Consumer<TickingTask> task, long delayTicks, long periodTicks, int maxTicks);
 
     /**
      * Represents a scheduled task

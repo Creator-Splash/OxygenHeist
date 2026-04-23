@@ -2,7 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.world;
 
 import com.creatorsplash.oxygenheist.application.common.math.Position3;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.util.LocationUtils;
 import com.creatorsplash.oxygenheist.platform.paper.util.nms.DownedPacketInterceptor;
 import io.netty.channel.Channel;

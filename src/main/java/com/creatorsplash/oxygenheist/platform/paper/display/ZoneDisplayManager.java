@@ -3,7 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.display;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.application.match.MatchSnapshotProvider;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.application.match.team.TeamService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.team.Team;

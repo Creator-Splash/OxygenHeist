@@ -1,15 +1,12 @@
 package com.creatorsplash.oxygenheist.platform.paper.weapon.service;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
-import com.creatorsplash.oxygenheist.application.match.Scheduler;
-import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
+import com.creatorsplash.oxygenheist.application.common.task.Scheduler;
 import com.creatorsplash.oxygenheist.platform.paper.util.MM;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.HashSet;

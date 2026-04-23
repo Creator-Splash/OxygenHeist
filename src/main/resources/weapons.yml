@@ -46,26 +46,41 @@ claw_cannon:
         volume: 1.5
         pitch: 0.5
 
-manta_cannon:
+manta_ray:
   enabled: true
-  reload-frames: 2
-  ammo: 4
+  reload-frames: 1
+  ammo:
+    max: 4
   reload-ms: 6000
   shot-cooldown-ms: 3000
   damage: 12.0
-  cone-angle: 60.0
   max-range: 8.0
+  cone-angle: 60.0
+  effect-duration-ticks: 40
   frames:
-    idle: "oxygenheist:manta_cannon"
+    idle: "oxygenheist:manta_ray_idle"
+    charged: "oxygenheist:manta_ray_charged"
   sounds:
+    fire:
+      sound: "entity.lightning_bolt.thunder"
+      volume: 1.5
+      pitch: 1.2
     reload-start:
-      sound: "item.armor.equip_iron"
+      sound: "block.beacon.deactivate"
       volume: 1.0
-      pitch: 1.0
+      pitch: 0.8
     reload-complete:
-      sound: "item.armor.equip_iron"
-      volume: 1.0
+      sound: "block.beacon.activate"
+      volume: 0.5
+      pitch: 1.5
+    impact:
+      sound: "entity.generic.explode"
+      volume: 1.2
       pitch: 1.3
+    hit:
+      sound: "block.respawn_anchor.charge"
+      volume: 0.8
+      pitch: 1.5
 
 spike_shooter:
   enabled: true
@@ -230,23 +245,35 @@ needle_rifle:
       volume: 0.8
       pitch: 1.3
 
-steal_crossbow:
+reclaimer_crossbow:
   enabled: true
   reload-frames: 1
-  ammo: 1
-  start-ammo: 0
+  ammo:
+    max: 1
+    start: 0       # starts unloaded
   reload-ms: 3000
   shot-cooldown-ms: 2000
   damage: 3.0
   max-range: 25.0
+  launch-speed: 2.0
+  aim-spread-multiplier: 0.2
   frames:
-    idle: "oxygenheist:steal_crossbow"
+    idle: "oxygenheist:reclaimer_crossbow_idle"
+    charged: "oxygenheist:reclaimer_crossbow_charged"
   sounds:
+    fire:
+      sound: "item.crossbow.shoot"
+      volume: 1.2
+      pitch: 1.0
     reload-start:
-      sound: "item.armor.equip_iron"
+      sound: "item.crossbow.loading_start"
       volume: 1.0
       pitch: 1.0
     reload-complete:
-      sound: "item.armor.equip_iron"
+      sound: "item.crossbow.loading_end"
       volume: 1.0
-      pitch: 1.3
+      pitch: 1.0
+    steal:
+      sound: "entity.item.pickup"
+      volume: 1.0
+      pitch: 0.5
