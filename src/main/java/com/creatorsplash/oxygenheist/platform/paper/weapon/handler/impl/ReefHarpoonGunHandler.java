@@ -57,12 +57,9 @@ public final class ReefHarpoonGunHandler extends ReloadableWeaponHandler {
     /* == Input == */
 
     @Override
-    public void onLeftClick(WeaponContext ctx) {
+    public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
         Player player = ctx.player();
-        UUID id = player.getUniqueId();
-
-        if (!aiming.contains(id)) return;
         if (!canFire(player, ctx.item())) return;
 
         fire(player, ctx.item());

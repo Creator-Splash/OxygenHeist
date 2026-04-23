@@ -60,8 +60,11 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     @Override
     public void onLeftClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        if (!canFire(ctx.player(), ctx.item())) return;
-        shooting.add(ctx.player().getUniqueId());
+        Player player = ctx.player();
+        UUID id = player.getUniqueId();
+        if (reload.isReloading(id)) return;
+        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
+        startReload(player, ctx.item());
     }
 
     @Override
@@ -80,11 +83,8 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     @Override
     public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        Player player = ctx.player();
-        UUID id = player.getUniqueId();
-        if (reload.isReloading(id)) return;
-        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
-        startReload(player, ctx.item());
+        if (!canFire(ctx.player(), ctx.item())) return;
+        shooting.add(ctx.player().getUniqueId());
     }
 
     @Override

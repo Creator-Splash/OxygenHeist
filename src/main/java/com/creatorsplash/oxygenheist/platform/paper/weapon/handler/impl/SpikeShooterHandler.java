@@ -67,14 +67,9 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
     @Override
     public void onLeftClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        Player player = ctx.player();
-        UUID id = player.getUniqueId();
-
-        if (!aiming.contains(id)) return;
-        if (!canFire(player, ctx.item())) return;
-        if (burstShotsRemaining.containsKey(id)) return; // already mid-burst
-
-        startBurst(player, ctx.item());
+        if (reload.isReloading(ctx.player().getUniqueId())) return;
+        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
+        startReload(ctx.player(), ctx.item());
     }
 
     @Override
@@ -100,9 +95,13 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
     @Override
     public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        if (reload.isReloading(ctx.player().getUniqueId())) return;
-        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
-        startReload(ctx.player(), ctx.item());
+        Player player = ctx.player();
+        UUID id = player.getUniqueId();
+
+        if (!canFire(player, ctx.item())) return;
+        if (burstShotsRemaining.containsKey(id)) return; // already mid-burst
+
+        startBurst(player, ctx.item());
     }
 
     @Override
@@ -170,7 +169,7 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
             long now = System.currentTimeMillis();
             long lastShot = lastBurstShotTime.getOrDefault(id, 0L);
             if (now - lastShot >= config.timing().burstCooldownMs()) {
-                fireSpike(player);
+                fireSpike(player, aiming.contains(id));
                 lastBurstShotTime.put(id, now);
 
                 int remaining = burstShotsRemaining.get(id) - 1;
@@ -217,11 +216,11 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
         burstStartPositions.put(id, player.getLocation().clone());
     }
 
-    private void fireSpike(Player player) {
+    private void fireSpike(Player player, boolean isAiming) {
         Snowball projectile = player.launchProjectile(Snowball.class);
         projectile.setVelocity(projectile.getVelocity().multiply(config.physics().launchSpeed()));
 
-        double spread = 0.08;
+        double spread = isAiming ? 0.04 : 0.14;
         Vector vel = projectile.getVelocity();
         vel.add(new Vector(
             (Math.random() - 0.5) * spread,

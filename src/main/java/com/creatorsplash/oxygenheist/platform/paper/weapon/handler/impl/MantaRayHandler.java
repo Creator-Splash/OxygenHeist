@@ -64,7 +64,7 @@ public final class MantaRayHandler extends ReloadableWeaponHandler {
     /* == Input == */
 
     @Override
-    public void onLeftClick(WeaponContext ctx) {
+    public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
         if (!canFire(ctx.player(), ctx.item())) return;
         if (isOnCooldown(ctx.player().getUniqueId())) return;
@@ -78,6 +78,14 @@ public final class MantaRayHandler extends ReloadableWeaponHandler {
         if (!canFire(ctx.player(), ctx.item())) return;
         if (isOnCooldown(ctx.player().getUniqueId())) return;
         fire(ctx.player(), ctx.item(), ctx);
+    }
+
+    @Override
+    public void onLeftClick(WeaponContext ctx) {
+        if (!ctx.effectsActive()) return;
+        if (reload.isReloading(ctx.player().getUniqueId())) return;
+        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
+        startReload(ctx.player(), ctx.item());
     }
 
     @Override

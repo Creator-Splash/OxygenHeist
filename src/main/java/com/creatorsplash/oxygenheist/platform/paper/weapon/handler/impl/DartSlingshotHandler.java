@@ -71,9 +71,9 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
     @Override
     public void onLeftClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        if (!canFire(ctx.player(), ctx.item())) return;
-        if (isOnCooldown(ctx.player().getUniqueId())) return;
-        fire(ctx.player(), ctx.item());
+        if (reload.isReloading(ctx.player().getUniqueId())) return;
+        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
+        startReload(ctx.player(), ctx.item());
     }
 
     @Override
@@ -88,9 +88,9 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
     @Override
     public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        if (reload.isReloading(ctx.player().getUniqueId())) return;
-        if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) return;
-        startReload(ctx.player(), ctx.item());
+        if (!canFire(ctx.player(), ctx.item())) return;
+        if (isOnCooldown(ctx.player().getUniqueId())) return;
+        fire(ctx.player(), ctx.item());
     }
 
     @Override

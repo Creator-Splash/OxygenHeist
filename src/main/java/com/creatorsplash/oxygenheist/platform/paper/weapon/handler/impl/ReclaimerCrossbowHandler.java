@@ -60,25 +60,24 @@ public final class ReclaimerCrossbowHandler extends ReloadableWeaponHandler {
     @Override
     public void onLeftClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
-        Player player = ctx.player();
-        UUID id = player.getUniqueId();
-
-        if (!aiming.contains(id)) return;
-        if (!canFire(player, ctx.item())) return;
-        if (isOnCooldown(id)) return;
-
-        fire(player, ctx.item());
-    }
-
-    @Override
-    public void onRightClick(WeaponContext ctx) {
-        if (!ctx.effectsActive()) return;
         if (reload.isReloading(ctx.player().getUniqueId())) return;
         if (ammo.getAmmo(ctx.item()) >= config.ammo().maxAmmo()) {
             ctx.player().sendActionBar(MM.msg("<yellow>Crossbow already loaded!"));
             return;
         }
         startReload(ctx.player(), ctx.item());
+    }
+
+    @Override
+    public void onRightClick(WeaponContext ctx) {
+        if (!ctx.effectsActive()) return;
+        Player player = ctx.player();
+        UUID id = player.getUniqueId();
+
+        if (!canFire(player, ctx.item())) return;
+        if (isOnCooldown(id)) return;
+
+        fire(player, ctx.item());
     }
 
     @Override
