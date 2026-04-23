@@ -2,6 +2,19 @@
 # OxygenHeist global configuration
 # ================================
 
+# =========
+# Event mode
+# =========
+# When enabled, the game is driven by CreatorSplashCore:
+#   - EventGameStartEvent auto-starts the match
+#   - EventPlayerArriveEvent routes arrivals
+#   - EventGameEndEvent (or natural game end) evacuates players to the lobby server
+# and the admin /oh start command is rejected.
+# When disabled, the plugin runs in dev mode — use /oh start manually.
+event-mode:
+  enabled: true
+  proxy-lobby-server: "creatorsplash"
+
 debug:
   # Which debug flag categories to enable
   # Use "all" to enable everything, or list specific keys e.g. [weapons, zones, match]
