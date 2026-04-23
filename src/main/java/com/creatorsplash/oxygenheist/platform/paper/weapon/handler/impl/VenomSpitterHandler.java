@@ -98,6 +98,9 @@ public final class VenomSpitterHandler extends ReloadableWeaponHandler {
     }
 
     @Override
+    public boolean suppressSneakAnimation() { return true; }
+
+    @Override
     public void onSlotChange(Player player) {
         super.onSlotChange(player);
         shooting.remove(player.getUniqueId());

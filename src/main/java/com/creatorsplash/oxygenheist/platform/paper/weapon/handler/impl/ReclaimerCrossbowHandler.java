@@ -94,6 +94,9 @@ public final class ReclaimerCrossbowHandler extends ReloadableWeaponHandler {
     }
 
     @Override
+    public boolean suppressSneakAnimation() { return true; }
+
+    @Override
     public void onSlotChange(Player player) {
         super.onSlotChange(player);
         aiming.remove(player.getUniqueId());

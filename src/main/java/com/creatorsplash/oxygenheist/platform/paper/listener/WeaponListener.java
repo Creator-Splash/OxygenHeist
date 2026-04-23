@@ -100,6 +100,10 @@ public final class WeaponListener implements Listener {
         WeaponHandler handler = registry.find(item);
         if (handler == null) return;
 
+        if (handler.suppressSneakAnimation()) {
+            event.setCancelled(true); // prevents server broadcasting crouch
+        }
+
         handler.onSneakToggle(buildContext(player, item), event.isSneaking());
     }
 
@@ -161,26 +165,26 @@ public final class WeaponListener implements Listener {
 
     /* Slot change - interrupt reload */
 
-        @EventHandler(priority = EventPriority.NORMAL)
-        public void onItemHeld(PlayerItemHeldEvent event) {
-            Player player = event.getPlayer();
-            PlayerInventory inv = player.getInventory();
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onItemHeld(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        PlayerInventory inv = player.getInventory();
 
-            ItemStack previous = player.getInventory().getItem(event.getPreviousSlot());
-            WeaponHandler prevHandler = registry.find(previous);
-            if (prevHandler != null) {
-                log.warn("Clearing ammo display");
-                prevHandler.onSlotChange(player);
-                ammoDisplay.clear(player);
-            }
-
-            ItemStack next = inv.getItem(event.getNewSlot());
-            WeaponHandler nextHandler = registry.find(next);
-            if (nextHandler != null && !next.isEmpty()) {
-                log.warn("Updating ammo display for next item " + next);
-                ammoDisplay.update(player, next, nextHandler.getConfig());
-            }
+        ItemStack previous = player.getInventory().getItem(event.getPreviousSlot());
+        WeaponHandler prevHandler = registry.find(previous);
+        if (prevHandler != null) {
+            log.warn("Clearing ammo display");
+            prevHandler.onSlotChange(player);
+            ammoDisplay.clear(player);
         }
+
+        ItemStack next = inv.getItem(event.getNewSlot());
+        WeaponHandler nextHandler = registry.find(next);
+        if (nextHandler != null && !next.isEmpty()) {
+            log.warn("Updating ammo display for next item " + next);
+            ammoDisplay.update(player, next, nextHandler.getConfig());
+        }
+    }
 
     /* Hand swap - prevent during reload */
 

@@ -104,6 +104,9 @@ public final class NeedleRifleHandler extends ReloadableWeaponHandler {
     }
 
     @Override
+    public boolean suppressSneakAnimation() { return true; }
+
+    @Override
     public void onSlotChange(Player player) {
         super.onSlotChange(player);
         aiming.remove(player.getUniqueId());

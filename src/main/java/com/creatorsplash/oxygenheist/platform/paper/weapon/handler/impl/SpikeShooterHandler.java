@@ -95,6 +95,9 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
     }
 
     @Override
+    public boolean suppressSneakAnimation() { return true; }
+
+    @Override
     public void onRightClick(WeaponContext ctx) {
         if (!ctx.effectsActive()) return;
         if (reload.isReloading(ctx.player().getUniqueId())) return;

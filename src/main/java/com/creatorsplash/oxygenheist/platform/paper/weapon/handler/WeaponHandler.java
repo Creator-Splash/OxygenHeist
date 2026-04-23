@@ -60,6 +60,8 @@ public interface WeaponHandler extends MatchLifecycle {
      */
     default void onSneakToggle(WeaponContext ctx, boolean sneaking) {}
 
+    default boolean suppressSneakAnimation() { return false; }
+
     /**
      * Called when the player lands a melee hit while holding this weapon
      *

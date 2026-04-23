@@ -73,7 +73,7 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
         if (!ctx.effectsActive()) return;
         if (!canFire(ctx.player(), ctx.item())) return;
         if (isOnCooldown(ctx.player().getUniqueId())) return;
-        fire(ctx.player(), ctx.item(), ctx.session());
+        fire(ctx.player(), ctx.item());
     }
 
     @Override
@@ -82,7 +82,7 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
         if (!ctx.effectsActive()) return;
         if (!canFire(ctx.player(), ctx.item())) return;
         if (isOnCooldown(ctx.player().getUniqueId())) return;
-        fire(ctx.player(), ctx.item(), ctx.session());
+        fire(ctx.player(), ctx.item());
     }
 
     @Override
@@ -104,6 +104,9 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
             provider.applyIdleFrame(ctx.item(), ID);
         }
     }
+
+    @Override
+    public boolean suppressSneakAnimation() { return true; }
 
     @Override
     public void onSlotChange(Player player) {
@@ -178,7 +181,7 @@ public final class DartSlingshotHandler extends ReloadableWeaponHandler {
 
     /* == Internals == */
 
-    private void fire(Player player, ItemStack item, @Nullable MatchSession session) {
+    private void fire(Player player, ItemStack item) {
         UUID id = player.getUniqueId();
         boolean isAiming = aiming.contains(id);
 
