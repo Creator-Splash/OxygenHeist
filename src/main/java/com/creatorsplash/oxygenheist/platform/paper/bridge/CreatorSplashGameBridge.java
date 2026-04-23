@@ -1,6 +1,7 @@
 package com.creatorsplash.oxygenheist.platform.paper.bridge;
 
 import com.creatorsplash.oxygenheist.application.bridge.GameBridge;
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
 import creatorsplash.creatorsplashcore.api.ProxyConnector;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -25,10 +26,17 @@ public final class CreatorSplashGameBridge implements GameBridge {
     }
 
     @Override
-    public void onPlayerEliminated(UUID playerId, String reason) {
+    public void onPlayerEliminated(UUID playerId, AttackCredit attackCredit, String reason) {
         OfflinePlayer op = Bukkit.getOfflinePlayer(playerId);
         String name = op.getName() != null ? op.getName() : playerId.toString();
-        connector.notifyPlayerEliminated(playerId, name, reason);
+        String enrichedReason = reason;
+        if (attackCredit != null && attackCredit.attackerId() != null) {
+            String weapon = attackCredit.weaponName();
+            enrichedReason = reason + " (by " + attackCredit.attackerId()
+                    + (weapon != null && !weapon.isBlank() ? " with " + weapon : "")
+                    + ")";
+        }
+        connector.notifyPlayerEliminated(playerId, name, enrichedReason);
     }
 
     @Override
