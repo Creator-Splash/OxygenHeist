@@ -1,5 +1,7 @@
 package com.creatorsplash.oxygenheist.application.bridge;
 
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,9 +19,10 @@ public interface GameBridge {
      * Called when a player is eliminated from the match
      *
      * @param playerId the unique ID of the eliminated player
+     * @param attackCredit credit for the attacker
      * @param reason human-readable reason for elimination
      */
-    void onPlayerEliminated(UUID playerId, String reason);
+    void onPlayerEliminated(UUID playerId, AttackCredit attackCredit, String reason);
 
     /**
      * Fired when points are awarded to an individual player

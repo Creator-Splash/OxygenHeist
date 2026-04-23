@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public record WeaponTypeConfig(
    String id,
+   String displayName,
    boolean enabled,
    int reloadFrames,
    Map<String, String> frames,

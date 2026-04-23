@@ -89,6 +89,11 @@ downed:
   label-view-range: 16.0
   label-height-offset: 0.35
 
+  invulnerable-while-downed: false
+
+  # How long after the last hit the attacker retains kill credit on bleedout (seconds)
+  kill-credit-window-seconds: 30
+
 # =====
 # Zones
 # =====

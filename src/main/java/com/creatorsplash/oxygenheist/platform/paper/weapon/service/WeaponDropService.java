@@ -160,6 +160,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
         Item dropped = location.getWorld().dropItem(location, item);
         dropped.setVelocity(new Vector(0, 0.1, 0));
         dropped.setPickupDelay(globals.get().weaponSpawner().pickupCooldownSeconds() * 20);
+        dropped.setUnlimitedLifetime(true);
 
         registerDroppedItem(dropped);
     }
@@ -240,6 +241,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
         Item dropped = loc.getWorld().dropItem(loc, item);
         dropped.setVelocity(new Vector(0.0, 0.0, 0.0));
         dropped.setPickupDelay(globals.get().weaponSpawner().pickupCooldownSeconds() * 20);
+        dropped.setUnlimitedLifetime(true);
 
         TextDisplay label = spawnLabel(loc, WeaponUtils.formatDisplayName(handler.id()));
 

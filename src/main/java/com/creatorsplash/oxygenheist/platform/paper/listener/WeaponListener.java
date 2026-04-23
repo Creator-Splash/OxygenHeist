@@ -12,6 +12,7 @@ import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponDropSer
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileContext;
 import com.creatorsplash.oxygenheist.platform.paper.weapon.service.WeaponProjectileTracker;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -180,9 +181,12 @@ public final class WeaponListener implements Listener {
 
         ItemStack next = inv.getItem(event.getNewSlot());
         WeaponHandler nextHandler = registry.find(next);
+
         if (nextHandler != null && !next.isEmpty()) {
             log.warn("Updating ammo display for next item " + next);
             ammoDisplay.update(player, next, nextHandler.getConfig());
+        } else if (prevHandler != null) {
+            player.sendActionBar(Component.empty());
         }
     }
 

@@ -1,5 +1,7 @@
 package com.creatorsplash.oxygenheist.application.bridge;
 
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,7 +17,7 @@ public class StandaloneGameBridge implements GameBridge {
     public void onGameStart() { /* no op */ }
 
     @Override
-    public void onPlayerEliminated(UUID playerId, String reason) { /* no op */ }
+    public void onPlayerEliminated(UUID playerId, AttackCredit credit, String reason) { /* no op */ }
 
     @Override
     public void awardPlayerPoints(UUID playerId, int points, ScoreReason reason) {

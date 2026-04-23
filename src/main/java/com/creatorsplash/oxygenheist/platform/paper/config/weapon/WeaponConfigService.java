@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.platform.paper.config.weapon;
 
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.config.misc.SoundConfig;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -80,6 +81,9 @@ public final class WeaponConfigService {
     private WeaponTypeConfig parseWeapon(String id, ConfigurationSection s) {
         boolean enabled = s.getBoolean("enabled", true);
 
+        String displayName = s.getString("display-name",
+            WeaponUtils.formatDisplayName(id));
+
         int reloadFrames = s.getInt("reload-frames", 0);
 
         String cooldownMatRaw = s.getString("cooldown-material", null);
@@ -100,7 +104,7 @@ public final class WeaponConfigService {
         WeaponTypeConfig.SoundsConfig sounds = parseSounds(s);
 
         return new WeaponTypeConfig(
-            id, enabled,
+            id, displayName, enabled,
             reloadFrames, frames,
             cooldownMaterial,
             ammo, timing,

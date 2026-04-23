@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper.display;
 import com.creatorsplash.oxygenheist.application.bridge.display.MatchDisplayService;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
 import com.creatorsplash.oxygenheist.platform.paper.OxygenHeistPlugin;
 import com.creatorsplash.oxygenheist.platform.paper.config.match.MatchConfigService;
@@ -395,7 +396,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     @Override
     public void onPlayerDowned(
         UUID victimId,
-        @Nullable UUID attackerId,
+        @Nullable AttackCredit credit,
         Set<UUID> teammateIds
     ) {
         Player victim = plugin.getServer().getPlayer(victimId);
@@ -432,12 +433,15 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
             }
         }
 
-        // Notify attacker
-        if (attackerId != null) {
-            Player attacker = plugin.getServer().getPlayer(attackerId);
+        // Notify attacker if credit exists
+        if (credit != null) {
+            Player attacker = plugin.getServer().getPlayer(credit.attackerId());
             if (attacker != null && attacker.isOnline()) {
-                attacker.sendMessage(MM.msg(p.downedAttackerAlert(),
-                    Map.of("player", victimName)));
+                String weaponName = credit.weaponName() != null ? credit.weaponName() : "Unknown";
+                attacker.sendMessage(MM.msg(
+                    p.downedAttackerAlert(),
+                    Map.of("player", victimName, "weapon", weaponName)
+                ));
             }
         }
     }
@@ -493,9 +497,15 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     }
 
     @Override
-    public void onPlayerEliminated(UUID playerId, boolean wasInstantDeath) {
+    public void onPlayerEliminated(
+        UUID playerId,
+        boolean wasInstantDeath,
+        @Nullable AttackCredit credit
+    ) {
         Player player = plugin.getServer().getPlayer(playerId);
         MessageConfig.PlayerMessages p = msg().player();
+        String victimName = player != null
+            ? player.getName() : playerId.toString();
 
         // Clean up downed bar if present
         removeDDownedBar(playerId);
@@ -519,8 +529,7 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
         }
 
         // Broadcast to server
-        String name = player != null ? player.getName() : playerId.toString();
-        broadcast(MM.msg(p.eliminatedBroadcast(), Map.of("player", name)));
+        broadcast(MM.msg(p.eliminatedBroadcast(), Map.of("player", victimName)));
 
         // Clean up air bar
         if (player != null) {
@@ -529,12 +538,21 @@ public final class PaperMatchDisplayManager implements MatchDisplayService {
     }
 
     @Override
-    public void onKillReward(UUID attackerId, UUID victimId, int points) {
-        Player attacker = plugin.getServer().getPlayer(attackerId);
+    public void onKillReward(UUID attackerId, UUID victimId, AttackCredit credit, int points) {
+        Player attacker = plugin.getServer().getPlayer(credit.attackerId());
         if (attacker == null) return;
+
         String victimName = resolveOfflineName(victimId);
-        attacker.sendMessage(MM.msg(msg().player().killRewardAttacker(),
-            Map.of("points", String.valueOf(points), "player", victimName)));
+        String weaponName = credit.weaponName() != null ? credit.weaponName() : "Unknown";
+
+        attacker.sendMessage(MM.msg(
+            msg().player().killRewardAttacker(),
+            Map.of(
+                "points", String.valueOf(points),
+                "player", victimName,
+                "weapon", weaponName
+            )
+        ));
     }
 
     @Override

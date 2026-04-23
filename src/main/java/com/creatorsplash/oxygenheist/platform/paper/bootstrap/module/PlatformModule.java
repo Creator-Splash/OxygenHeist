@@ -78,7 +78,8 @@ public record PlatformModule(
             new CombatListener(
                 gameplay.matchService(),
                 gameplay.combatService(),
-                gameplay.actionService()
+                gameplay.actionService(),
+                configs.weaponConfig()
             ),
             new ReviveListener(gameplay.matchService(), gameplay.reviveService(), gameplay.actionService()),
             new PlayerRestrictionListener(

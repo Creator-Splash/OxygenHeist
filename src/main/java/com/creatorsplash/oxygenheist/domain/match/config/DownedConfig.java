@@ -11,12 +11,17 @@ public record DownedConfig(
     long reviveIntentTtlTicks,
 
     float labelViewRange,
-    double labelHeightOffset
+    double labelHeightOffset,
+
+    boolean invulnerableWhileDowned,
+    int killCreditWindowSeconds
 ) {
     public static final DownedConfig EMPTY =
         new DownedConfig(
             30, 60,
             3.0, 5L,
-                16F, 2.0
+            16F, 2.0,
+            false,
+            30
         );
 }

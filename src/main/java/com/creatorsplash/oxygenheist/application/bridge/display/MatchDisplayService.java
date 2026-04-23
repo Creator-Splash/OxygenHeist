@@ -2,6 +2,7 @@ package com.creatorsplash.oxygenheist.application.bridge.display;
 
 import com.creatorsplash.oxygenheist.application.match.MatchLifecycle;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -69,7 +70,7 @@ public interface MatchDisplayService extends MatchLifecycle {
     /** Called when a player is knocked into the downed state */
     void onPlayerDowned(
         UUID playerId,
-        @Nullable UUID attackerId,
+        @Nullable AttackCredit attackCredit,
         Set<UUID> teammateIds
     );
 
@@ -83,13 +84,13 @@ public interface MatchDisplayService extends MatchLifecycle {
      *
      * @param wasInstantDeath true if eliminated directly without bleedout
      */
-    void onPlayerEliminated(UUID playerId, boolean wasInstantDeath);
+    void onPlayerEliminated(UUID playerId, boolean wasInstantDeath, @Nullable AttackCredit credit);
 
     /**
      * Called when a kill reward is awarded to a player
      * <p>Implementations should notify the attacker</p>
      */
-    void onKillReward(UUID attackerId, UUID victimId, int points);
+    void onKillReward(UUID attackerId, UUID victimId, AttackCredit credit, int points);
 
     /**
      * Called when a captain kill bonus is awarded

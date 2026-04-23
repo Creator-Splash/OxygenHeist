@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.domain.player;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -29,8 +30,8 @@ public class PlayerMatchState {
     private double oxygen;
     private double maxOxygen;
 
-    @Setter
-    private UUID lastAttacker;
+    @Nullable
+    private AttackCredit lastAttack;
 
     /* == Domain == */
 
@@ -124,6 +125,17 @@ public class PlayerMatchState {
     public void revive() {
         this.downed = false;
         this.bleedoutTicks = 0;
+    }
+
+    /* Attacker */
+
+    public void recordAttack(UUID attackerId, @Nullable String weaponName) {
+        this.lastAttack = new AttackCredit(attackerId, weaponName, System.currentTimeMillis());
+    }
+
+    public @Nullable AttackCredit lastAttackWithin(long windowMs) {
+        if (lastAttack == null) return null;
+        return lastAttack.isWithin(windowMs) ? lastAttack : null;
     }
 
     /* Progression */

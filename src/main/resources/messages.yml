@@ -86,7 +86,7 @@ player:
   # Sent to teammates when a player is downed. Placeholder: <player>
   downed-teammate-alert: "<yellow><bold><player> <gray>is down! Go revive them!"
   # Sent to the attacker when they down a player. Placeholder: <player>
-  downed-attacker-alert: "<gray>You knocked down <yellow><player><gray>!"
+  downed-attacker-alert: "<gray>You knocked down <yellow><player> <gray>with <white><weapon><gray>!"
 
   # Revive
   revive-progress-sound:
@@ -125,7 +125,7 @@ player:
     pitch: 0.8
   # Broadcast to all players when a player is eliminated. Placeholder: <player>
   eliminated-broadcast: "<dark_red><bold><player> <gray>has been eliminated!"
-  kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player>"
+  kill-reward-attacker: "<green><bold>+<points> pts <reset><gray>for eliminating <white><player> <gray>with <white><weapon>"
   captain-kill-attacker: "<gold><bold>+<points> pts <reset><gray>captain kill bonus!"
   friendly-fire-denied: "<red>That's your teammate!"
 

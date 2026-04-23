@@ -16,6 +16,7 @@ import com.creatorsplash.oxygenheist.application.match.zone.*;
 import com.creatorsplash.oxygenheist.domain.match.MatchSession;
 import com.creatorsplash.oxygenheist.domain.match.MatchSnapshot;
 import com.creatorsplash.oxygenheist.domain.match.MatchState;
+import com.creatorsplash.oxygenheist.domain.player.AttackCredit;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import com.creatorsplash.oxygenheist.domain.team.Team;
 import com.creatorsplash.oxygenheist.domain.team.TeamSnapshot;
@@ -260,11 +261,11 @@ public final class MatchService {
 
         playerService.onPlayerDowned(victimId);
 
-        @Nullable UUID attackerId = session.getPlayer(victimId)
-            .map(PlayerMatchState::getLastAttacker)
+        @Nullable AttackCredit attackCredit = session.getPlayer(victimId)
+            .map(PlayerMatchState::getLastAttack)
             .orElse(null);
 
-        displayService.onPlayerDowned(victimId, attackerId, getTeammates(victimId));
+        displayService.onPlayerDowned(victimId, attackCredit, getTeammates(victimId));
     }
 
     public void completeRevive(UUID downedId, UUID reviverId) {
@@ -291,20 +292,33 @@ public final class MatchService {
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
         player.eliminate();
 
+        AttackCredit credit = reason.equals("bleedout")
+            ? player.lastAttackWithin(session.config().downed().killCreditWindowSeconds() * 1000L)
+            : player.getLastAttack();
+
         reviveService.cancelRevivesInvolving(playerId);
-        displayService.onPlayerEliminated(playerId, session.isInstantDeath());
+        displayService.onPlayerEliminated(playerId, session.isInstantDeath(), credit);
         playerService.onPlayerEliminated(playerId, session);
 
-        awardKillReward(playerId, player.getLastAttacker());
-        gameBridge.onPlayerEliminated(playerId, reason);
+        awardKillReward(playerId, credit, reason);
+        gameBridge.onPlayerEliminated(playerId, credit, reason);
 
         checkWinCondition();
 
         log.info("Player eliminated '" + playerId + "' reason: " + reason);
     }
 
-    private void awardKillReward(UUID victimId, @Nullable UUID attackerId) {
-        if (attackerId == null) return;
+    private void awardKillReward(UUID victimId, @Nullable AttackCredit attackCredit, String reason) {
+        if (attackCredit == null) return;
+
+        PlayerMatchState victim = session.getOrCreatePlayer(victimId);
+
+        if (reason.equals("bleedout")) {
+            long windowMs = session.config().downed().killCreditWindowSeconds() * 1000L;
+            if (victim.lastAttackWithin(windowMs) == null) return;
+        }
+
+        UUID attackerId = attackCredit.attackerId();
         String attackerTeamId = session.getPlayerTeam(attackerId);
         if (attackerTeamId == null) return;
 
@@ -315,7 +329,7 @@ public final class MatchService {
         gameBridge.awardPlayerPoints(attackerId, reward, GameBridge.ScoreReason.KILL);
         gameBridge.awardTeamPoints(attackerTeamId, reward, GameBridge.ScoreReason.KILL);
 
-        displayService.onKillReward(attackerId, victimId, reward);
+        displayService.onKillReward(attackerId, victimId, attackCredit, reward);
 
         String victimTeamId = session.getPlayerTeam(victimId);
         if (victimTeamId != null) {

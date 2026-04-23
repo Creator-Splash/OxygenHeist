@@ -25,6 +25,13 @@ public class WeaponUtils {
             .has(PDCKeys.WEAPON_ID, PersistentDataType.STRING);
     }
 
+    public @Nullable String getWeaponId(@Nullable ItemStack item) {
+        if (item == null || item.isEmpty() || !item.hasItemMeta()) return null;
+        return item.getItemMeta()
+            .getPersistentDataContainer()
+            .get(PDCKeys.WEAPON_ID, PersistentDataType.STRING);
+    }
+
     /**
      * @return true if the given item carries our weapon PDC tag matching {@code id}
      */

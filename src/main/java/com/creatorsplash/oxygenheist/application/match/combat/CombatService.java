@@ -4,6 +4,7 @@ import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.revive.ReviveService;
 import com.creatorsplash.oxygenheist.domain.player.PlayerMatchState;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class CombatService {
      * @param victimId the UUID of the damaged player
      * @param attackerId the UUID of the attacking player
      */
-    public void handleDamage(UUID victimId, UUID attackerId) {
+    public void handleDamage(UUID victimId, UUID attackerId, @Nullable String weaponName) {
         matchService.getSession().ifPresent(session -> {
             if (!session.isPlaying()) return;
 
@@ -45,29 +46,41 @@ public class CombatService {
 
             if (!victim.isAlive()) return;
 
-            matchService.getLog().debug("combat.damage", "Handling damage for "
-                    + victimId + " killed by " + attackerId);
-
             // todo future checks
 
-            // todo if config has revive cancelling damage - put here for both
+            if (victim.isDowned()
+                && session.config().downed().invulnerableWhileDowned()) return;
 
-            victim.setLastAttacker(attackerId);
+            // todo if config has revive cancelling damage - put here
+
+            matchService.getLog().debug("combat.damage", "Handling damage for "
+                + victimId + " killed by " + attackerId);
+
+            victim.recordAttack(attackerId, weaponName);
         });
     }
 
-    public void handleLethalDamage(UUID victimId, UUID attackerId) {
+    public void handleLethalDamage(UUID victimId, UUID attackerId, @Nullable String weaponName) {
         matchService.getSession().ifPresent(session -> {
             if (!session.isPlaying()) return;
 
             PlayerMatchState state = session.getOrCreatePlayer(victimId);
 
-            if (!state.isAlive() || state.isDowned()) return;
+            if (!state.isAlive()) return;
+
+            if (state.isDowned()) {
+                if (!session.config().downed().invulnerableWhileDowned()) {
+                    state.recordAttack(attackerId, weaponName);
+                    reviveService.cancelRevive(victimId);
+                    matchService.eliminatePlayer(victimId, "finished_while_downed");
+                }
+                return;
+            }
 
             matchService.getLog().debug("combat.kill", "Handling lethal damage for "
                 + victimId + " killed by " + attackerId);
 
-            state.setLastAttacker(attackerId);
+            state.recordAttack(attackerId, weaponName);
 
             reviveService.cancelRevive(victimId);
 

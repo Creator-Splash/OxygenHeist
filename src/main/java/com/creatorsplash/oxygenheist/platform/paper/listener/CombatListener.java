@@ -3,6 +3,9 @@ package com.creatorsplash.oxygenheist.platform.paper.listener;
 import com.creatorsplash.oxygenheist.application.match.MatchService;
 import com.creatorsplash.oxygenheist.application.match.combat.CombatService;
 import com.creatorsplash.oxygenheist.application.match.combat.PlayerActionService;
+import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponConfigService;
+import com.creatorsplash.oxygenheist.platform.paper.config.weapon.WeaponTypeConfig;
+import com.creatorsplash.oxygenheist.platform.paper.weapon.WeaponUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -22,6 +26,7 @@ public final class CombatListener implements Listener {
     private final MatchService matchService;
     private final CombatService combatService;
     private final PlayerActionService actionService;
+    private final WeaponConfigService weaponConfigService;
 
     /**
      * Handles player-to-player damage events
@@ -43,13 +48,22 @@ public final class CombatListener implements Listener {
             return;
         }
 
+        // Weapon resolve
+        String weaponName = null;
+        ItemStack held = attacker.getInventory().getItemInMainHand();
+        String weaponId = WeaponUtils.getWeaponId(held);
+        if (weaponId != null) {
+            WeaponTypeConfig weaponConfig = weaponConfigService.getConfig(weaponId);
+            if (weaponConfig != null) weaponName = weaponConfig.displayName();
+        }
+
         double finalHealth = victim.getHealth() - event.getFinalDamage();
 
         if (finalHealth > 0) {
-            combatService.handleDamage(victimId, attackerId);
+            combatService.handleDamage(victimId, attackerId, weaponName);
         } else {
             event.setDamage(0);
-            combatService.handleLethalDamage(victimId, attackerId);
+            combatService.handleLethalDamage(victimId, attackerId, weaponName);
         }
     }
 
