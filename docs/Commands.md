@@ -195,12 +195,6 @@ Applies team armour immediately and moves the player out of spectator mode.
 ```
 Removes team armour and places the player into spectator mode
 
-### Set a Team Captain
-
-```
-/oh team captain <player> <team>
-```
-
 ### Change a Teams Color
 
 Changes the armour dye color and display color for the team.

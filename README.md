@@ -1,34 +1,33 @@
 # OxygenHeist
 
-A competitive team-based minigame for PaperMC 1.21.1 where teams fight to capture
-zones and drain each others oxygen supply. The last team with oxygen remaining wins
+A competitive team-based minigame for PaperMC 1.21.8 where teams fight to capture
+zones and drain each other's oxygen supply. The last team with oxygen remaining wins.
 
 ---
 
 ## Gameplay Overview
 
-Players are divided into teams and dropped into an arena. Scattered across
-the map are capture zones. When your team holds a zone, your players standing
-on it are protected from oxygen drain- but the act of holding consumes that
-zone's oxygen supply. When a zone's oxygen hits zero, it begins refilling and
-can no longer protect your players.
+Players are divided into teams and dropped into an arena. Scattered across the map are
+capture zones. When your team holds a zone, players standing on it are protected from
+oxygen drain — but holding a zone consumes its oxygen supply. When a zone's oxygen hits
+zero, it stops protecting players and begins refilling.
 
-Capturing a zone restores oxygen to your whole team immediately. The strategic
-tension is between using zones as safe areas (burning their oxygen) and
-capturing new zones to restore your team's personal oxygen.
+Capturing a zone restores oxygen to your whole team immediately. The strategic tension
+is between using zones as safe areas (burning their oxygen) and capturing new zones to
+restore your team's personal supply.
 
-Players who run out of personal oxygen are downed and must be revived by a
-teammate before they bleed out and are eliminated. The last team standing wins,
-or the team with the most points when the timer expires.
+Players who run out of personal oxygen are downed and must be revived by a teammate
+before they bleed out and are eliminated. The last team standing wins, or the team with
+the most points when the timer expires.
 
 The arena border shrinks as the match progresses, forcing teams into closer
-confrontation. A variety of custom weapons with unique mechanics are available
-as pickups throughout the map.
+confrontation. Nine custom weapons with unique mechanics are available as pickups
+scattered throughout the map.
 
 **Core loop:**
 - Capture zones to restore your team's oxygen
 - Hold zones to protect players from personal oxygen drain
-- Down and eliminate enemy players
+- Down and eliminate enemy players with custom weapons
 - Revive downed teammates before they bleed out
 - Survive the shrinking border
 
@@ -37,12 +36,16 @@ as pickups throughout the map.
 ## Requirements
 
 | Requirement | Version |
-|---|---|
-| PaperMC | 1.21.1 |
-| Java | 21 |
+|---|---------|
+| PaperMC | 1.21.8  |
+| Java | 21      |
 
-**Dependencies:**
-- PlaceholderAPI - enables placeholders for scoreboards and other plugins
+**Optional dependencies:**
+- PlaceholderAPI — enables placeholders for scoreboards and other plugins
+
+**Custom item plugin (one required):**
+- ItemsAdder
+- Nexo
 
 ---
 
@@ -65,7 +68,32 @@ At a high level, setup involves:
 1. Defining the arena boundary with the selection wand
 2. Placing capture zones around the map
 3. Creating teams and setting their base spawn locations
-4. Running `/oh start` when ready
+4. Configuring your custom item plugin and setting `weapons.item-provider` in `config.yml`
+5. Running `/oh start` when ready
+
+---
+
+## Weapons
+
+Nine weapons are available as map pickups. Each has unique mechanics, configurable
+stats, and animated visual states driven by your custom item plugin.
+
+| Weapon | Style | Mechanic |
+|---|---|---|
+| Silt Blaster | Thrown grenade | Blindness, slowness, nausea and inverted controls on detonation |
+| Venom Spitter | Hold to spray | Stacking poison on hit, continuous fire while holding right-click |
+| Claw Cannon | Rocket launcher | Explosive projectile with melee knockback |
+| Dart Slingshot | Semi-auto | Stacking poison darts, tight spread when aiming |
+| Needle Rifle | Slow semi-auto | Range-scaled damage — bonus at close range, penalty at long range |
+| Spike Shooter | Burst fire | Fire a burst of three spikes while aiming, movement cancels burst |
+| Reef Harpoon Gun | Single shot | High damage, slowness on hit, recoil on fire, auto-reloads |
+| Manta Ray | Electric blast | Raycast beam expanding into a damage cone, reflects off solid blocks |
+| Reclaimer Crossbow | Steal | Fires a bolt that steals the target's held weapon on hit |
+
+All weapons share a unified control scheme:
+- **Right-click** — shoot / throw
+- **Left-click** — reload
+- **Shift** — aim (tightens spread, never required to fire)
 
 ---
 
@@ -73,67 +101,102 @@ At a high level, setup involves:
 
 All configuration lives in `plugins/OxygenHeist/`
 
-| File | Purpose                                                                         |
-|---|---------------------------------------------------------------------------------|
-| `config.yml` | Match tuning - duration, oxygen values, border timing, zone rates, downed config |
-| `arena.yml` | Arena geometry and capture zone definitions - written by in-game commands       |
-| `teams.yml` | Team definitions - written by in-game commands                                  |
+| File | Purpose |
+|---|---|
+| `config.yml` | Match tuning, weapon provider, downed config, border timing |
+| `weapons.yml` | Per-weapon stats, frame IDs, sounds, ammo, and display names |
+| `arena.yml` | Arena geometry and capture zone definitions — written by in-game commands |
+| `teams.yml` | Team definitions — written by in-game commands |
+| `messages.yml` | All player-facing messages, titles, and sounds |
 
 ### config.yml Overview
 
 ```yaml
 match:
-  duration-seconds: 600        # Total match length
-  countdown-seconds: 10        # Pre-match countdown
-  instant-death-seconds-remaining: 120  # When instant death begins
+  duration-seconds: 600
+  countdown-seconds: 10
+  instant-death-seconds-remaining: 120
 
 border:
-  shrink-delay-seconds: 60     # How long before the border starts shrinking
-  shrink-duration-seconds: 300 # How long the shrink takes
-  shrink-size-percent: 20.0    # Shrink TO this percent of initial size (e.g. 500 -> 100)
-  minimum-size: 10.0           # Border will never shrink below this size
+  shrink-delay-seconds: 60
+  shrink-duration-seconds: 300
+  shrink-size-percent: 20.0
+  minimum-size: 10.0
 
 oxygen:
-  max: 300.0                   # Maximum personal oxygen per player
-  drain-per-tick: 0.1          # How fast personal oxygen drains
-  depletion-down-ticks: 200    # Ticks after depletion before player is downed
+  max: 300.0
+  drain-per-tick: 0.1
 
 downed:
-  bleedout-seconds: 30         # Time before a downed player is eliminated
-  revive-ticks: 100            # Ticks required to complete a revive
-  revive-max-distance: 3.0     # Maximum distance to revive a player
-  intent-ttl-ticks: 5          # How long revive intent lasts without refreshing
-
-zones:
-  capture-rate-per-tick: 0.05
-  drain-percent-per-second: 0.833
-  max-drain-multiplier: 5
-  refill-percent-per-second: 0.417
-  capture-oxygen-restore: 50
+  bleedout-seconds: 30
+  revive-ticks: 100
+  revive-max-distance: 3.0
+  intent-ttl-ticks: 5
+  invulnerable-while-downed: true
+  kill-credit-window-seconds: 30
+  down-credit-window-seconds: 10
 
 weapons:
+  item-provider: itemsadder    # itemsadder | nexo
   friendly-fire: false
+  physical-ammo-display: true  # shows ammo count in offhand slot
   spawner:
-  initial-count: 3
-  max-active: 8
-  spawn-interval-seconds: 45
-  pickup-radius: 1.5
-  pickup-cooldown-seconds: 3
+    initial-count: 12
+    minimum-on-field: 6
+    maximum-on-field: 16
+    pickup-radius: 1.5
+    pickup-cooldown-seconds: 3
 ```
+
+### weapons.yml Overview
+
+Each weapon entry supports the following top-level fields:
+
+```yaml
+venom_spitter:
+  display-name: "Venom Spitter"
+  enabled: true
+  reload-frames: 1
+  ammo:
+    max: 25
+    start: 25            # defaults to max if omitted
+    display-item: SLIME_BALL  # frame key or plain material name
+  reload-ms: 5000
+  shot-cooldown-ms: 200
+  damage-per-shot: 0.5
+  max-range: 7.0
+  poison-duration-ticks: 20
+  frames:
+    idle: "oxygenheist:venom_spitter_idle"
+    charged: "oxygenheist:venom_spitter_charged"
+    # reload_0 derived automatically by convention if not listed
+  sounds:
+    fire:
+      sound: "entity.blaze.shoot"
+      volume: 1.0
+      pitch: 1.0
+```
+
+Frame IDs follow your custom item plugin's format:
+- **ItemsAdder:** namespaced ID e.g. `"oxygenheist:venom_spitter_idle"`
+- **Nexo:** bare item ID e.g. `"venom_spitter_idle"`
+
+Reload frames are derived automatically by convention from the idle frame prefix
+(`venom_spitter_idle` → `venom_spitter_reload_0`, `venom_spitter_reload_1`, etc.)
+unless explicitly overridden in the `frames` block.
 
 ---
 
 ## Placeholders
 
-Requires PlaceholderAPI. Use these in scoreboards, tab lists, or any other
-plugin that supports PAPI
+Requires PlaceholderAPI.
 
 ### Game
 
 | Placeholder | Description |
 |---|---|
 | `%oxygenheist_game_state%` | Current match state (`WAITING`, `SETUP`, `PLAYING`, `ENDING`) |
-| `%oxygenheist_game_state_display%` | Human-readable match state (`Waiting`, `Starting`, `In Progress`, `Ended`) |
+| `%oxygenheist_game_state_display%` | Human-readable match state |
 | `%oxygenheist_game_time%` | Remaining time formatted as `MM:SS` |
 | `%oxygenheist_game_time_seconds%` | Remaining time in seconds |
 | `%oxygenheist_game_instant_death%` | `true` if instant death is active |
@@ -142,45 +205,54 @@ plugin that supports PAPI
 
 | Placeholder | Description |
 |---|---|
-| `%oxygenheist_player_team%` | The viewing player's team name, or `None` |
-| `%oxygenheist_player_team_color%` | The viewing player's team color, or `gray` |
-| `%oxygenheist_player_is_captain%` | `true` if the viewing player is their team's captain |
-| `%oxygenheist_player_oxygen%` | The viewing player's current oxygen level |
-| `%oxygenheist_player_is_downed%` | `true` if the viewing player is downed |
-| `%oxygenheist_player_is_dead%` | `true` if the viewing player is eliminated |
+| `%oxygenheist_player_team%` | The player's team name, or `None` |
+| `%oxygenheist_player_team_color%` | The player's team colour, or `gray` |
+| `%oxygenheist_player_oxygen%` | The player's current oxygen level |
+| `%oxygenheist_player_is_downed%` | `true` if the player is downed |
+| `%oxygenheist_player_is_dead%` | `true` if the player is eliminated |
+| `%oxygenheist_player_is_captain%` | `true` if the player is their team's captain |
+| `%oxygenheist_player_score%` | The player's current score |
 
-### Teams
-
-Replace `<id>` with the team's ID as defined in `teams.yml`
+### Weapons
 
 | Placeholder | Description |
 |---|---|
-| `%oxygenheist_team_<id>_score%` | Score for the given team |
-| `%oxygenheist_team_<id>_members%` | Number of members on the given team |
-| `%oxygenheist_team_<id>_captain%` | Name of the given team's captain, or `None` |
+| `%oxygenheist_weapon_id%` | Config ID of the held weapon, or empty |
+| `%oxygenheist_weapon_ammo%` | Current ammo count |
+| `%oxygenheist_weapon_maxammo%` | Max ammo for the held weapon |
+| `%oxygenheist_weapon_reloading%` | `true` if the weapon is reloading |
+
+### Teams
+
+Replace `` with the team's ID as defined in `teams.yml`
+
+| Placeholder | Description |
+|---|---|
+| `%oxygenheist_team__score%` | Score for the given team |
+| `%oxygenheist_team__members%` | Number of members on the given team |
 | `%oxygenheist_leading_team%` | Name of the team with the highest score, or `None` |
 | `%oxygenheist_leading_team_score%` | Score of the leading team |
-| `%oxygenheist_top_<n>_name%` | Name of the Nth-place team by score (e.g. `top_1_name`) |
-| `%oxygenheist_top_<n>_score%` | Score of the Nth-place team (e.g. `top_1_score`) |
-| `%oxygenheist_top_<n>_members%` | Member count of the Nth-place team (e.g. `top_1_members`) |
+| `%oxygenheist_top__name%` | Name of the Nth-place team by score |
+| `%oxygenheist_top__score%` | Score of the Nth-place team |
+| `%oxygenheist_top__members%` | Member count of the Nth-place team |
 
 ### Zones
 
-Replace `<id>` with the zone's ID as defined in your arena config
+Replace `` with the zone's ID as defined in `arena.yml`
 
-| Placeholder | Description                                                                                     |
-|---|-------------------------------------------------------------------------------------------------|
-| `%oxygenheist_zone_count%` | Number of active zones                                                                          |
-| `%oxygenheist_zone_<id>_progress%` | Capture progress of the zone (0–100)                                                            |
-| `%oxygenheist_zone_<id>_owner%` | Name of the team that owns the zone, or `Neutral`                                               |
-| `%oxygenheist_zone_<id>_capturing%` | Name of the team currently capturing the zone, or `None`                                        |
-| `%oxygenheist_zone_<id>_oxygen_<teamId>%` | Zone oxygen percentage for a specific team (0-100). e.g, `%oxygenheist_zone_center_oxygen_red%` |
+| Placeholder | Description |
+|---|---|
+| `%oxygenheist_zone_count%` | Number of active zones |
+| `%oxygenheist_zone__progress%` | Capture progress of the zone (0–100) |
+| `%oxygenheist_zone__owner%` | Name of the owning team, or `Neutral` |
+| `%oxygenheist_zone__capturing%` | Name of the team currently capturing, or `None` |
+| `%oxygenheist_zone__oxygen_%` | Zone oxygen percentage for a specific team (0–100) |
 
 ---
 
 ## Architecture
 
-OxygenHeist is built on a layered architecture with a strict separation of concerns
+OxygenHeist is built on a layered architecture with a strict separation of concerns:
 
 ```
 domain/          Pure Java game rules and state - no Bukkit dependency
@@ -188,19 +260,24 @@ application/     Orchestration services - coordinates domain objects
 platform/paper/  Bukkit/Paper implementations - listeners, commands, display
 ```
 
-The domain and application layers have no knowledge of PaperMC. This keeps
-game logic portable, testable, and easy to reason about independently of the
-platform
+The domain and application layers have no knowledge of PaperMC. This keeps game logic
+portable, testable, and easy to reason about independently of the platform.
+
+Weapon behaviour is implemented via a handler interface with a shared base class
+providing reload, ammo, and frame switching. Item appearance is fully decoupled from
+game logic through a `WeaponItemProvider` abstraction supporting multiple custom item
+plugins.
 
 ---
 
 ## Documentation
 
 - [Command Reference](docs/Commands.md) - Full setup and command guide for server admins
+- [What's New](docs/WhatsNew.md) - Full changelog comparing the rewrite to the original
 
 ---
 
 ## Credits
 
 Built by CreatorSplash.
-Original concept and gameplay design by the OxygenHeist team
+Original concept and gameplay design by the OxygenHeist team.

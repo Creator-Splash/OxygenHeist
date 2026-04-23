@@ -169,13 +169,20 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
             long now = System.currentTimeMillis();
             long lastShot = lastBurstShotTime.getOrDefault(id, 0L);
             if (now - lastShot >= config.timing().burstCooldownMs()) {
+                if (!ammo.hasAmmo(item)) {
+                    cancelBurst(id);
+                    startReload(player, item);
+                    return;
+                }
+
                 fireSpike(player, aiming.contains(id));
+                ammo.consumeOne(item);
                 lastBurstShotTime.put(id, now);
 
                 int remaining = burstShotsRemaining.get(id) - 1;
                 if (remaining <= 0) {
                     cancelBurst(id);
-                    startReload(player, item);
+                    if (!ammo.hasAmmo(item)) startReload(player, item);
                 } else {
                     burstShotsRemaining.put(id, remaining);
                 }
@@ -210,9 +217,8 @@ public final class SpikeShooterHandler extends ReloadableWeaponHandler {
 
     private void startBurst(Player player, ItemStack item) {
         UUID id = player.getUniqueId();
-        ammo.consumeOne(item);
         burstShotsRemaining.put(id, config.combat().burstCount());
-        lastBurstShotTime.put(id, 0L); // fire immediately on first tick
+        lastBurstShotTime.put(id, 0L);
         burstStartPositions.put(id, player.getLocation().clone());
     }
 

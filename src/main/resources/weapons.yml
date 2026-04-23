@@ -86,7 +86,7 @@ spike_shooter:
   enabled: true
   reload-frames: 6
   ammo:
-    max: 1
+    max: 9
     display-item: spike_shooter_projectile
   reload-ms: 3000
   burst-count: 3

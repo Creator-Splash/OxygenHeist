@@ -12,7 +12,6 @@ import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.units.qual.Area;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.CommandDescription;
@@ -122,32 +121,6 @@ public final class TeamCommands implements CommandHandler {
             + " (" + (int) loc.getX() + ", " + (int) loc.getY() + ", " + (int) loc.getZ() + ")"
             + " <gray>- base radius <white>" + base.radius() + " blocks"
             + " <dark_gray>(edit in teams.yml to change)");
-    }
-
-    @Command("captain <player> <team>")
-    @CommandDescription("Set the captain of a team")
-    public void captain(
-        CommandSender sender,
-        @Argument("player") Player player,
-        @Argument(value = "team", suggestions = "teams") String teamId
-    ) {
-        if (!teamService.setCaptain(teamId, player.getUniqueId())) {
-            sender.sendRichMessage("<red>Could not set captain - team '"
-                    + teamId + "' may not exist or is full");
-            return;
-        }
-
-        Team team = teamService.getTeam(teamId);
-        // team null check
-
-        TeamUtils.applyArmor(player, team);
-
-        teamConfigService.save(teamService);
-
-        player.sendRichMessage("<gold>You are now captain of team <"
-            + team.getColor() + ">" + team.getName());
-        sender.sendRichMessage("<green>Set " + player.getName()
-            + " as captain of " + team.getName());
     }
 
     @Command("color <team> <color>")
