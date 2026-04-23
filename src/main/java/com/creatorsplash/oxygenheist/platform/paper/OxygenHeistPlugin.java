@@ -9,8 +9,9 @@ import com.creatorsplash.oxygenheist.platform.paper.command.*;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfig;
 import com.creatorsplash.oxygenheist.platform.paper.config.GlobalConfigService;
 import com.creatorsplash.oxygenheist.platform.paper.display.placeholder.OxygenHeistPlaceholderExpansion;
-import com.creatorsplash.oxygenheist.platform.paper.eventcore.EventModeBridge;
+import com.creatorsplash.oxygenheist.platform.paper.integration.OxygenHeistGameAdapter;
 import com.creatorsplash.oxygenheist.platform.paper.listener.*;
+import creatorsplash.creatorsplashcore.api.CreatorSplashCore;
 import creatorsplash.creatorsplashcore.api.ProxyConnector;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -27,7 +28,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     private GlobalConfigService configService;
 
     @Getter
-    private EventModeBridge eventModeBridge;
+    private OxygenHeistGameAdapter gameAdapter;
 
     private List<Module> modules;
 
@@ -54,8 +55,8 @@ public final class OxygenHeistPlugin extends JavaPlugin {
            platform
         );
 
-        this.eventModeBridge = new EventModeBridge(this, gameplay.matchService(), gameplay.teamService());
-        this.eventModeBridge.initialize();
+        this.gameAdapter = new OxygenHeistGameAdapter(this, gameplay.matchService(), gameplay.teamService());
+        CreatorSplashCore.register(this, gameAdapter);
 
         announceToProxy();
 
