@@ -1,0 +1,23 @@
+oxygenheist_hud_game:
+  conditions:
+    1:
+      first: "eventcore_game_active"
+      second: "true"
+      operation: "=="
+  layouts:
+    1:
+      name: oxygenheist-main-hud-layout
+      gui:
+        x: 85
+        y: 100
+      pixel:
+        x: -8
+        y: -30
+    2:
+      name: eventcore-scoreboard-layout
+      x: 100
+      y: 50
+    3:
+      name: eventcore-scoreboard-top-layout
+      x: 0
+      y: 0

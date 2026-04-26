@@ -3,6 +3,7 @@ package com.creatorsplash.oxygenheist.platform.paper;
 import com.creatorsplash.oxygenheist.application.common.LogCenter;
 import com.creatorsplash.oxygenheist.application.common.Module;
 import com.creatorsplash.oxygenheist.application.match.zone.*;
+import com.creatorsplash.oxygenheist.platform.paper.bootstrap.BetterHudResourceExporter;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.logging.GlobalLogCenter;
 import com.creatorsplash.oxygenheist.platform.paper.bootstrap.module.*;
 import com.creatorsplash.oxygenheist.platform.paper.command.*;
@@ -35,6 +36,7 @@ public final class OxygenHeistPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        new BetterHudResourceExporter(this).run();
 
         this.configService = new GlobalConfigService(this);
         this.configService.load();

@@ -56,7 +56,7 @@ dependencies {
     compileOnly(libs.itemsadder.api)
 
     // PAPI
-    paperLibrary(libs.papi)
+    compileOnly(libs.papi)
 
     // GUI
     paperLibrary(libs.triumph.gui)
@@ -125,7 +125,7 @@ paper {
     serverDependencies {
         register("PlaceholderAPI") {
             required = false
-            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
 
         register("ItemsAdder") {

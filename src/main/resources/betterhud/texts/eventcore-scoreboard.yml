@@ -1,0 +1,44 @@
+eventcore_scoreboard_font:
+  scale: 24
+  file: 5z5.ttf
+  images:
+    stingray:
+      name: "eventcore/scoreboard/icons/stingray.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    swordfish:
+      name: "eventcore/scoreboard/icons/swordfish.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    dolphin:
+      name: "eventcore/scoreboard/icons/dolphin.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    jellyfish:
+      name: "eventcore/scoreboard/icons/jellyfish.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    octupus:
+      name: "eventcore/scoreboard/icons/octupus.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    orcas:
+      name: "eventcore/scoreboard/icons/orcas.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    seahorse:
+      name: "eventcore/scoreboard/icons/seahorse.png"
+      x: 0
+      y: -9
+      scale: 0.7
+    turtle:
+      name: "eventcore/scoreboard/icons/turtle.png"
+      x: 0
+      y: -9
+      scale: 0.7

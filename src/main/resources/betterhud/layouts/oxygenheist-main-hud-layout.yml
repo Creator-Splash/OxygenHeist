@@ -1,0 +1,100 @@
+oxygenheist-main-hud-layout:
+  texts:
+    game_timer:
+      name: default
+      layer: 3
+      x: 0
+      y: -94
+      align: center
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "Time: <#9be3ff>[papi:oxygenheist_game_time]"
+
+    oxygen_label:
+      name: default
+      layer: 3
+      x: -55
+      y: 16
+      align: left
+      scale: 0.55
+      color: "#9be3ff"
+      outline: true
+      space: 0
+      pattern: "O2"
+
+    oxygen_value:
+      name: default
+      layer: 3
+      x: -42
+      y: 16
+      align: left
+      scale: 0.55
+      color: white
+      outline: true
+      space: 0
+      pattern: "[papi:oxygenheist_player_oxygen]"
+
+    score_label:
+      name: default
+      layer: 3
+      x: 55
+      y: 16
+      align: right
+      scale: 0.55
+      color: "#ffd35e"
+      outline: true
+      space: 0
+      pattern: "Score [papi:oxygenheist_player_score]"
+
+    leading_team:
+      name: default
+      layer: 3
+      x: 0
+      y: -82
+      align: center
+      scale: 0.45
+      color: "#ffd35e"
+      outline: true
+      space: 0
+      pattern: "Leading: [papi:oxygenheist_leading_team] ([papi:oxygenheist_leading_team_score])"
+      conditions:
+        1:
+          first: papi:oxygenheist_game_state
+          second: "'PLAYING'"
+          operation: "=="
+
+    state_banner:
+      name: default
+      layer: 3
+      x: 0
+      y: -70
+      align: center
+      scale: 0.7
+      color: "#ff8e8e"
+      outline: true
+      space: 0
+      pattern: "[papi:oxygenheist_game_state_display]"
+      conditions:
+        1:
+          first: papi:oxygenheist_game_state
+          second: "'PLAYING'"
+          operation: "!="
+
+    downed_warning:
+      name: default
+      layer: 3
+      x: 0
+      y: -55
+      align: center
+      scale: 0.8
+      color: "#ff5050"
+      outline: true
+      space: 0
+      pattern: "DOWNED, wait for revive"
+      conditions:
+        1:
+          first: papi:oxygenheist_player_is_downed
+          second: "'true'"
+          operation: "=="

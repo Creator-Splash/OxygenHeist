@@ -1,0 +1,311 @@
+eventcore-scoreboard-layout:
+  images:
+    background:
+      name: eventcore_scoreboard_background
+      x: -44
+      y: -53
+      layer: 1
+      align: center
+
+  texts:
+    team_label_1:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -30
+      y: -33
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:1]"
+      conditions:
+        1:
+          first: "eventcore_team_present:1"
+          second: "true"
+          operation: "=="
+
+    team_label_2:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: -25
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:2]"
+      conditions:
+        1:
+          first: "eventcore_team_present:2"
+          second: "true"
+          operation: "=="
+
+    team_label_3:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: -17
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:3]"
+      conditions:
+        1:
+          first: "eventcore_team_present:3"
+          second: "true"
+          operation: "=="
+
+    team_label_4:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: -9
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:4]"
+      conditions:
+        1:
+          first: "eventcore_team_present:4"
+          second: "true"
+          operation: "=="
+
+    team_label_5:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: -1
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:5]"
+      conditions:
+        1:
+          first: "eventcore_team_present:5"
+          second: "true"
+          operation: "=="
+
+    team_label_6:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: 7
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:6]"
+      conditions:
+        1:
+          first: "eventcore_team_present:6"
+          second: "true"
+          operation: "=="
+
+    team_label_7:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: 15
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:7]"
+      conditions:
+        1:
+          first: "eventcore_team_present:7"
+          second: "true"
+          operation: "=="
+
+    team_label_8:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: -31
+      y: 23
+      align: left
+      scale: 0.6
+      color: white
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_team_line:8]"
+      conditions:
+        1:
+          first: "eventcore_team_present:8"
+          second: "true"
+          operation: "=="
+
+    team_score_1:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: -33
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:1]"
+      conditions:
+        1:
+          first: "eventcore_team_present:1"
+          second: "true"
+          operation: "=="
+
+    team_score_2:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: -25
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:2]"
+      conditions:
+        1:
+          first: "eventcore_team_present:2"
+          second: "true"
+          operation: "=="
+
+    team_score_3:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: -17
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:3]"
+      conditions:
+        1:
+          first: "eventcore_team_present:3"
+          second: "true"
+          operation: "=="
+
+    team_score_4:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: -9
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:4]"
+      conditions:
+        1:
+          first: "eventcore_team_present:4"
+          second: "true"
+          operation: "=="
+
+    team_score_5:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: -1
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:5]"
+      conditions:
+        1:
+          first: "eventcore_team_present:5"
+          second: "true"
+          operation: "=="
+
+    team_score_6:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: 7
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:6]"
+      conditions:
+        1:
+          first: "eventcore_team_present:6"
+          second: "true"
+          operation: "=="
+
+    team_score_7:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: 15
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:7]"
+      conditions:
+        1:
+          first: "eventcore_team_present:7"
+          second: "true"
+          operation: "=="
+
+    team_score_8:
+      name: eventcore_scoreboard_font
+      layer: 3
+      x: 67
+      y: 23
+      align: right
+      scale: 0.6
+      color: white
+      outline: true
+      space: 0
+      pattern: "[eventcore_team_score_text:8]"
+      conditions:
+        1:
+          first: "eventcore_team_present:8"
+          second: "true"
+          operation: "=="
+
+eventcore-scoreboard-top-layout:
+  images:
+    top_background:
+      name: eventcore_scoreboard_top_background
+      x: 70
+      y: 10
+      layer: 1
+
+  texts:
+    player_score:
+      name: entity_font
+      layer: 2
+      x: 200
+      y: 15
+      align: center
+      scale: 0.5
+      color: "#ffffff"
+      outline: true
+      deserialize-text: true
+      space: 0
+      pattern: "[eventcore_player_score_text]"

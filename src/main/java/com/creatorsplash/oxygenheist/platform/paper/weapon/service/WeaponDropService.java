@@ -126,8 +126,8 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
 
     @Override
     public void onMatchStart() {
+        sweepArenaItems("pre-spawn");
         spawnInitial();
-
         particleTask = scheduler.runRepeating(this::tickParticles, 1L, 4L);
     }
 
@@ -135,9 +135,30 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
     public void cleanUp() {
         if (particleTask != null) { particleTask.cancel(); particleTask = null; }
         removeAllItems();
+        sweepArenaItems("post-cleanup");
         activeItems.clear();
         particleOffsets.clear();
         pickupDeniedCooldown.clear();
+    }
+
+    private void sweepArenaItems(String reason) {
+        World world = arenaConfigService.resolveWorld();
+        if (world == null) return;
+        int items = 0;
+        int displays = 0;
+        for (Entity e : world.getEntities()) {
+            if (e instanceof Item) {
+                e.remove();
+                items++;
+            } else if (e instanceof TextDisplay && e.getScoreboardTags().contains("oh_weapon_label")) {
+                e.remove();
+                displays++;
+            }
+        }
+        if (items > 0 || displays > 0) {
+            log.info("Arena item sweep (" + reason + "): removed "
+                + items + " item(s), " + displays + " label(s).");
+        }
     }
 
     /* Runtime hooks */
@@ -264,6 +285,7 @@ public final class WeaponDropService implements MatchLifecycle, Listener {
                 new AxisAngle4f()
             ));
             d.setPersistent(false);
+            d.addScoreboardTag("oh_weapon_label");
             d.text(MM.msg("<aqua><bold>" + displayName
                 + "</bold></aqua>\n<gray>" + messages.get().symbols().pickupPrompt()
                 + " Pick up"));

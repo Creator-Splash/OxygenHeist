@@ -1,0 +1,39 @@
+eventcore_scoreboard_background:
+  type: single
+  file: "eventcore/scoreboard/background.png"
+
+eventcore_scoreboard_top_background:
+  type: single
+  file: "eventcore/scoreboard/tophud.png"
+
+eventcore_scoreboard_icon_stingray:
+  type: single
+  file: "eventcore/scoreboard/icons/stingray.png"
+
+eventcore_scoreboard_icon_swordfish:
+  type: single
+  file: "eventcore/scoreboard/icons/swordfish.png"
+
+eventcore_scoreboard_icon_dolphin:
+  type: single
+  file: "eventcore/scoreboard/icons/dolphin.png"
+
+eventcore_scoreboard_icon_jellyfish:
+  type: single
+  file: "eventcore/scoreboard/icons/jellyfish.png"
+
+eventcore_scoreboard_icon_octupus:
+  type: single
+  file: "eventcore/scoreboard/icons/octupus.png"
+
+eventcore_scoreboard_icon_orcas:
+  type: single
+  file: "eventcore/scoreboard/icons/orcas.png"
+
+eventcore_scoreboard_icon_seahorse:
+  type: single
+  file: "eventcore/scoreboard/icons/seahorse.png"
+
+eventcore_scoreboard_icon_turtle:
+  type: single
+  file: "eventcore/scoreboard/icons/turtle.png"

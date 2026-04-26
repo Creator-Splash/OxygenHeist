@@ -46,44 +46,61 @@ public final class PaperGamePlayerService implements GamePlayerService {
     @Override
     public void prepareForCountdown(MatchSession session) {
         for (PlayerMatchState playerState : session.getPlayers()) {
-            Player player = server.getPlayer(playerState.getPlayerId());
-            if (player == null) continue;
+            prepareSinglePlayer(session, playerState.getPlayerId());
+        }
+        log.info("Players prepared for countdown");
+    }
 
-            Team team = resolveTeam(session, playerState.getPlayerId());
-            if (team == null) {
-                log.error("Player " + player.getName() + " has no team!");
-                continue;
-            }
+    /**
+     * Per-player init for the countdown phase. Runs the same teleport-to-base
+     * + setupPlayer + worldborder steps as {@link #prepareForCountdown} but
+     * for a single player. Used by the event-mode adapter when a late
+     * arrival lands on the server AFTER {@code startMatch} has already run
+     * (the standard prepareForCountdown loop iterated an empty
+     * {@code session.getPlayers()} at that point).
+     */
+    @Override
+    public void prepareSinglePlayer(MatchSession session, UUID playerId) {
+        Player player = server.getPlayer(playerId);
+        if (player == null) return;
 
-            TeamBase base = team.getBase();
-            if (base == null) {
-                log.error("Team " + team.getName() + " has no base configured!");
-                continue;
-            }
-            Location loc = resolveBaseLoc(team);
-            if (loc == null) {
-                log.error("Team " + team.getName() + " could not resolve base location!");
-                continue;
-            }
-
-            player.teleport(loc);
-            setupPlayer(player, team, GameMode.ADVENTURE);
-
-            player.setWorldBorder(null);
-
-            scheduler.runLater(() -> {
-                WorldBorder border = server.createWorldBorder();
-                border.setCenter(base.x(), base.z());
-                border.setSize(base.radius() * 2.0);
-                border.setWarningDistance(2);
-                border.setWarningTime(0);
-                border.setDamageAmount(0.5);
-                border.setDamageBuffer(1.0);
-                player.setWorldBorder(border);
-            }, 1L);
+        Team team = resolveTeam(session, playerId);
+        if (team == null) {
+            log.error("Player " + player.getName() + " has no team!");
+            return;
         }
 
-        log.info("Players prepared for countdown");
+        TeamBase base = team.getBase();
+        if (base == null) {
+            log.error("Team " + team.getName() + " has no base configured!");
+            return;
+        }
+        Location loc = resolveBaseLoc(team);
+        if (loc == null) {
+            log.error("Team " + team.getName() + " could not resolve base location!");
+            return;
+        }
+
+        if (loc.getWorld() != null) {
+            // Pre-load destination chunk so the cross-chunk teleport during a
+            // late arrival doesn't silently fail.
+            loc.getWorld().getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4).load();
+        }
+        player.teleport(loc);
+        setupPlayer(player, team, GameMode.ADVENTURE);
+
+        player.setWorldBorder(null);
+        scheduler.runLater(() -> {
+            if (!player.isOnline()) return;
+            WorldBorder border = server.createWorldBorder();
+            border.setCenter(base.x(), base.z());
+            border.setSize(base.radius() * 2.0);
+            border.setWarningDistance(2);
+            border.setWarningTime(0);
+            border.setDamageAmount(0.5);
+            border.setDamageBuffer(1.0);
+            player.setWorldBorder(border);
+        }, 1L);
     }
 
     @Override

@@ -98,6 +98,19 @@ public final class MatchService {
     }
 
     /**
+     * True when a match has been created and is in either the SETUP (cooldown)
+     * or PLAYING phase. Different from {@link #isMatchActive()} which only
+     * checks PLAYING: that one's too strict for the event-mode adapter
+     * because players transfer in DURING the cooldown phase, not after.
+     */
+    public boolean hasActiveSession() {
+        if (session == null) return false;
+        com.creatorsplash.oxygenheist.domain.match.MatchState s = session.state();
+        return s == com.creatorsplash.oxygenheist.domain.match.MatchState.SETUP
+                || s == com.creatorsplash.oxygenheist.domain.match.MatchState.PLAYING;
+    }
+
+    /**
      * Initializes a new match session
      */
     public void createMatch() {
@@ -225,6 +238,17 @@ public final class MatchService {
 
         PlayerMatchState player = session.getOrCreatePlayer(playerId);
         player.initOxygen(session.config().oxygen().max());
+    }
+
+    /**
+     * Late-arrival per-player init for event mode. Runs the same teleport +
+     * setup that {@code startMatch}'s player loop would have done if the
+     * player had been online when the round started. No-op if no match is
+     * active. Idempotent: calling multiple times is safe.
+     */
+    public void prepareLateArrival(UUID playerId) {
+        if (session == null) return;
+        playerService.prepareSinglePlayer(session, playerId);
     }
 
     /**

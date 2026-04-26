@@ -62,10 +62,18 @@ public final class OxygenHeistGameAdapter implements GameAdapter, MatchLifecycle
 
     @Override
     public void onGameStart(GameContext ctx) {
+        // ALWAYS start from scratch. If a match is somehow still active (server
+        // reload, GAME_START_FAILED earlier, evac raced the next bootstrap),
+        // force-end first so the new round runs on clean state.
         if (matchService.isMatchActive()) {
-            plugin.getLogger().warning(
-                    "[OxygenHeistGameAdapter] onGameStart received while a match is already active; ignoring.");
-            return;
+            plugin.getLogger().info(
+                    "[OxygenHeistGameAdapter] Forcing match end before round start (previous still active).");
+            try {
+                matchService.endMatch("");
+            } catch (Throwable t) {
+                plugin.getLogger().warning("[OxygenHeistGameAdapter] endMatch threw during reset: "
+                        + t.getMessage());
+            }
         }
         seedTeamsFromContext(ctx);
 
@@ -81,9 +89,18 @@ public final class OxygenHeistGameAdapter implements GameAdapter, MatchLifecycle
                     "[OxygenHeistGameAdapter] Match started for round "
                             + ctx.round() + "/" + ctx.totalRounds() + " with "
                             + active.size() + " online player(s).");
-        } catch (IllegalStateException ex) {
+        } catch (Throwable ex) {
+            String reason = ex.getClass().getSimpleName() + ": "
+                    + (ex.getMessage() == null ? "" : ex.getMessage());
             plugin.getLogger().warning(
-                    "[OxygenHeistGameAdapter] Match start rejected: " + ex.getMessage());
+                    "[OxygenHeistGameAdapter] Match start failed: " + reason);
+            try {
+                creatorsplash.creatorsplashcore.api.ProxyConnector.getInstance()
+                        .notifyGameStartFailed(ctx.eventId(), gameId(), reason);
+            } catch (Throwable t) {
+                plugin.getLogger().warning(
+                        "[OxygenHeistGameAdapter] Could not publish GAME_START_FAILED: " + t.getMessage());
+            }
         }
     }
 
@@ -96,13 +113,31 @@ public final class OxygenHeistGameAdapter implements GameAdapter, MatchLifecycle
                 teamService.addPlayerToTeam(player.getUniqueId(), teamId);
             }
         }
-        if (matchService.isMatchActive()) {
-            try {
-                matchService.addPlayer(player.getUniqueId());
-            } catch (IllegalStateException ignored) {
-                // race: match ended between check and add — safe to drop
-            }
+
+        // Use hasActiveSession() (SETUP or PLAYING), not isMatchActive() (PLAYING only).
+        // In event mode the round transitions are: WAITING -> SETUP (cooldown) ->
+        // PLAYING. Players transfer in DURING SETUP, so isMatchActive() returns
+        // false at exactly the moment we need to set them up. Without this fix,
+        // late arrivals get no team-spawn teleport, no armor, no full health.
+        if (!matchService.hasActiveSession()) return;
+
+        // Init oxygen + register in session.
+        try {
+            matchService.addPlayer(player.getUniqueId());
+        } catch (IllegalStateException ignored) {
+            // race: match ended between check and add: safe to drop
+            return;
         }
+
+        // Run the per-player teleport-to-base + setupPlayer (gamemode +
+        // health + food + clear inventory + apply armor) + worldborder
+        // setup that startMatch's player loop would have done if this player
+        // had been online when the round started.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (player.isOnline() && matchService.hasActiveSession()) {
+                matchService.prepareLateArrival(player.getUniqueId());
+            }
+        });
     }
 
     @Override
@@ -116,7 +151,7 @@ public final class OxygenHeistGameAdapter implements GameAdapter, MatchLifecycle
         }
     }
 
-    /** MatchLifecycle hook — fires on every match end (natural or forced)
+    /** MatchLifecycle hook: fires on every match end (natural or forced)
      *  so evacuation happens even when the game ends internally before the
      *  Core round-end arrives. */
     @Override

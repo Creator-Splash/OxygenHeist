@@ -32,6 +32,18 @@ public interface GamePlayerService {
     void prepareForCountdown(MatchSession session);
 
     /**
+     * Per-player init for the countdown phase. Runs the same teleport-to-base
+     * + setupPlayer + worldborder steps as {@link #prepareForCountdown} but
+     * for a single player UUID. Used when an event-mode arrival lands AFTER
+     * {@code startMatch} has already run, so the standard loop iterated
+     * an empty {@code session.getPlayers()} and never set them up.
+     *
+     * @param session the active match session
+     * @param playerId the player to prepare
+     */
+    void prepareSinglePlayer(MatchSession session, UUID playerId);
+
+    /**
      * Resets all session players after a match ends
      *
      * <p>Called in {@code endMatch()} before the session is nulled.
